@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card to PDF</title>
+    <link href="img/logo_of_wallet.jpg" rel="icon">
+    <link rel="stylesheet" href="pdf.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Ajoutez votre CSS ici */
+        .id-card-holder {
+            width: 300px;
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .header img, .photo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .id-card {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="id-card-tag"></div>
+    <div class="id-card-tag-strip"></div>
+    <div class="id-card-hook"></div>
+    <div class="id-card-holder">
+        <div class="id-card" id="idCard">
+            <div class="header">
+                <img src="https://is4-ssl.mzstatic.com/image/thumb/Purple118/v4/62/cd/f5/62cdf5b2-a731-76ca-aa69-fe82c8a09d94/source/512x512bb.jpg" crossorigin="anonymous">
+            </div>
+            <div class="photo">
+                <img src="https://i.imgur.com/5WmGvAG.png" crossorigin="anonymous">
+            </div>
+            <h2 id="Studentx"></h2>
+            <div class="qr-code">
+                <!-- QR code content -->
+            </div>
+            <h3 id="Student"></h3>
+            <h3 id="Prabsaran" ></h3>
+            <h3>BT19GCS121</h3> 
+            <hr>
+            <p><strong>am-walette</strong> Neemrana, NH-8 Delhi-Jaipur highway <p>
+            <p>District Alwar, Rajasthan <strong>301705</strong></p>
+            <p>Ph: 01494-660600, 7073222393</p>
+        </div>
+        <button id="downloadx">Retour</button> <button id="download">Download PDF</button>
+    </div>
+    <script>
+    const titltjobx = localStorage.getItem('titltjobxttt')
+    const destjobx = localStorage.getItem('destjobxttt')
+    const usernameT = localStorage.getItem('usernameT')
+    document.getElementById('Prabsaran').innerHTML = `${titltjobx} `
+    document.getElementById('Student').innerHTML = `${destjobx}`
+    document.getElementById('Studentx').innerHTML = `${usernameT}`
+    if(titltjobx){
+    document.getElementById('download').addEventListener('click', () => {
+        const element = document.getElementById('idCard');
+        const options = {
+            margin: 0.5,
+            filename: 'Job_Card.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().set(options).from(element).save()
+            .then(() => {
+               localStorage.removeItem('titltjobxttt')
+               localStorage.removeItem('destjobxttt')
+               localStorage.removeItem('titltjobx')
+               localStorage.removeItem('destjobx')
+            })
+            .catch((error) => {
+                // Code à exécuter en cas d'erreur
+                console.error('Erreur lors du téléchargement du PDF:', error);
+                alert('Une erreur est survenue lors du téléchargement du PDF.');
+            });
+    });
+    }else{
+        window.location.href = "index.html";   
+    }
+    document.getElementById('downloadx').addEventListener('click', () => {  
+        window.location.href = "index.html";   
+    });
+    </script>
+</body>
+</html>

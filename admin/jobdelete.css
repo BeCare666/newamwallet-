@@ -1,0 +1,212 @@
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900&display=swap');
+body {
+  height: 100%; margin: 0
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+button:focus,
+input:focus{
+  outline: none;
+  box-shadow: none;
+}
+a,
+a:hover{
+  text-decoration: none;
+}
+
+body{
+  font-family: 'Roboto', sans-serif;
+   background-color: #e0e3e8;
+  
+}
+
+
+/*------------*/
+.form-area {
+    background-color: #fff;
+    box-shadow: 0px 5px 10px rgba(90, 116, 148, 0.3);
+    padding: 40px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.form-area .form-inner {
+    width: 100%;
+}
+.form-control {
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 15px 19px;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #475F7B;
+    background-color: #FFF;
+    border: 1px solid #DFE3E7;
+    border-radius: .267rem;
+    -webkit-transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.form-control:focus {
+    color: #475F7B;
+    background-color: #FFF;
+    border-color: #5A8DEE;
+    outline: 0;
+    box-shadow: 0 3px 8px 0 rgb(0 0 0 / 10%);
+}
+.intl-tel-input,
+.iti{
+  width: 100%;
+}
+
+ 
+@media (max-width: 468px) {
+  #fiestItemIdA{
+    position: absolute;
+    top:90px;
+    left: 30px;
+  } 
+}
+@media (max-width: 668px) {
+  #fiestItemIdA{
+    position: absolute;
+    top:90px;
+    left: 55px;
+  } 
+}
+@media (max-width: 768px) {
+  #fiestItemIdA{
+    position: absolute;
+    top:90px;
+    left: 55px;
+  } 
+}
+
+
+:root {
+  --regular: 400;
+  --light: 300;
+  --lato: 'Lato', sans-serif;
+  --background: #e5eef9;
+  --white: #fff;
+  --gray-shadow: #dcdcdc;
+  --blue: #43639d;
+
+  /* Card Colors */
+  --purpre: #d194ff;
+  --blue-purpre: #9389ff;
+  --light-blue: #7cbfee;
+  --navy-blue: #00d0b8;
+  --light-pink: #ff77a7;
+  --light-orange: #ff7b7e;
+}
+
+
+
+.wrapper {
+  background-color: var(--white);
+  width: 100%;
+  height: 510px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px var(--gray-shadow);
+  margin-bottom: 25px;
+}
+
+.menu {
+  width: 100%;
+  height: 7.5%;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.menu__icon {
+  width: 17.5px;
+  height: 50%;
+  margin: 0 10px;
+  align-self: flex-end;
+}
+
+.menu__title {
+  font-size: 15px;
+  align-self: flex-end;
+  color: var(--blue);
+  margin-bottom: 2.5px;
+}
+
+.card-list {
+  width: 100%;
+  overflow-y: hidden;
+  padding: 30px 0 0;
+  flex-grow: 1;
+}
+
+.card {
+  width: 90%;
+  margin: 0 auto 12.5px;
+  border-radius: 5px;
+  padding: 15px 25px;
+  box-shadow: 0 10px 25px var(--gray-shadow);
+}
+
+.card__number {
+  text-align: center;
+  letter-spacing: 3.77px;
+  color: var(--white);
+  margin-bottom: 15px;
+}
+
+.card__owner {
+  color: var(--white);
+  font-size: 13px;
+  font-weight: var(--light);
+  margin-bottom: 5px;
+}
+
+.card__info {
+  display: flex;
+}
+
+.card__amount {
+  margin-left: 10px;
+}
+
+.card__integral,
+.card__amount {
+  font-size: 10.5px;
+  color: var(--white);
+  font-weight: var(--light);
+  letter-spacing: 0.25px;
+}
+  
+.card--one {
+  background: linear-gradient(to right, var(--purpre), var(--blue-purpre));
+}
+
+.card--two {
+  background: linear-gradient(to right, var(--light-blue), var(--navy-blue));
+}
+
+.card--three {
+  background: linear-gradient(to right, var(--light-pink), var(--light-orange));
+}
+
+.author {
+  text-decoration: none;
+  font-size: 12.5px;
+}
+
+.author:link,
+.author:visited,
+.author:hover,
+.author:active {
+  color: var(--blue);
+}

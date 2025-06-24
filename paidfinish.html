@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://api.feexpay.me/feexpay-javascript-sdk/index.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <link href="img/logo_of_wallet.jpg" rel="icon">
+    <title>finish to paid</title>
+</head>
+<body>
+    <div id="render-container">
+        <div id="render">
+          <!-- Le bouton FeexPay sera injecté ici -->
+        </div>
+        
+      </div>
+
+    <script>
+            // Récupération de la valeur du paramètre 'amount'
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount');
+
+        // Affichage dans le paragraphe
+        if (amount) {
+            // Initialisation de FEEPay
+            FeexPayButton.init("render", {
+            id: "672b15e3c8365bbb9b3ed029",  // Remplacez par votre ID de boutique
+            amount: amount,  // Calcul du montant total (prix * quantité)
+            token: "fp_qpFKQzRsKXuZkysNG4rUWzArU2NUIpCUGucVMFs2rnujPUqIZ5kZDFI3ucqeMZCa",  // Remplacez par votre token API de FEEPay
+            callback: () => {
+                alert('Paiement réussi !');  // Appelez une fonction après le paiement (personnalisée ici)
+            },
+            callback_url: "your_callback_url",  // Facultatif : URL de callback si vous en avez une
+            mode: 'LIVE',  // Utilisez 'LIVE' pour un environnement de production
+            custom_button: false,  // Si vous souhaitez un bouton personnalisé
+            id_custom_button: 'my-custom-button-id',  // Si vous avez un bouton personnalisé, utilisez cet ID
+            custom_id: 'random_string_for_reference',  // Facultatif : pour faire référence à cette transaction
+            //description: data.name + data.info,  // Description du produit ou service
+            case: "",  // MOBILE,,  Facultatif : Si vous souhaitez cibler un mode de paiement spécifique
+        });
+        } else {
+        window.location.href = "paid.html";  // Redirection si le montant n'est pas fourni
+        }
+
+    </script>
+    <style>
+    #render-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* pleine hauteur écran */
+    background-color: #f5f5f5;
+    padding: 20px;
+    }
+
+    #render {
+    max-width: 100%;
+    width: auto;
+    text-align: center;
+    }
+
+    </style>
+</body>
+</html>

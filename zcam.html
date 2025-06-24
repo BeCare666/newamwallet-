@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galilee Commerce - Bientôt Disponible</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .bubbles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      animation: rise 10s infinite ease-in;
+    }
+
+    @keyframes rise {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120vh);
+        opacity: 0;
+      }
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      animation: fadeInDown 1.2s ease;
+    }
+
+    p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      animation: fadeInUp 1.2s ease;
+    }
+
+    .countdown {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+      animation: fadeIn 2s ease;
+    }
+
+    .time-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px;
+      min-width: 90px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .time-box span {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .time-box div {
+      margin-top: 0.3rem;
+      font-size: 0.6rem;
+    }
+
+    .social-icons {
+      margin-top: 1.5rem;
+    }
+
+    .social-icons a {
+      color: #fff;
+      font-size: 1.6rem;
+      margin: 0 15px;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .social-icons a:hover {
+      transform: scale(1.3);
+      color: #ffd700;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+        padding: 0 1rem;
+      }
+
+      .time-box {
+        min-width: 10px;
+        padding: 0.6rem 1rem;
+      }
+
+      .time-box span {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bubbles">
+    <div class="bubble" style="width: 20px; height: 20px; left: 10%; animation-duration: 6s;"></div>
+    <div class="bubble" style="width: 15px; height: 15px; left: 25%; animation-duration: 8s;"></div>
+    <div class="bubble" style="width: 25px; height: 25px; left: 40%; animation-duration: 7s;"></div>
+    <div class="bubble" style="width: 10px; height: 10px; left: 60%; animation-duration: 9s;"></div>
+    <div class="bubble" style="width: 30px; height: 30px; left: 80%; animation-duration: 5s;"></div>
+    <div class="bubble" style="width: 18px; height: 18px; left: 20%; animation-duration: 10s;"></div>
+    <div class="bubble" style="width: 22px; height: 22px; left: 70%; animation-duration: 6.5s;"></div>
+    <div class="bubble" style="width: 12px; height: 12px; left: 30%; animation-duration: 8.5s;"></div>
+    <div class="bubble" style="width: 28px; height: 28px; left: 50%; animation-duration: 7.5s;"></div>
+    <div class="bubble" style="width: 14px; height: 14px; left: 90%; animation-duration: 9.5s;"></div>
+    <div class="bubble" style="width: 16px; height: 16px; left: 15%; animation-duration: 10.5s;"></div>
+    <div class="bubble" style="width: 24px; height: 24px; left: 35%; animation-duration: 6.8s;"></div>
+    <div class="bubble" style="width: 20px; height: 20px; left: 55%; animation-duration: 8.2s;"></div>
+    <div class="bubble" style="width: 26px; height: 26px; left: 75%; animation-duration: 7.2s;"></div>
+    <div class="bubble" style="width: 11px; height: 11px; left: 85%; animation-duration: 9.8s;"></div>
+    <div class="bubble" style="width: 19px; height: 19px; left: 5%; animation-duration: 10.2s;"></div>
+    <div class="bubble" style="width: 23px; height: 23px; left: 45%; animation-duration: 6.3s;"></div>
+    <div class="bubble" style="width: 17px; height: 17px; left: 65%; animation-duration: 8.7s;"></div>
+    <div class="bubble" style="width: 13px; height: 13px; left: 95%; animation-duration: 7.9s;"></div>
+    <div class="bubble" style="width: 21px; height: 21px; left: 25%; animation-duration: 9.1s;"></div>
+    <div class="bubble" style="width: 15px; height: 15px; left: 75%; animation-duration: 10.7s;"></div>
+    <div class="bubble" style="width: 27px; height: 27px; left: 85%; animation-duration: 6.1s;"></div>
+    <div class="bubble" style="width: 12px; height: 12px; left: 95%; animation-duration: 8.3s;"></div>
+    <div class="bubble" style="width: 29px; height: 29px; left: 55%; animation-duration: 7.1s;"></div>
+    <div class="bubble" style="width: 14px; height: 14px; left: 65%; animation-duration: 9.4s;"></div>
+    <div class="bubble" style="width: 22px; height: 22px; left: 35%; animation-duration: 10.1s;"></div>
+    <div class="bubble" style="width: 16px; height: 16px; left: 45%; animation-duration: 6.4s;"></div>
+    <div class="bubble" style="width: 18px; height: 18px; left: 15%; animation-duration: 8.6s;"></div>
+    <div class="bubble" style="width: 20px; height: 20px; left: 25%; animation-duration: 7.8s;"></div>
+  </div>
+
+  <h1>Galilee Commerce arrive bientôt !</h1>
+  <p>La première plateforme panafricaine d’e-commerce conçue pour connecter et valoriser les marchés de toute l’Afrique.</p>
+
+  <div class="countdown">
+    <div class="time-box"><span id="days">00</span><div>Jours</div></div>
+    <div class="time-box"><span id="hours">00</span><div>Heures</div></div>
+    <div class="time-box"><span id="minutes">00</span><div>Minutes</div></div>
+    <div class="time-box"><span id="seconds">00</span><div>Secondes</div></div>
+  </div>
+
+  <div class="social-icons">
+    <a href="#"><i class="fab fa-facebook"></i></a>
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-twitter"></i></a>
+  </div>
+
+  <script>
+    const countdown = () => {
+      const launchDate = new Date("June 17, 2025 00:00:00").getTime();
+      const now = new Date().getTime();
+      const gap = launchDate - now;
+
+      const second = 1000;
+      const minute = second * 60;
+      const hour = minute * 60;
+      const day = hour * 24;
+
+      const days = Math.floor(gap / day);
+      const hours = Math.floor((gap % day) / hour);
+      const minutes = Math.floor((gap % hour) / minute);
+      const seconds = Math.floor((gap % minute) / second);
+
+      document.getElementById('days').innerText = days;
+      document.getElementById('hours').innerText = hours;
+      document.getElementById('minutes').innerText = minutes;
+      document.getElementById('seconds').innerText = seconds;
+    };
+
+    setInterval(countdown, 1000);
+  </script>
+</body>
+</html>

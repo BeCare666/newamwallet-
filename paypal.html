@@ -1,0 +1,166 @@
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="white">
+  <link href="img/logo_of_wallet.jpg" rel="icon">
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">	
+	<link rel="stylesheet" href="index.css">
+  <title> PayPal Payments </title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	  <!-- import CSS -->
+	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css">
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+	
+</head>
+<body >
+		
+
+
+<center>	
+<header>
+ <img src="https://createbrowser.github.io/AutoGetFeaturesCefSharpBrowserDesktopPC/Public/PayPal.jpg"><a href="index.html" style="text-align: right !important;"><button class="btn btn-danger">X</button></a>
+</header>
+
+	<div id="app" style="padding: 10px;">
+    <div id="containerId">
+    <el-header>
+    </el-header>
+	 <H1> am-wallet quickly with PayPal </H1>
+    <H6> Don't have a PayPal account? </H6>   <H6> Use your credit card or bank account (where available). </H6> 
+
+    
+    <el-button @click="visible = true" type="primary" size="medium"> am-wallet | PayPal Payments Standard </el-button>
+    <el-dialog :visible.sync="visible" title="Basic for PayPal Payments Standard am-wallet ">
+
+	    
+  <form>
+
+  <!-- Identify your business so that you can collect the payments. -->
+    <input type="hidden" name="business"
+       >
+
+    <!-- Specify a am-wallet button. -->
+    <input type="hidden" name="cmd" value="_donations">
+
+    <!-- Specify details about the contribution -->
+    <input type="hidden" name="item_name" value="Friends of the Park">
+    <input type="hidden" name="item_number" value="Fall Cleanup Campaign">
+    <input type="hidden" name="amount" value="0.00"> <!-- $5 - 5.00 -->
+    <input type="hidden" name="currency_code" value="USD">
+		  
+    <!-- am-wallet button. -->	  
+  	  
+<div style="opacity:0;">ip^$pitti</div>
+<input  type="email" placeholder="email adress" class="form-control" style="width: 200px;">	 
+<div style="opacity:0;">ip^$pitti</div>
+<p class="text mb-1">Amount *</p>
+<input  type="text" pattern="[0-9]*" inputmode="numeric" placeholder="Amount" required id="soldeId" oninput="validerSaisie(this)" class="form-control" style="width: 200px;"><br>
+<input class="btn btn-primary btn-lg" type="button" id="submitid" value="Transfer your amount">
+<img alt="" width="1" height="1" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" > 	
+	  
+</form>    
+</el-dialog>
+	 	  
+  
+
+</div>
+</div>
+		
+
+ </center>
+	
+<!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+<!-- Optional JavaScript -->
+	
+    <!-- Bottom Continue Scripts -->
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <!-- Bottom Continue Scripts -->		
+	
+	 <!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>      
+	 <!-- Compiled and minified JavaScript -->
+
+<script  src="https://asiamusicvideo.000webhostapp.com/website/buttons/flat-ui/js/index.js"></script>	
+<script> </script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="paypal.js"></script>
+</body>	
+ <!-- import Vue before Element -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  
+  <script>
+    new Vue({
+      el: '#app',
+      data: function() {
+        return { visible: false }
+      }
+    })
+  </script>
+
+      <style type="text/css">
+  .button {
+    backface-visibility: hidden;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  white-space: nowrap;
+  background: #58c;
+  border-radius: 0px;
+  border: 0px groove #246;
+  border-width: 0px 0px 0px 0px;
+  padding: 11px 11px 11px 11px;
+    color: #fff;
+  font-size: 41px;
+  font-family: Times New Roman;
+  font-weight: 900;
+  font-style: normal
+  }
+  .button > div {
+    color: #999;
+  font-size: 20px;
+  font-family: Helvetica Neue;
+  font-weight: 900;
+  font-style: normal;
+  text-align: center;
+  margin: 0px 0px 0px 0px
+  }
+  .button > i {
+    font-size: 1em;
+  border-radius: 0px;
+  border: 0px double transparent;
+  border-width: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
+  position: static
+  }
+  .button > .ld {
+    font-size: initial
+  }
+</style> 
+<center>	
+	<!-- PayPal Logo --><table border="0" cellpadding="10" cellspacing="0" align="center"><tr><td align="center"></td></tr><tr><td align="center"><a href="https://createbrowser.github.io/AutoGetFeaturesCefSharpBrowserDesktopPC/PayPal.html" title="How PayPal Works"  onclick="javascript:window.open('https://createbrowser.github.io/ACefSharpChromiumBrowserDesktop/PayPal.html','WIPaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700'); return false;"><img src="https://www.paypalobjects.com/webstatic/mktg/logo/bdg_payments_by_pp_2line.png" border="0" alt="Payments by PayPal"></a><div style="text-align:center"><a href="https://www.paypal.com/eg/webapps/mpp/pay-online" target="_blank"><font size="2" face="Arial" color="#0079CD"><b>How PayPal Works</b></font></a></div></td></tr></table><!-- PayPal Logo -->
+</center>	
+	
+</html>
+  
+
+    

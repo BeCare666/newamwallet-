@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="img/logo_of_wallet.jpg" rel="icon">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="jobdelete.css">
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.7.0/css/all.css"> 
+<script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+<title>apply</title>
+</head>
+<body> 
+    <div style=" background-color: #2c3338;" class="modal fade" id="exampleModalCenterJobOffers" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content" style=" background-color: #2c3338;">
+            <div class="modal-body">
+              <div class="wrapper" style=" background-color: #2c3338;">
+                <header class="menu">
+                  
+                  <!-- Arrow Icon  -->
+                  <svg data-dismiss="modal" aria-label="Close" class="menu__icon" enable-background="new 0 0 129 129" version="1.1" viewBox="0 0 129 129" xmlns="http://www.w3.org/2000/svg"><path d="m88.6 121.3c0.8 0.8 1.8 1.2 2.9 1.2s2.1-0.4 2.9-1.2c1.6-1.6 1.6-4.2 0-5.8l-51-51 51-51c1.6-1.6 1.6-4.2 0-5.8s-4.2-1.6-5.8 0l-54 53.9c-1.6 1.6-1.6 4.2 0 5.8l54 53.9z" fill="#43639d"/></svg>
+                  
+                  <!-- Page Title -->
+                  <h1 class="menu__title">Job List</h1>
+                  
+                  <!-- Plus Icon -->
+                  <svg style="opacity: 0 !important; " class="menu__icon" enable-background="new 0 0 304.223 304.223" version="1.1" viewBox="0 0 304.223 304.223" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g fill="#43639d"><path d="m152.11 0c-83.871 0-152.1 68.244-152.1 152.11 0 83.865 68.233 152.11 152.1 152.11 83.865 0 152.1-68.244 152.1-152.11 1e-3 -83.87-68.237-152.11-152.1-152.11zm0 275.99c-68.32 0-123.89-55.565-123.89-123.88 0-68.326 55.571-123.89 123.89-123.89s123.89 55.565 123.89 123.89c0 68.31-55.577 123.88-123.89 123.88z"/><path d="m221.92 139.19h-56.887v-56.888c0-7.141-5.782-12.929-12.923-12.929s-12.929 5.782-12.929 12.929v56.887h-56.887c-7.141 0-12.923 5.782-12.923 12.929 0 7.141 5.782 12.923 12.923 12.923h56.882v56.893c0 7.142 5.787 12.923 12.929 12.923 7.141 0 12.929-5.782 12.929-12.923v-56.893h56.882c7.142 0 12.929-5.782 12.929-12.923 4e-3 -7.147-5.784-12.928-12.925-12.928z"/></g></svg>
+                </header>
+                
+                <!-- Card List -->
+                <div class="card-list" style="overflow: auto; height: 50vh;">
+                  
+                  <!-- Card #1 -->
+                  <div class="card card--one" id="indicatClassJob">
+      
+                </div>
+              </div>
+            </div>
+      
+          </div>
+        </div>
+      </div>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+  authDomain: "am-wallet.firebaseapp.com",
+  databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",  
+  projectId: "am-wallet", 
+  storageBucket: "am-wallet.appspot.com",
+  messagingSenderId: "877693231070",
+  appId: "1:877693231070:web:47c59ac6220ed09af9c74f"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+var userArrayJob = []
+var userArrayAJob = []
+var userArrayASal = []
+const userRef = database.ref(`/lesjobsx/`);
+  userRef.once("value")
+  .then((snapshot)=> {
+    snapshot.forEach((productSnapshot) => {  
+    const productData = productSnapshot.val();
+    userArrayAJob.push(productData)
+    $('#exampleModalCenterJobOffers').modal('show');
+})
+const indicatClassJob = document.getElementById("indicatClassJob");
+const userListUlx = document.createElement("span");
+            // Fonction de conversion de la date et de l'heure en objet Date
+            function convertToDate(dateStr, timeStr) {
+              let [day, month, year] = dateStr.split('/');
+              let [hours, minutes] = timeStr.split(':');
+              return new Date(year, month - 1, day, hours, minutes);
+          }
+
+          // Convertir les dates en objets Date et trier le tableau
+          userArrayAJob.sort((a, b) => {
+              let [dateA, timeA] = a.time.split(' ');
+              timeA = timeA.replace('h:', ':').replace('min', '');
+              let [dateB, timeB] = b.time.split(' ');
+              timeB = timeB.replace('h:', ':').replace('min', '');
+
+              let dateObjA = convertToDate(dateA, timeA);
+              let dateObjB = convertToDate(dateB, timeB);
+
+              // Débogage : Afficher les objets Date
+              console.log("dateObjA:", dateObjA, "dateObjB:", dateObjB);
+
+              return dateObjB - dateObjA; // Pour trier en ordre décroissant (du plus récent au plus ancien)
+          });
+  for(let i = 0; i < userArrayAJob.length; i++  ){
+    const userLix = document.createElement("p");
+    userLix.id = userArrayAJob[i].jobId;
+    userLix.innerHTML = `
+      <img src="../img/logo_of_wallet.jpg" alt="" style="height: 25%; width: 25%; border-radius: 100%;">
+      <p class="card__number">${userArrayAJob[i].Titledejob} </p>
+      <p class="card__owner"><strong>Salaire :</strong> ${userArrayAJob[i].Salairedejob} $</p>
+      <div class="card__info">
+        <p class="card__integral"><strong>Description :</strong>${userArrayAJob[i].Descriptiondejob}</p><br>
+        <a class="btn btn-danger btn-delete">Supprimer</a>
+      </div>
+      <p class="card__owner">Publié le ${userArrayAJob[i].time}</p><hr>
+    `;
+
+    // Attach the mouseover event listener
+    userLix.addEventListener('mouseover', (function(usergax) {
+      return function() {
+       console.log(usergax.jobId);
+        var titltjobx = userArrayAJob[i].Titledejob;
+        var Salairedejob = userArrayAJob[i].Salairedejob;
+        var TuniqueId = userArrayAJob[i].jobId;
+        var destjobx = userArrayAJob[i].Descriptiondejob;
+        localStorage.setItem('TuniqueId', TuniqueId);
+        localStorage.setItem('titltjobx', titltjobx);
+        localStorage.setItem('destjobx', destjobx);
+      };
+    })(userArrayAJob[i]));
+            // Attach the delete event listener
+            $(userLix).find('.btn-delete').on('click', (function() {
+                const TuniqueId = localStorage.getItem("TuniqueId")
+                const database = firebase.database();
+            // Reference to the data you want to delete
+            const ref = database.ref(`lesjobsx/${TuniqueId}`);
+            // Remove the data
+            ref.remove()
+            .then(() => {
+                Swal.fire({
+                          icon: 'success',
+                          title: "Félicitations !",
+                          text: "Le job a été supprimé avec succès !",
+                          allowOutsideClick: false,
+                      }).then((result) => {
+                          if (result.isConfirmed) {
+                              location.reload();
+                          }
+                      });
+                 
+            })
+            .catch((error) => {
+               alert("Error removing data: ");
+            });
+          })
+        );
+    userListUlx.appendChild(userLix);
+  }
+
+  // Append the list to the parent container
+  indicatClassJob.appendChild(userListUlx);
+
+})
+
+</script> 
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
