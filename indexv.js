@@ -908,8 +908,6 @@ Get_for_userxxc.addEventListener("click", function () {
       tablePhone.push(phone)
       tablePays.push(selectedCode)
 
-
-
       // Vérification montant
       if (amount <= 0) {
         Swal.showValidationMessage("Veuillez entrer un montant positif !");
@@ -931,7 +929,7 @@ Get_for_userxxc.addEventListener("click", function () {
       const inputValue = tableSolde[tableSolde.length - 1];
       const inputValuePhone = tablePhone[tablePhone.length - 1];
       const inputValuePays = tablePays[tablePays.length - 1];
-      const tableNomPays = tableNomPays[tableNomPays.length - 1];
+      const tableNomPaysKL = tableNomPays[tableNomPays.length - 1];
       const selectedCode = result.value.country;
       const phone = result.value.phone;
       const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
@@ -960,7 +958,7 @@ Get_for_userxxc.addEventListener("click", function () {
       localStorage.setItem("phone", inputValuePhone);
       localStorage.setItem("selectedCode", inputValuePays);
       localStorage.setItem("lenumero", inputValuePays + inputValuePhone)
-      localStorage.setItem("tableNomPaysL", tableNomPays);
+      localStorage.setItem("tableNomPaysL", tableNomPaysKL);
       if (balanceIDAWWWx >= montantTotalADeduire) {
         // Déduction du montant total (montant + commission)
         var nouveauSolde = balanceIDAWWWx - montantTotalADeduire;
