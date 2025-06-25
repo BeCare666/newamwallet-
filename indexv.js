@@ -881,7 +881,6 @@ Get_for_userxxc.addEventListener("click", function () {
     `,
     didOpen: () => {
       const select = document.getElementById("country-select");
-      const tableNomPays = [];
       // 🔸 Obtenir le pays sélectionné par défaut
       const defaultCode = select.value;
       const defaultCountry = countries.find(c => c.code === defaultCode);
