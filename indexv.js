@@ -860,6 +860,8 @@ menubtnId.addEventListener("click", function () {
 var tableSolde = []
 var tablePhone = []
 var tablePays = []
+var tableNomPays = []
+
 var Get_for_userxxc = document.getElementById("get_for_userxxc");
 Get_for_userxxc.addEventListener("click", function () {
   //containerId.style.display = "none"
@@ -874,9 +876,31 @@ Get_for_userxxc.addEventListener("click", function () {
       <label id="swal-label" for="phone-input">📱 Numéro de téléphone</label>
       <input type="text" id="phone-input" class="swal2-input" placeholder="Ex: +22990123456" style="margin-bottom:10px; width:60%; max-width:300px;"/>
 
-      <label id="swal-label" for="amount-input">💵 Montant à recharger</label>
+      <label id="swal-label" for="amount-input">💵 Montant à retirer</label>
       <input type="number" id="amount-input" class="swal2-input" min="1" placeholder="Montant en $" style="margin-bottom:10px; width:60%; max-width:300px;"/>
     `,
+    didOpen: () => {
+      const select = document.getElementById("country-select");
+      const tableNomPays = [];
+      // 🔸 Obtenir le pays sélectionné par défaut
+      const defaultCode = select.value;
+      const defaultCountry = countries.find(c => c.code === defaultCode);
+      if (defaultCountry) {
+        tableNomPays.push(defaultCountry.name);
+      }
+
+      select.addEventListener("change", () => {
+        const selectedCode = select.value; // ex: "+229"
+        const country = countries.find(c => c.code === selectedCode);
+
+
+        if (country) {
+          alert(country.name); // affiche par exemple "Bénin"
+          tableNomPays.push(country.name);
+          console.log(tableNomPays);
+        }
+      });
+    },
     preConfirm: () => {
       const selectedCode = document.getElementById("country-select").value;
       const phone = document.getElementById("phone-input").value.trim();
@@ -884,6 +908,9 @@ Get_for_userxxc.addEventListener("click", function () {
       tableSolde.push(amount)
       tablePhone.push(phone)
       tablePays.push(selectedCode)
+
+
+
       // Vérification montant
       if (amount <= 0) {
         Swal.showValidationMessage("Veuillez entrer un montant positif !");
@@ -905,6 +932,7 @@ Get_for_userxxc.addEventListener("click", function () {
       const inputValue = tableSolde[tableSolde.length - 1];
       const inputValuePhone = tablePhone[tablePhone.length - 1];
       const inputValuePays = tablePays[tablePays.length - 1];
+      const tableNomPays = tableNomPays[tableNomPays.length - 1];
       const selectedCode = result.value.country;
       const phone = result.value.phone;
       const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
@@ -932,6 +960,8 @@ Get_for_userxxc.addEventListener("click", function () {
       localStorage.setItem("MyCommissionAdd", inputValueParsed.toString());
       localStorage.setItem("phone", inputValuePhone);
       localStorage.setItem("selectedCode", inputValuePays);
+      localStorage.setItem("lenumero", inputValuePays + inputValuePhone)
+      localStorage.setItem("tableNomPaysL", tableNomPays);
       if (balanceIDAWWWx >= montantTotalADeduire) {
         // Déduction du montant total (montant + commission)
         var nouveauSolde = balanceIDAWWWx - montantTotalADeduire;
@@ -1033,104 +1063,104 @@ Get_for_userxxc_points.addEventListener("click", function () {
     cancelButtonText: "Cancel",
   }).then((result) => {
 
-if (result.isConfirmed) {
-  const inputValue = parseFloat(result.value); // Nombre de points à convertir
-  const userId = localStorage.getItem("unserconnectuserId");
+    if (result.isConfirmed) {
+      const inputValue = parseFloat(result.value); // Nombre de points à convertir
+      const userId = localStorage.getItem("unserconnectuserId");
 
-  const balanceStr = localStorage.getItem("balanceIDAWWW"); // Solde en $
-  const pointsStr = localStorage.getItem("points"); // Points disponibles
+      const balanceStr = localStorage.getItem("balanceIDAWWW"); // Solde en $
+      const pointsStr = localStorage.getItem("points"); // Points disponibles
 
-  const balance = parseFloat(balanceStr);
-  const points = parseFloat(pointsStr);
+      const balance = parseFloat(balanceStr);
+      const points = parseFloat(pointsStr);
 
-  // Taux de conversion : 36 points = 0.10 $
-  const dollarPerPoint = 0.10 / 36;
-  const dollarsFromPoints = inputValue * dollarPerPoint;
+      // Taux de conversion : 36 points = 0.10 $
+      const dollarPerPoint = 0.10 / 36;
+      const dollarsFromPoints = inputValue * dollarPerPoint;
 
-  if (inputValue >= 36 && points >= inputValue && balance >= dollarsFromPoints) {
-    const newBalance = balance - dollarsFromPoints;
-    //const remainingPoints = points - inputValue;
+      if (inputValue >= 36 && points >= inputValue && balance >= dollarsFromPoints) {
+        const newBalance = balance - dollarsFromPoints;
+        //const remainingPoints = points - inputValue;
 
-   // alert(`✔️ Vous avez converti ${inputValue} points en ${dollarsFromPoints.toFixed(2)} $.\n💰 Nouveau solde : ${newBalance.toFixed(2)} $\n🎯 Points restants : jk`);
+        // alert(`✔️ Vous avez converti ${inputValue} points en ${dollarsFromPoints.toFixed(2)} $.\n💰 Nouveau solde : ${newBalance.toFixed(2)} $\n🎯 Points restants : jk`);
 
-    localStorage.setItem("MyCommissionAdd", dollarsFromPoints.toFixed(2));
-    localStorage.setItem("balanceIDAWWW", newBalance.toFixed(2));
-    //localStorage.setItem("points", remainingPoints.toString());
+        localStorage.setItem("MyCommissionAdd", dollarsFromPoints.toFixed(2));
+        localStorage.setItem("balanceIDAWWW", newBalance.toFixed(2));
+        //localStorage.setItem("points", remainingPoints.toString());
 
-    // 🔁 1ère mise à jour : mise à jour du solde
-    const userRef = database.ref(`/utilisateurs/${userId}`);
-    const firstUpdate = {
-      ACCOUNTPRINCIPAL: newBalance
-    };
-
-    userRef.update(firstUpdate, (error) => {
-      if (error) {
-        Swal.fire({
-          title: "Ooops",
-          confirmButtonText: "OK",
-          allowOutsideClick: false,
-          text: "The balance update failed.",
-          icon: "error"
-        }).then((res) => {
-          if (res.isConfirmed) window.location.reload();
-        });
-      } else {
-        // 🔁 2e mise à jour : mise à jour des points "gagnés"
-        const currentPointsStr = localStorage.getItem("points");
-        const currentCommissionPoints = parseFloat(currentPointsStr);
-        const newCommissionPoints = currentCommissionPoints + inputValue;
-
-        localStorage.setItem("pointsCommission", newCommissionPoints.toString());
-        //const points = localStorage.getItem("points");
-        const secondUpdate = {
-          points: newCommissionPoints
+        // 🔁 1ère mise à jour : mise à jour du solde
+        const userRef = database.ref(`/utilisateurs/${userId}`);
+        const firstUpdate = {
+          ACCOUNTPRINCIPAL: newBalance
         };
-        
-        userRef.update(secondUpdate, (err) => {
-          if (err) {
+
+        userRef.update(firstUpdate, (error) => {
+          if (error) {
             Swal.fire({
               title: "Ooops",
               confirmButtonText: "OK",
               allowOutsideClick: false,
-              text: "The points update failed.",
+              text: "The balance update failed.",
               icon: "error"
             }).then((res) => {
               if (res.isConfirmed) window.location.reload();
             });
           } else {
-            // ✅ Tout s'est bien passé
-            const now = new Date();
-            const formattedDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}h:${now.getMinutes()}min`;
-            localStorage.setItem("DateNow", formattedDate);
+            // 🔁 2e mise à jour : mise à jour des points "gagnés"
+            const currentPointsStr = localStorage.getItem("points");
+            const currentCommissionPoints = parseFloat(currentPointsStr);
+            const newCommissionPoints = currentCommissionPoints + inputValue;
 
-            Swal.fire({
-              icon: "success",
-              title: "Succès",
-              confirmButtonText: "OK",
-              allowOutsideClick: false,
-              text: "Your operation has been completed successfully.",
-            }).then((res) => {
-              if (res.isConfirmed) {
-                window.location.href = "index.html";
+            localStorage.setItem("pointsCommission", newCommissionPoints.toString());
+            //const points = localStorage.getItem("points");
+            const secondUpdate = {
+              points: newCommissionPoints
+            };
+
+            userRef.update(secondUpdate, (err) => {
+              if (err) {
+                Swal.fire({
+                  title: "Ooops",
+                  confirmButtonText: "OK",
+                  allowOutsideClick: false,
+                  text: "The points update failed.",
+                  icon: "error"
+                }).then((res) => {
+                  if (res.isConfirmed) window.location.reload();
+                });
+              } else {
+                // ✅ Tout s'est bien passé
+                const now = new Date();
+                const formattedDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}h:${now.getMinutes()}min`;
+                localStorage.setItem("DateNow", formattedDate);
+
+                Swal.fire({
+                  icon: "success",
+                  title: "Succès",
+                  confirmButtonText: "OK",
+                  allowOutsideClick: false,
+                  text: "Your operation has been completed successfully.",
+                }).then((res) => {
+                  if (res.isConfirmed) {
+                    window.location.href = "index.html";
+                  }
+                });
               }
             });
           }
         });
+      } else {
+        Swal.fire({
+          title: "Info",
+          text: "Your points are insufficient or you must enter at least 36 points.",
+          icon: "error",
+          allowOutsideClick: false,
+        }).then((res) => {
+          if (res.isConfirmed) {
+            window.location.href = "index.html";
+          }
+        });
       }
-    });
-  } else {
-    Swal.fire({
-      title: "Info",
-      text: "Your points are insufficient or you must enter at least 36 points.",
-      icon: "error",
-      allowOutsideClick: false,
-    }).then((res) => {
-      if (res.isConfirmed) {
-        window.location.href = "index.html";
-      }
-    });
-  }
-}
+    }
 
   });
 });
