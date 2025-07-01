@@ -856,174 +856,168 @@ menubtnId.addEventListener("click", function () {
   });
 });
 
-// to get money
-var tableSolde = []
-var tablePhone = []
-var tablePays = []
-var tableNomPays = []
+var tableSolde = [];
+var tablePhone = [];
+var tablePays = [];
+var tableNomPays = [];
 
-var Get_for_userxxc = document.getElementById("get_for_userxxc");
-Get_for_userxxc.addEventListener("click", function () {
-  //containerId.style.display = "none"
-  Swal.fire({
+document.getElementById("get_for_userxxc").addEventListener("click", async () => {
+  const { isConfirmed, value } = await Swal.fire({
     title: "Your amount",
     html: `
-      
-
       <label id="swal-label" for="country-select">🌍 Choisissez votre pays</label>
-      <select id="country-select" class="swal2-select" style="margin-bottom:10px; width:60%; max-width:300px;">${countryOptions}</select>
+      <select id="country-select" class="swal2-select" style="margin-bottom:10px; width:60%; max-width:300px;">
+        ${countryOptions}
+      </select>
 
       <label id="swal-label" for="phone-input">📱 Numéro de téléphone</label>
       <input type="text" id="phone-input" class="swal2-input" placeholder="Ex: +22990123456" style="margin-bottom:10px; width:60%; max-width:300px;"/>
 
       <label id="swal-label" for="amount-input">💵 Montant à retirer</label>
-      <input type="number" id="amount-input" class="swal2-input" min="1" placeholder="Montant en $" style="margin-bottom:10px; width:60%; max-width:300px;"/>
+      <input
+        type="text"
+        id="amount-input"
+        class="swal2-input"
+        placeholder="Montant en $"
+        style="margin-bottom:10px; width:60%; max-width:300px;"
+        oninput="
+          let val = this.value;
+          val = val.replace(/[^0-9.,]/g, '');
+          if(val.startsWith('.') || val.startsWith(',')) val = val.substring(1);
+          const partsComma = val.split(',');
+          if(partsComma.length > 2) val = partsComma[0] + ',' + partsComma.slice(1).join('');
+          const partsDot = val.split('.');
+          if(partsDot.length > 2) val = partsDot[0] + '.' + partsDot.slice(1).join('');
+          this.value = val;
+        "
+      />
     `,
-    didOpen: () => {
-      const select = document.getElementById("country-select");
-      // 🔸 Obtenir le pays sélectionné par défaut
-      const defaultCode = select.value;
-      const defaultCountry = countries.find(c => c.code === defaultCode);
-      if (defaultCountry) {
-        tableNomPays.push(defaultCountry.name);
-      }
-
-      select.addEventListener("change", () => {
-        const selectedCode = select.value; // ex: "+229"
-        const country = countries.find(c => c.code === selectedCode);
-
-
-        if (country) {
-          alert(country.name); // affiche par exemple "Bénin"
-          tableNomPays.push(country.name);
-          console.log(tableNomPays);
-        }
-      });
-    },
-    preConfirm: () => {
-      const selectedCode = document.getElementById("country-select").value;
-      const phone = document.getElementById("phone-input").value.trim();
-      const amount = document.getElementById("amount-input").value;
-      tableSolde.push(amount)
-      tablePhone.push(phone)
-      tablePays.push(selectedCode)
-
-      // Vérification montant
-      if (amount <= 0) {
-        Swal.showValidationMessage("Veuillez entrer un montant positif !");
-        return false;
-      }
-      if (amount < 10) {
-        Swal.showValidationMessage(
-          "Please enter a number greater than or equal to 10!"
-        );
-        return false;
-      }
-
-    },
+    focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: "Get",
     cancelButtonText: "Cancel",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const inputValue = tableSolde[tableSolde.length - 1];
-      const inputValuePhone = tablePhone[tablePhone.length - 1];
-      const inputValuePays = tablePays[tablePays.length - 1];
-      const tableNomPaysKL = tableNomPays[tableNomPays.length - 1];
-      const selectedCode = result.value.country;
-      const phone = result.value.phone;
-      const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
-      const balanceIDAWWW = localStorage.getItem("balanceIDAWWW");
-      const points = localStorage.getItem("points");
-      // Stocker le montant saisi (net retiré) 
-      // Conversion en nombres
-      var balanceIDAWWWx = parseFloat(balanceIDAWWW);
-      var inputValueParsed = parseFloat(inputValue);
-      var pointsx = parseFloat(points);
-
-      // Calcul de la commission (5% du montant saisi)
-      var commission = inputValueParsed * 0.05;
-
-      var montantTotalADeduire = inputValueParsed + commission;
-      var commission = parseFloat(commission);
-      var montantTotalADeduire = parseFloat(montantTotalADeduire);
-      { /**      if (inputValue < 36) {
-        Swal.fire("Ooops", "Les transferts sont a partir de 36$");
-        localStorage.removeItem('MyCommissionAdd')
-        localStorage.removeItem('phone')
-        localStorage.removeItem('selectedCode')
-        return;
-      }**/ }
-      localStorage.setItem("MyCommissionAdd", inputValueParsed.toString());
-      localStorage.setItem("phone", inputValuePhone);
-      localStorage.setItem("selectedCode", inputValuePays);
-      localStorage.setItem("lenumero", inputValuePays + inputValuePhone)
-      localStorage.setItem("tableNomPaysL", tableNomPaysKL);
-      if (balanceIDAWWWx >= montantTotalADeduire) {
-        // Déduction du montant total (montant + commission)
-        var nouveauSolde = balanceIDAWWWx - montantTotalADeduire;
-
-        // Préparation des données à envoyer ou à enregistrer
-        const newData = {
-          ACCOUNTPRINCIPAL: nouveauSolde,
-        };
-
-        const userRefx = database.ref(`/utilisateurs/${unserconnectuserIdE}`);
-        userRefx.update(newData, (error) => {
-          if (error) {
-            Swal.fire({
-              title: "Ooops",
-              confirmButtonText: "OK",
-              allowOutsideClick: false,
-              text: "Your operation has failed.",
-              icon: "error",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.reload();
-              }
-            });
-          } else {
-            const dateActuelle = new Date();
-            // Obtenez les composantes de la date et de l'heure
-            const jour = dateActuelle.getDate();
-            const mois = dateActuelle.getMonth() + 1; // Les mois commencent à 0, donc ajoutez 1
-            const annee = dateActuelle.getFullYear();
-            const heures = dateActuelle.getHours();
-            const minutes = dateActuelle.getMinutes();
-            // Formatez la date et l'heure
-            const dateFormatee = `${jour}/${mois}/${annee} ${heures}h:${minutes}min`;
-            localStorage.setItem("DateNow", dateFormatee);
-            Swal.fire({
-              icon: "success",
-              title: "Succès",
-              confirmButtonText: "Get your paiement cerficate.",
-              allowOutsideClick: false,
-              text: `Your operation has been completed successfully.`,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.href = "paiementcerti.html";
-              }
-            });
-          }
-        });
-      } else {
-        localStorage.removeItem('MyCommissionAdd')
-        localStorage.removeItem('phone')
-        localStorage.removeItem('selectedCode')
-        Swal.fire({
-          title: "Info ",
-          text: "Your balance is insufficient",
-          icon: "error",
-          allowOutsideClick: false,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = "index.html";
-          }
-        });
+    preConfirm: () => {
+      const rawAmount = document.getElementById("amount-input").value.trim();
+      const amount = parseFloat(rawAmount.replace(',', '.'));
+      if (isNaN(amount) || amount <= 0) {
+        Swal.showValidationMessage("Veuillez entrer un montant strictement positif !");
+        return false;
       }
+      if (amount < 10) {
+        Swal.showValidationMessage("Please enter a number greater than or equal to 10!");
+        return false;
+      }
+      return {
+        selectedCode: document.getElementById("country-select").value,
+        phone: document.getElementById("phone-input").value.trim(),
+        amount,
+      };
     }
   });
+
+  if (!isConfirmed || !value) return;
+
+  const userId = localStorage.getItem("unserconnectuserId");
+  const countryName = countries.find(c => c.code === value.selectedCode)?.name || "Unknown";
+
+  // ✅ Calcul en centimes
+  const amountCents = Math.round(value.amount * 100);
+  const commissionCents = Math.round(amountCents * 0.05);
+  const totalToDeductCents = amountCents + commissionCents;
+
+  console.log("Montant saisi ($):", value.amount);
+  console.log("Montant en cents:", amountCents);
+  console.log("Commission en cents:", commissionCents);
+  console.log("Total à déduire en cents:", totalToDeductCents);
+
+  localStorage.setItem("MyCommissionAdd", value.amount.toString());
+  localStorage.setItem("phone", value.phone);
+  localStorage.setItem("selectedCode", value.selectedCode);
+  localStorage.setItem("lenumero", value.selectedCode + value.phone);
+  localStorage.setItem("tableNomPaysL", countryName);
+
+  try {
+    const userRef = database.ref(`/utilisateurs/${userId}`);
+
+    // Lire le solde actuel
+    const snapshot = await userRef.once('value');
+    const userData = snapshot.val();
+
+    if (!userData || typeof userData.ACCOUNTPRINCIPAL === "undefined") {
+      Swal.fire("Erreur", "Impossible de récupérer votre solde actuel.", "error");
+      return;
+    }
+
+    let currentBalance = parseFloat(userData.ACCOUNTPRINCIPAL);
+    if (isNaN(currentBalance)) currentBalance = 0;
+
+    const currentBalanceCents = Math.round(currentBalance * 100);
+    const newBalanceCents = currentBalanceCents - totalToDeductCents;
+
+    console.log("currentBalanceCents:", currentBalanceCents);
+    console.log("newBalanceCents:", newBalanceCents);
+
+    if (newBalanceCents >= 0) {
+      const newBalance = (newBalanceCents / 100).toFixed(2);
+
+      await userRef.update({ ACCOUNTPRINCIPAL: newBalance });
+
+      const now = new Date();
+      const formattedDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}h:${now.getMinutes()}min`;
+      localStorage.setItem("DateNow", formattedDate);
+
+      Swal.fire({
+        icon: "success",
+        title: "Succès",
+        text: "Your operation has been completed successfully.",
+        confirmButtonText: "Get your payment certificate.",
+        allowOutsideClick: false,
+      }).then(() => window.location.href = "paiementcerti.html");
+
+    } else {
+      localStorage.removeItem("MyCommissionAdd");
+      localStorage.removeItem("phone");
+      localStorage.removeItem("selectedCode");
+      Swal.fire({
+        title: "Info",
+        text: "Your balance is insufficient",
+        icon: "error",
+        allowOutsideClick: false,
+      }).then(() => window.location.href = "index.html");
+    }
+
+  } catch (err) {
+    console.error("Erreur inattendue:", err);
+    Swal.fire("Erreur", "Une erreur inattendue est survenue.", "error");
+  }
 });
+
+// function for invest
+document.getElementById("transfer_systemsx").addEventListener("click", function () {
+  // Logic for investment transfer
+  Swal.fire({
+    title: "Info",
+    text: "Veuillez contacter l’assistance support pour voir les offres disponibles en ce qui concerne les investissements. Merci.",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Contacter",
+    cancelButtonText: "Annuler",
+    allowOutsideClick: false,
+  }).then((res) => {
+    if (res.isConfirmed) {
+      // Redirection vers WhatsApp avec message par défaut
+      const numeroWhatsApp = "447418315534";
+      const message = encodeURIComponent("Bonjour, je souhaite connaître les offres disponibles.");
+      window.open(`https://wa.me/${numeroWhatsApp}?text=${message}`, "_blank");
+    } else {
+      // Par exemple, redirection vers index.html ou ne rien faire
+      window.location.href = "index.html";
+    }
+  });
+
+
+});
+
 
 // to get money
 var Get_for_userxxc_points = document.getElementById("Get_for_userxxc_points");
