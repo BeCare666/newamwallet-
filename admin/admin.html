@@ -258,8 +258,8 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="recipient-name" class="col-form-label">Mettez le points</label>
-            <input class="form-control mb-3" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="Points"
-              required id="recivePointId">
+            <input class="form-control mb-3" type="text" inputmode="numeric" placeholder="Points" required
+              id="recivePointId">
 
           </div>
         </div>
@@ -293,9 +293,22 @@
     });
 
     const input = document.getElementById("recivePointId");
-
     input.addEventListener("input", () => {
-      input.value = input.value.replace(/[^0-9]/g, "").slice(0, 8);
+      let value = input.value;
+
+      // Supprimer tous les caractères sauf chiffres, virgule et -
+      value = value.replace(/[^0-9,-]/g, '');
+
+      // Garder un seul - au début
+      value = value.replace(/(?!^)-/g, '');
+
+      // Garder une seule virgule
+      const parts = value.split(',');
+      if (parts.length > 2) {
+        value = parts[0] + ',' + parts.slice(1).join('');
+      }
+
+      input.value = value;
     });
 
   </script>

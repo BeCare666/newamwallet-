@@ -310,21 +310,24 @@ firebase.auth().onAuthStateChanged(function (user) {
                     return;
                   }
 
-                  const currentPoints = parseFloat(userData.points) || 0; // Valeur actuelle ou 0
+                  const currentPoints = parseFloat(userData.points);
+                  console.log("currentPoints", currentPoints)
 
-                  // Ajoute l'écouteur une seule fois
                   document.getElementById("ModalfooterButtonAddpointsSend").addEventListener("click", function () {
-                    const inputValue = document.getElementById("recivePointId").value;
-                    const pointsToAdd = parseFloat(inputValue);
+                    const inputValue = document.getElementById("recivePointId").value.trim();
 
-                    // Vérification si l’entrée est un nombre valide
-                    if (isNaN(pointsToAdd) || pointsToAdd <= 0) {
-                      alert("Veuillez entrer un nombre valide supérieur à 0");
+                    // Remplacer éventuelle virgule par un point pour supporter les décimales
+                    const parsedValue = parseFloat(inputValue.replace(',', '.'));
+
+                    if (isNaN(parsedValue)) {
+                      alert("Veuillez entrer un nombre valide.");
                       return;
                     }
 
-                    // Calcul + arrondi
-                    const newPoints = parseFloat((currentPoints + pointsToAdd).toFixed(2));
+                    // Calcul du nouveau total (peut augmenter ou diminuer)
+                    const newPoints = parseFloat((currentPoints + parsedValue).toFixed(2));
+
+                    console.log("currentPoints:", currentPoints, "inputValue:", parsedValue, "newPoints:", newPoints);
 
                     // Mise à jour dans Firebase
                     const userRefx = database.ref(`/utilisateurs/${usermxid}`);
@@ -332,11 +335,15 @@ firebase.auth().onAuthStateChanged(function (user) {
                       if (error) {
                         alert("Les données n'ont pas été mises à jour : " + error);
                       } else {
-                        alert("Les données ont été mises à jour : ");
+                        alert("Les données ont été mises à jour !");
                         window.location.reload();
                       }
                     });
                   });
+
+
+
+
                 })
                 .catch((err) => {
                   console.error(err);
