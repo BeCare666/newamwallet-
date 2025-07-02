@@ -401,11 +401,15 @@ firebase.auth().onAuthStateChanged(function (user) {
                   document
                     .getElementById("sendunityforuseradd")
                     .addEventListener("click", function () {
-                      var variableunity =
-                        document.getElementById("recipientadd").value;
+                      var variableunityx =
+                        document.getElementById("recipientadd").value.trim();
+                      // Remplacer éventuelle virgule par un point pour supporter les décimales
+                      const variableunity = parseFloat(variableunityx.replace(',', '.'));
+
                       var myCompta = parseFloat(mxcompt);
                       var addunityForuser = parseFloat(variableunity);
-                      var sommesUnity = myCompta + addunityForuser;
+                      //var sommesUnity = myCompta + addunityForuser;
+                      var sommesUnity = parseFloat((myCompta + addunityForuser).toFixed(2));
                       const newData = {
                         ACCOUNTPRINCIPAL: sommesUnity,
                       };
@@ -424,11 +428,16 @@ firebase.auth().onAuthStateChanged(function (user) {
                   document
                     .getElementById("sendunityforuserlupdate")
                     .addEventListener("click", function () {
-                      var variableunity =
-                        document.getElementById("recipientupdate").value;
+                      var variableunityx =
+                        document.getElementById("recipientupdate").value.trim();
+                      // Remplacer éventuelle virgule par un point pour supporter les décimales
+                      var variableunity = parseFloat(variableunityx.replace(',', '.'));
+
                       var myCompta = parseFloat(mxcompt);
                       var addunityForuser = parseFloat(variableunity);
-                      var sommesUnity = myCompta - addunityForuser;
+                      //var sommesUnity = myCompta + addunityForuser;
+                      var sommesUnity = parseFloat((myCompta - addunityForuser).toFixed(2));
+
                       const newData = {
                         ACCOUNTPRINCIPAL: sommesUnity,
                       };
@@ -753,16 +762,26 @@ document
     }
   });
 function validerSaisie(input) {
-  const valeurSaisie = input.value;
-  const regexLettresAvecEspaces = /^\d+$/;
+  let valeur = input.value;
 
-  if (!regexLettresAvecEspaces.test(valeurSaisie)) {
-    //alert("ne fait pas ça")
-    // Effacez la saisie incorrecte
-    input.value = input.value.replace(/\D/g, "");
-  } else {
+  // Supprimer tous les caractères non autorisés sauf les chiffres et virgule
+  valeur = valeur.replace(/[^0-9,]/g, '');
+
+  // Ne garder qu'une seule virgule
+  const parties = valeur.split(',');
+  if (parties.length > 2) {
+    valeur = parties[0] + ',' + parties[1];
   }
+
+  // Limiter à deux chiffres après la virgule (optionnel)
+  if (parties[1] && parties[1].length > 2) {
+    valeur = parties[0] + ',' + parties[1].slice(0, 2);
+  }
+
+  input.value = valeur;
 }
+
+
 // Ajoutez un gestionnaire d'événements clic pour le bouton du pied de page
 var notificationidxw = document.getElementById("notificationidxw");
 // start function to send notification
