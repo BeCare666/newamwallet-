@@ -667,12 +667,16 @@ firebase.auth().onAuthStateChanged(function (user) {
                   for (let i = 0; i < userArrayAJob.length; i++) {
                     const userLix = document.createElement("p");
                     userLix.id = userArrayAJob[i].uniqueId;
-                    //console.log(userArrayAJob[i].XitledeCategorie)
+                    //console.log(userArrayAJob[i].XitledeCategorie) 
                     var content;
+
+                    const job = userArrayAJob[i];
+                    const urlFormation = job.urlformation ? encodeURIComponent(job.urlformation) : "null";
+
                     content =
-                      userArrayAJob[i].XitledeCategorie === "Formation"
-                        ? ` <a class="btn btn-secondary" href="indexex.html?id=${userArrayAJob[i].Salairedejob} ">Acheter</a>`
-                        : ` <a class="btn btn-primary" href="indexe.html">Postuler </a> `;
+                      job.XitledeCategorie === "Formation"
+                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&urlformation=${urlFormation}">Acheter</a>`
+                        : `<a class="btn btn-primary" href="indexe.html">Postuler</a>`;
 
                     var contentxc;
                     contentxc =
@@ -680,16 +684,20 @@ firebase.auth().onAuthStateChanged(function (user) {
                         ? ` <p class="card__owner"><strong>Prix  :</strong> ${userArrayAJob[i].Salairedejob} $</p>`
                         : ` <p class="card__owner"><strong>Salaire :</strong> ${userArrayAJob[i].Salairedejob} $</p> `;
 
-                    userLix.innerHTML = `
-            <img src="img/logo_of_wallet.jpg" alt="" style="height: 25%; width: 25%; border-radius: 100%;">
-            <p class="card__number">${userArrayAJob[i].Titledejob} </p>
-            ${contentxc}
-            <div class="card__info">
-              <p class="card__integral"><strong>Description :</strong>${userArrayAJob[i].Descriptiondejob}</p><br>
-             ${content}
-            </div>
-            <p class="card__owner">Publié le ${userArrayAJob[i].time}</p><hr>
-          `;
+                    const imageform = job.formationimg
+                      ? job.formationimg
+                      : 'img/logo_of_wallet.jpg';
+
+                    userLix.innerHTML = ` 
+                      <img src="${imageform}" alt="" style="height: 25%; width: 25%; border-radius: 100%;">
+                      <p class="card__number">${userArrayAJob[i].Titledejob}</p>
+                      ${contentxc}
+                      <div class="card__info">
+                        <p class="card__integral"><strong>Description :</strong>${userArrayAJob[i].Descriptiondejob}</p><br>
+                        ${content}
+                      </div>
+                      <p class="card__owner">Publié le ${userArrayAJob[i].time}</p><hr>
+                    `;
 
                     // Attach the mouseover event listener
                     userLix.addEventListener(
@@ -744,117 +752,227 @@ var containerID = document.getElementById("containerID");
 var containerIDx = document.getElementById("containerIDx");
 
 var containerId = document.getElementById("containerId");
-var assistanceId = document.getElementById("assistanceId");
 var menubtnId = document.getElementById("menu-btnId");
 menubtnId.addEventListener("click", function () {
-  //containerId.style.display = "none";
   Swal.fire({
-    title: "Your amount",
+    title: "Recharge ton compte",
     html: `
-    <style>
-      .swal2-input {
-        width: 100% !important;
-      }
-    </style>
-    <p>Recharge your account for <strong style="color: blue;">am wallet address</strong>.</p>
-    <input type="number" id="amount-input" class="swal2-input" min="1" step="1" placeholder="Put amount($)" />
-  `,
+  <style>
+    .swal2-container .swal2-html-container {
+      padding-top: 10px;
+    }
+
+    .recharge-container {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: left;
+    }
+
+    .recharge-container p {
+      margin: 10px 0 6px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .recharge-container .swal2-select,
+    .recharge-container .swal2-input {
+      width: 100% !important;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .recharge-container #crypto-section {
+      background: #f9f9f9;
+      border-left: 4px solid #ff5555;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .recharge-container #crypto-section p {
+      color: #cc0000;
+      margin-bottom: 8px;
+    }
+
+    .recharge-container #crypto-section input {
+      margin-bottom: 8px;
+    }
+         .recharge-container #crypto-section input {
+      margin-bottom: 8px;
+    }
+
+    .recharge-container #crypto-section button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #recharge-mode {
+      width: 60% !important; /* ou 50%, selon ton besoin */
+      margin-bottom: 12px;
+    }
+   
+  </style>
+
+  <div class="recharge-container">
+    <p>Mode de recharge :</p>
+    <select id="recharge-mode" class="swal2-select">
+      <option value="mobile">Recharge par Mobile </option>
+      <option value="crypto">Cryptomonnaie (TRON)</option>
+    </select>
+
+<div id="crypto-section" style="display: none;">
+  <p><strong>⚠️ Cette adresse accepte uniquement du TRON</strong></p>
+  <p><strong>Adresse TRON :</strong></p>
+  <input type="text" id="tron-address" class="swal2-input" readonly value="TUa3YvU52mK7yZSRabZx5R3R7wXkNRXZfP" />
+  <button onclick="copyTronAddress()" class="swal2-confirm swal2-styled" style="margin-top:10px;">📋 Copier l'adresse</button>
+  <p id="copy-feedback" style="color: green; font-weight: bold; display: none; margin-top: 5px;">✅ Adresse copiée !</p>
+</div>
+
+
+    <div id="amount-section">
+      <p>Entrez le montant :</p>
+      <input type="number" id="amount-input" class="swal2-input" min="1" step="1" placeholder="Montant en $ (USD)" />
+    </div>
+  </div>
+`,
+
+
+    didOpen: () => {
+      const select = document.getElementById("recharge-mode");
+      const cryptoSection = document.getElementById("crypto-section");
+      const amountSection = document.getElementById("amount-section");
+
+      select.addEventListener("change", function () {
+        if (this.value === "crypto") {
+          cryptoSection.style.display = "block";
+          amountSection.style.display = "none";
+        } else {
+          cryptoSection.style.display = "none";
+          amountSection.style.display = "block";
+        }
+      });
+    },
     preConfirm: () => {
-      const input = document.getElementById("amount-input").value;
-      if (input <= 0) {
-        Swal.showValidationMessage("Please enter a positive number!");
+      const mode = document.getElementById("recharge-mode").value;
+      const amount = document.getElementById("amount-input").value;
+      if (mode === "mobile" && (amount <= 0 || !amount)) {
+        Swal.showValidationMessage("Veuillez entrer un montant valide.");
         return false;
       }
-      return input;
+      return { mode, amount };
     },
     showCancelButton: true,
-    confirmButtonText: "Recharge",
-    cancelButtonText: "Cancel",
+    confirmButtonText: "Continuer",
+    cancelButtonText: "Annuler",
   }).then((result) => {
     if (result.isConfirmed) {
+      const { mode, amount } = result.value;
+
+      if (mode === "crypto") {
+        Swal.fire({
+          icon: "info",
+          title: "En attente de votre paiement TRON",
+          html: `Après avoir envoyé le montant en TRON, contactez le support avec la preuve pour validation.
+            <div style="text-align: left !important;"><hr>
+            <strong>Support :</strong><hr>
+            <a href="https://wa.me/+2290164669774" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-whatsapp"></i> +44 7418315534
+            </a><hr>
+            <a href="mailto:info@amowa.online" target="_blank" rel="noopener noreferrer">
+              <i class="far fa-envelope"></i>info@amowa.online
+            </a>
+            </div>`,
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
       document.getElementById("sameToBody").style.display = "block";
-      var inputValue = result.value;
-      const amount = inputValue * 655;
-      // Initialisation de FEEPay
+      const fcfaAmount = amount * 655;
+
+      // FEEPay
       FeexPayButton.init("render", {
-        id: "65c89373ac34723190f5087e", // Remplacez par votre ID de boutique
-        amount: `${amount}`, // Calcul du montant total (prix * quantité)
-        token:
-          "fp_RyjzKSop3kh7DF1vy3LG0KRDTYYgF3ebSZSDsTR6MIrYauAU83IrSS7qUE3HksLe", // Remplacez par votre token API de FEEPay
+        id: "65c89373ac34723190f5087e",
+        amount: `${fcfaAmount}`,
+        token: "fp_RyjzKSop3kh7DF1vy3LG0KRDTYYgF3ebSZSDsTR6MIrYauAU83IrSS7qUE3HksLe",
         callback: () => {
           console.log("Paiement réussi !");
-          addSuccessListener(); // Appelez une fonction après le paiement (personnalisée ici)
+          addSuccessListener();
         },
-        callback_url: "your_callback_url", // Facultatif : URL de callback si vous en avez une
-        mode: "LIVE", // Utilisez 'LIVE' pour un environnement de production
-        custom_button: false, // Si vous souhaitez un bouton personnalisé
-        id_custom_button: "my-custom-button-id", // Si vous avez un bouton personnalisé, utilisez cet ID
-        custom_id: "random_string_for_reference", // Facultatif : pour faire référence à cette transaction
-        case: "", // MOBILE,,  Facultatif : Si vous souhaitez cibler un mode de paiement spécifique
+        callback_url: "your_callback_url",
+        mode: "LIVE",
+        custom_button: false,
+        id_custom_button: "my-custom-button-id",
+        custom_id: "random_string_for_reference",
+        case: "",
       });
-      setTimeout(() => {
-        // Sélectionner le bouton avec la classe 'feexpay_button' dans le div #render
-        const button = document.querySelector("#render .feexpay_button");
 
-        // Vérifier si le bouton existe et simuler un clic
-        setTimeout(function () {
+      setTimeout(() => {
+        const button = document.querySelector("#render .feexpay_button");
+        setTimeout(() => {
           const button = document.querySelector("#render .feexpay_button");
           if (button) {
             document.getElementById("sameToBody").style.display = "none";
             button.click();
           } else {
             document.getElementById("sameToBody").style.display = "none";
-            var iphoneID = document.getElementById("iphoneIDm");
-            iphoneID.style.display = "none";
+            document.getElementById("iphoneIDm").style.display = "none";
             console.log("Le bouton n'a pas été trouvé !");
           }
-        }, 1000); // Délai de 1 seconde, ajuste selon le besoin
+        }, 1000);
       }, 500);
 
       function addSuccessListener() {
         const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
         const balanceIDAWWW = localStorage.getItem("balanceIDAWWW");
         var myComptaConvertis = parseFloat(balanceIDAWWW);
-        var addCommissionConvertis = parseFloat(inputValue);
+        var addCommissionConvertis = parseFloat(amount);
         var myCommissionAdd = myComptaConvertis + addCommissionConvertis;
-        console.log("myComptaConvertis entered:", myComptaConvertis);
-        console.log("addCommissionConvertis entered:", addCommissionConvertis);
-        console.log("myCommissionAdd entered:", myCommissionAdd);
+
         const newData = {
           ACCOUNTPRINCIPAL: myCommissionAdd,
         };
-        const userRefx = database.ref(`/utilisateurs/${unserconnectuserIdE}`);
+        const userRefx = database.ref(`/ utilisateurs / ${unserconnectuserIdE}`);
         userRefx.update(newData, (error) => {
           if (error) {
-            Swal.fire({
-              title: "Ooops",
-              confirmButtonText: "OK",
-              allowOutsideClick: false,
-              text: "Your recharge  has failed.",
-              icon: "error",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.reload();
-              }
-            });
+            Swal.fire("Ooops", "Votre recharge a échoué.", "error");
           } else {
-            Swal.fire({
-              icon: "success",
-              title: "Succès",
-              confirmButtonText: "OK",
-              allowOutsideClick: true,
-              text: `Your recharge has been completed successfully.`,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.reload();
-              }
+            Swal.fire("Succès", "Votre recharge a été effectuée avec succès.", "success").then(() => {
+              window.location.reload();
             });
           }
         });
       }
     }
   });
+
 });
+
+function copyTronAddress() {
+  const address = document.getElementById('tron-address').value;
+  const feedback = document.getElementById('copy-feedback');
+
+  navigator.clipboard.writeText(address).then(() => {
+    feedback.style.display = 'block';
+    setTimeout(() => {
+      feedback.style.display = 'none';
+    }, 2000);
+  }).catch((err) => {
+    feedback.innerText = '❌ Échec de la copie';
+    feedback.style.color = 'red';
+    feedback.style.display = 'block';
+    setTimeout(() => {
+      feedback.style.display = 'none';
+    }, 3000);
+  });
+}
 
 var tableSolde = [];
 var tablePhone = [];
@@ -865,7 +983,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
   const { isConfirmed, value } = await Swal.fire({
     title: "Your amount",
     html: `
-      <label id="swal-label" for="country-select">🌍 Choisissez votre pays</label>
+        < label id = "swal-label" for= "country-select" >🌍 Choisissez votre pays</label >
       <select id="country-select" class="swal2-select" style="margin-bottom:10px; width:60%; max-width:300px;">
         ${countryOptions}
       </select>
@@ -891,7 +1009,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
           this.value = val;
         "
       />
-    `,
+        `,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: "Get",
@@ -939,11 +1057,10 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
   try {
     const userRef = database.ref(`/utilisateurs/${userId}`);
 
-    // Lire le solde actuel
     const snapshot = await userRef.once('value');
     const userData = snapshot.val();
-
     if (!userData || typeof userData.ACCOUNTPRINCIPAL === "undefined") {
+
       Swal.fire("Erreur", "Impossible de récupérer votre solde actuel.", "error");
       return;
     }
@@ -963,7 +1080,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
       await userRef.update({ ACCOUNTPRINCIPAL: newBalance });
 
       const now = new Date();
-      const formattedDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}h:${now.getMinutes()}min`;
+      const formattedDate = `${now.getDate()} /${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()} h:${now.getMinutes()} min`;
       localStorage.setItem("DateNow", formattedDate);
 
       Swal.fire({
@@ -1033,7 +1150,7 @@ Get_for_userxxc_points.addEventListener("click", function () {
     </style>
     <strong>Buy points from 36 points.
     36 points ==== 0,10 $</strong>
-    <p>Get your points for <strong style="color: blue;">am wallet address</strong>.</p>
+    <p>Get your points for <strong style="color: blue;">amowa address</strong>.</p>
     <input type="number" id="amount-inputxc" class="swal2-input" min="10" step="1" placeholder="Put points" />
   `,
     preConfirm: () => {
@@ -1156,34 +1273,7 @@ Get_for_userxxc_points.addEventListener("click", function () {
   });
 });
 
-assistanceId.addEventListener("click", function () {
-  containerId.style.display = "none";
-  Swal.fire({
-    imageUrl: "img/logo_of_wallet.jpg", // Remplacez "url_de_votre_image.jpg" par l'URL de votre image
-    imageWidth: 200, // Largeur de l'image en pixels
-    imageHeight: 200, // Hauteur de l'image en pixels
-    html: `
-  <div style="text-align: left !important;">
-  <a href="https://wa.me/+447418315534" target="_blank" rel="noopener noreferrer">
-  <i class="fab fa-whatsapp"></i> +44 7418315534
-  </a><hr>
-  <a href="mailto:amobilewallet.inter@gmail.com" target="_blank" rel="noopener noreferrer">
-    <i class="far fa-envelope"></i>  amobilewallet.inter@gmail.com
-  </a>
-  </div>`,
-    icon: "Info",
-    confirmButtonText: "Yes",
-    cancelButtonText: "Back",
-    showCancelButton: true,
-    allowOutsideClick: false,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.reload();
-    } else {
-      window.location.reload();
-    }
-  });
-});
+
 
 {
   /*document.getElementById('env').addEventListener('click', function(){

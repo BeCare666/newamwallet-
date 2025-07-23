@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin - Gestion Événements & Investissements</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.min.css" />
+
+    <style>
+        /* Reset simple */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            background: #f0f2f8;
+            margin: 0;
+            padding: 2rem 1rem;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #4f46e5;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.2rem;
+            user-select: none;
+        }
+
+        form {
+            background: #fff;
+            padding: 2rem 2.5rem;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 520px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            box-shadow: 0 12px 30px rgb(0 0 0 / 0.15);
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #444;
+            font-size: 1rem;
+        }
+
+        select,
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1.8px solid #d1d5db;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            outline-offset: 2px;
+        }
+
+        select:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        input[type="file"]:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 5px rgba(79, 70, 229, 0.6);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        button {
+            margin-top: 0.6rem;
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 700;
+            border: none;
+            padding: 0.85rem 1.4rem;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+            box-shadow: 0 5px 15px rgb(79 70 229 / 0.4);
+        }
+
+        button:hover,
+        button:focus {
+            background-color: #4338ca;
+            box-shadow: 0 7px 20px rgb(67 56 202 / 0.6);
+        }
+
+        .list-container {
+            margin-top: 3rem;
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 7px 20px rgb(0 0 0 / 0.05);
+            display: flex;
+            gap: 1.25rem;
+            align-items: center;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 32px rgb(0 0 0 / 0.1);
+        }
+
+        .card img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+        }
+
+        .card-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-details h3 {
+            margin: 0 0 0.4rem 0;
+            font-weight: 700;
+            color: #4f46e5;
+            font-size: 1.25rem;
+            user-select: text;
+        }
+
+        .card-details p {
+            margin: 0 0 0.5rem 0;
+            color: #555;
+            font-size: 1rem;
+            user-select: text;
+            line-height: 1.3;
+        }
+
+        .card-details .type {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            width: fit-content;
+            user-select: none;
+        }
+
+        .card-details .price {
+            font-weight: 700;
+            color: #111827;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+            user-select: text;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 110px;
+        }
+
+        .btn {
+            border: none;
+            padding: 0.55rem 1rem;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+            box-shadow: 0 3px 10px rgb(0 0 0 / 0.08);
+        }
+
+        .btn-edit {
+            background: #facc15;
+            color: #92400e;
+        }
+
+        .btn-edit:hover,
+        .btn-edit:focus {
+            background: #eab308;
+            box-shadow: 0 6px 18px rgb(234 179 8 / 0.7);
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover,
+        .btn-delete:focus {
+            background: #dc2626;
+            box-shadow: 0 6px 18px rgb(220 38 38 / 0.7);
+        }
+
+        /* Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            user-select: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            form {
+                padding: 1.5rem 1.5rem;
+            }
+
+            .list-container {
+                padding: 0 1rem;
+            }
+
+            .card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card img {
+                width: 100%;
+                height: auto;
+                border-radius: 14px;
+            }
+
+            .card-actions {
+                flex-direction: row;
+                gap: 1rem;
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Admin - Gestion Événements & Investissements</h1>
+
+    <form id="form" autocomplete="off" spellcheck="false" novalidate>
+        <label for="type">Type</label>
+        <select id="type" required>
+            <option value="Événement">🎉 Événement</option>
+            <option value="Investissement">💼 Investissement</option>
+        </select>
+
+        <label for="title">Titre</label>
+        <input type="text" id="title" placeholder="Titre" required />
+
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="Description" rows="3" required></textarea>
+
+        <label for="prix">Prix / Montant (FCFA)</label>
+        <input type="number" id="prix" min="0" placeholder="Ex: 5000" required />
+
+        <label for="imageFile">Image (jpg/png)</label>
+        <input type="file" id="imageFile" accept="image/*" />
+
+        <button type="submit" id="submitBtn">Ajouter</button>
+    </form>
+
+    <div class="list-container" id="listContainer"></div>
+
+    <script>
+        // Configuration Firebase (remplace par tes infos)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                const form = document.getElementById('form');
+                const listContainer = document.getElementById('listContainer');
+                const submitBtn = document.getElementById('submitBtn');
+
+                let editId = null;
+
+                function fetchItems() {
+                    db.ref('publications').on('value', snapshot => {
+                        listContainer.innerHTML = '';
+                        const data = snapshot.val();
+                        if (!data) {
+                            listContainer.innerHTML = '<p style="text-align:center;color:#666;">Aucun événement ou investissement</p>';
+                            return;
+                        }
+                        Object.entries(data).forEach(([key, item]) => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+
+                            card.innerHTML = `
+          <img src="${item.image || 'https://via.placeholder.com/90?text=No+Image'}" alt="${item.title}" />
+          <div class="card-details">
+            <div class="type">${item.type}</div>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            <div class="price">${item.prix.toLocaleString()} FCFA</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-edit" data-id="${key}" aria-label="Modifier">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M4 17.25V21h3.75l11.06-11.06-3.75-3.75L4 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg> Modifier
+            </button>
+            <button class="btn btn-delete" data-id="${key}" aria-label="Supprimer">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M9 6v12a1 1 0 0 0 2 0V6m5 0v12a1 1 0 0 1-2 0V6m-4 0v12a1 1 0 0 0 2 0V6"/></svg> Supprimer
+            </button>
+          </div>
+        `;
+                            listContainer.appendChild(card);
+                        });
+
+                        document.querySelectorAll('.btn-edit').forEach(btn => {
+                            btn.onclick = e => {
+                                const id = e.currentTarget.dataset.id;
+                                startEdit(id);
+                            };
+                        });
+                        document.querySelectorAll('.btn-delete').forEach(btn => {
+                            btn.onclick = e => {
+                                const id = e.currentTarget.dataset.id;
+                                Swal.fire({
+                                    title: 'Confirmez-vous la suppression ?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Oui, supprimer',
+                                    cancelButtonText: 'Annuler',
+                                }).then(result => {
+                                    if (result.isConfirmed) {
+                                        deleteItem(id);
+                                    }
+                                });
+                            };
+                        });
+                    });
+                }
+
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+
+                    const type = form.type.value;
+                    const title = form.title.value.trim();
+                    const description = form.description.value.trim();
+                    const prix = Number(form.prix.value);
+                    const file = form.imageFile.files[0];
+
+                    if (!title || !description || !prix) {
+                        Swal.fire('Erreur', 'Veuillez remplir tous les champs requis', 'error');
+                        return;
+                    }
+
+                    if (editId) {
+                        if (file) {
+                            fileToBase64(file).then(base64 => {
+                                updateItem(editId, { type, title, description, prix, image: base64 });
+                            });
+                        } else {
+                            updateItem(editId, { type, title, description, prix });
+                        }
+                    } else {
+                        if (!file) {
+                            Swal.fire('Erreur', 'Merci de choisir une image', 'error');
+                            return;
+                        }
+                        fileToBase64(file).then(base64 => {
+                            addItem({ type, title, description, prix, image: base64 });
+                        });
+                    }
+                });
+
+                function fileToBase64(file) {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = error => reject(error);
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                function addItem(data) {
+                    db.ref('publications').push(data, error => {
+                        if (error) {
+                            Swal.fire('Erreur', 'Erreur ajout: ' + error.message, 'error');
+                        } else {
+                            Swal.fire('Succès', 'Ajout réussi', 'success');
+                            form.reset();
+                        }
+                    });
+                }
+
+                function updateItem(id, data) {
+                    db.ref(`publications/${id}`).update(data, error => {
+                        if (error) {
+                            Swal.fire('Erreur', 'Erreur mise à jour: ' + error.message, 'error');
+                        } else {
+                            Swal.fire('Succès', 'Mise à jour réussie', 'success');
+                            form.reset();
+                            submitBtn.textContent = 'Ajouter';
+                            editId = null;
+                        }
+                    });
+                }
+
+                function deleteItem(id) {
+                    db.ref(`publications/${id}`).remove(error => {
+                        if (error) {
+                            Swal.fire('Erreur', 'Erreur suppression: ' + error.message, 'error');
+                        }
+                    });
+                }
+
+                function startEdit(id) {
+                    db.ref(`publications/${id}`).once('value', snapshot => {
+                        const item = snapshot.val();
+                        if (!item) return Swal.fire('Erreur', 'Élément introuvable', 'error');
+
+                        form.type.value = item.type;
+                        form.title.value = item.title;
+                        form.description.value = item.description;
+                        form.prix.value = item.prix;
+
+                        submitBtn.textContent = 'Modifier';
+                        editId = id;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+
+                fetchItems();
+            } else {
+                // User not logged in
+                document.body.innerHTML = `<h2 style="text-align:center; margin-top: 4rem; color:#999;">
+                Veuillez vous connecter pour accéder à l'administration.</h2>`;
+            }
+        });
+    </script>
+
+</body>
+
+</html>

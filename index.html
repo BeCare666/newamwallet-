@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AM_wallet</title>
+  <title>amowa</title>
   <link rel="stylesheet" href="index.css">
   <link href="img/logo_of_wallet.jpg" rel="icon">
   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.7.0/css/all.css">
@@ -94,10 +94,16 @@
                 style=" background-color: #045086; color: white;"> <a href='#' style='color: white;'>
                   <p style="font-size: 12px;">&nbsp;<i class="fas fa-credit-card"></i>&nbsp;Retrait &nbsp;</p>
                 </a></div>
-              <div class="col-12 menu-btnx lower-row" id="Get_for_userxxc_points"
+              <div class="col-12 menu-btnx lower-row" id="investinprojet"
+                style=" background-color: #048636; color: white;"> <a href='myinvest.html' style='color: white;'>
+                  <p style="font-size: 12px;">&nbsp;<i class="fas fa-credit-card"></i>&nbsp;investments &nbsp;</p>
+                </a>
+              </div>
+              <!--<div class="col-12 menu-btnx lower-row" id="Get_for_userxxc_points"
                 style=" background-color: #048636; color: white;"> <a href='#' style='color: white;'>
                   <p style="font-size: 12px;">&nbsp;<i class="fas fa-credit-card"></i>&nbsp;Achat de Points &nbsp;</p>
-                </a></div>
+                </a>
+              </div>-->
               <div class="col-6 menu-btnx lower-row " id="financementId"
                 style=" background-color: #2c3338; color: white;">
                 <a href='formx.html' style='color: white;'>
@@ -108,7 +114,7 @@
               </div>
               <div class="col-6 menu-btnx lower-row" id="assistanceId"
                 style=" background-color: #2c3338; color: white;">
-                <a href="#" style="color: white;">
+                <a style="color: white;">
                   <p style="font-size: 12px; margin-top: 23px !important;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i
                       class="fas fa-headset"></i> Support &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
                 </a>
@@ -130,17 +136,19 @@
             </div>
           </div>
           <div class="container">
-            <!---./invest/index.html-->
+            <!---./invest/index.html id="transfer_systemsx"-->
             <div class="row">
-              <div class="col-6 menu-btnx lower-row" id="transfer_systemsx"
-                style=" background-color: #2c3338; color: white; cursor:pointer"><a style='color: white;'>
-                  <p style="font-size: 12px;">&nbsp;&nbsp;<i class="fas fa-chart-line"></i> investment&nbsp;&nbsp;</p>
+              <div class="col-6 menu-btnx lower-row" style=" background-color: #2c3338; color: white; cursor:pointer"><a
+                  href="myevents.html" style='color: white;'>
+                  <p style="font-size: 12px;">&nbsp;&nbsp;<i class="fas fa-chart-line"></i>
+                    events&nbsp;&nbsp;</p>
                 </a>
               </div>
               <div class="col-6 menu-btnx lower-row" id="transfer_for_userx"
                 style=" background-color: #2c3338; color: white;" data-toggle="modal"
                 data-target="#exampleModalCenterJobOffers"> <a href='#' style='color: white;'>
-                  <p style="font-size: 12px;">&nbsp;<i class="fas fa-hand-holding-usd"></i> Job & Formation &nbsp;</p>
+                  <!-- <p style="font-size: 12px;">&nbsp;<i class="fas fa-hand-holding-usd"></i> Job & Formation &nbsp;</p>-->
+                  <p style="font-size: 12px;">&nbsp;<i class="fas fa-hand-holding-usd"></i> Formation &nbsp;</p>
                 </a></div>
 
             </div>
@@ -320,7 +328,7 @@
           <div class="modal-footer" style=" background-color: #2c3338;">
             <a href='amwalette.html'><button type="button" class="btn btn-primary"
                 style=" background-color: #2c3338; border: #06D778 1px solid;"><img src="img/logo_of_wallet.jpg" alt=""
-                  style="width: 20px; height: 20px; border-radius: 100%;"> AM_wallet</button></a>
+                  style="width: 20px; height: 20px; border-radius: 100%;"> amowa</button></a>
             <button type="button" class="btn btn-secondary" data-dismiss="modal"
               style=" background-color: #2c3338; border: #06D778 1px solid;">
               Close</button>
@@ -347,7 +355,7 @@
                 </svg>
 
                 <!-- Page Title -->
-                <h1 class="menu__title">Job & Formation List </h1>
+                <h1 class="menu__title">Formation List </h1>
 
                 <!-- Plus Icon -->
                 <svg style="opacity: 0 !important; " class="menu__icon" enable-background="new 0 0 304.223 304.223"
@@ -430,6 +438,35 @@
       document.getElementById('PointsId').addEventListener('click', function () {
         window.location.href = "points.html"
       })
+      var assistanceId = document.getElementById("assistanceId");
+      assistanceId.addEventListener("click", function () {
+        containerId.style.display = "none";
+        Swal.fire({
+          imageUrl: "img/logo_of_wallet.jpg", // Remplacez "url_de_votre_image.jpg" par l'URL de votre image
+          imageWidth: 200, // Largeur de l'image en pixels
+          imageHeight: 200, // Hauteur de l'image en pixels
+          html: `
+  <div style="text-align: left !important;">
+  <a href="https://wa.me/+2290164669774" target="_blank" rel="noopener noreferrer">
+  <i class="fab fa-whatsapp"></i> +229 01 64 66 97 74
+  </a><hr>
+  <a href="mailto:info@amowa.online" target="_blank" rel="noopener noreferrer">
+    <i class="far fa-envelope"></i>info@amowa.online
+  </a>
+  </div>`,
+          icon: "Info",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Back",
+          showCancelButton: true,
+          allowOutsideClick: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload();
+          } else {
+            window.location.reload();
+          }
+        });
+      });
     </script>
     <script src="index.js"></script>
     <script src="indexv.js"></script>

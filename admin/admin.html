@@ -29,7 +29,7 @@
     </header>
     <br />
     &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-secondary" data-toggle="modal" data-target="#postJobsId">
-      Post Job
+      Form
     </button>
     &nbsp;<button class="btn btn-primary" id="notificationidxw">sms</button>&nbsp;
     <button class="btn btn-primary" id="publicitiesId">Pub</button>
@@ -194,7 +194,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLongTitle">
-            Poster un job/formation
+            Poster une formation
           </h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -206,13 +206,13 @@
               <span class="input-group-text" id="basic-addon1">Catégorie</span>
             </div>
             <select id="Title_de_Categorie" type="text" class="form-control" aria-describedby="basic-addon1">
-              <option value="Job" selected>Job</option>
-              <option value="Formation">Formation</option>
+              <!---<option value="Job" selected>Job</option>-->
+              <option value="Formation" selected>Formation</option>
             </select>
           </div>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <span class="input-group-text" id="basic-addon1">Title de job/formation
+              <span class="input-group-text" id="basic-addon1">formation
               </span>
             </div>
             <input id="Title_de_job" type="text" class="form-control" placeholder="Title " aria-label="Username"
@@ -220,17 +220,24 @@
           </div>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <span class="input-group-text" id="basic-addon1">Job Salaire/Prix formation</span>
+              <span class="input-group-text" id="basic-addon1"> Prix formation</span>
             </div>
-            <input id="Salaire_de_job" type="text" class="form-control" placeholder="Job Salaire/Prix formation"
+            <input id="Salaire_de_job" type="text" class="form-control" placeholder=" Prix formation"
               aria-label="Username" aria-describedby="basic-addon1" />
           </div>
           <div class="input-group">
             <div class="input-group-prepend">
-              <span class="input-group-text">Job Description/formation</span>
+              <span class="input-group-text">formation Description</span>
             </div>
             <textarea id="Description_de_job" class="form-control" aria-label="With textarea"
               maxlength="450"></textarea>
+          </div>
+          <hr>
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Image</span>
+            </div>
+            <input type="file" id="imageFile" accept="image/*" class="form-control" />
           </div>
         </div>
         <div class="modal-footer">

@@ -556,6 +556,28 @@ firebase.auth().onAuthStateChanged(function (user) {
       // end function to send notification
 
       // Start function to send job
+      const imageBase64Array = []; // Tableau pour stocker les images en base64
+      const imageInput = document.getElementById('imageFile');
+
+      imageInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const base64String = e.target.result;
+
+            // Ajoute dans le tableau
+            imageBase64Array.push(base64String);
+            console.log("Image ajoutée au tableau:", base64String);
+
+
+          };
+
+          reader.readAsDataURL(file);
+        }
+      });
+
       var postJobsIdSend = document.getElementById("postJobsIdSend");
       postJobsIdSend.addEventListener("click", function () {
         function generateUUID() {
@@ -573,14 +595,18 @@ firebase.auth().onAuthStateChanged(function (user) {
         // Exemple d'utilisation
         var uniqueId = generateUUID();
 
-        // Récupérer la valeur du champ de saisie
+        // Récupérer la valeur du champ de saisie 
         var Title_de_job = document.getElementById("Title_de_job").value;
         var Xitle_de_Categorie =
           document.getElementById("Title_de_Categorie").value;
         var Salaire_de_job = document.getElementById("Salaire_de_job").value;
         var xDescription_de_job =
           document.getElementById("Description_de_job").value;
+        const lastImage = imageBase64Array[imageBase64Array.length - 1];
         // Vérifier si la valeur est vide
+
+
+
         if (
           Title_de_job === "" ||
           Salaire_de_job === "" ||
@@ -609,6 +635,7 @@ firebase.auth().onAuthStateChanged(function (user) {
               Descriptiondejob: xDescription_de_job,
               time: dateFormatee,
               jobId: uniqueId,
+              formationimg: lastImage
             })
             .then(() => {
               // Affichez la notification de succès une fois que toutes les notifications ont été envoyées
