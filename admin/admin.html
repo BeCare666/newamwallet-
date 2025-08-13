@@ -20,14 +20,16 @@
 
 <body>
   <button style="opacity: 0 !important" id="sendunityforuserlupdateO"></button>
-  <div class="container" id="sendIDxww">
+  <div class="container" id="sendIDxww" style="width: 100% !important;">
     <header class="header">
       <input type="text" id="filter" placeholder="Search by username" />&nbsp;
       <button class="btn btn-danger" style="border-radius: 100%;" id="ChangeAdminId">
         <i class="fa-solid fa-edit" style="color: white !important;"></i>
       </button>
+
     </header>
     <br />
+
     &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-secondary" data-toggle="modal" data-target="#postJobsId">
       Form
     </button>
@@ -35,6 +37,95 @@
     <button class="btn btn-primary" id="publicitiesId">Pub</button>
     <a href="lotov.html"><button class="btn btn-primary" id="LotoId">Loto</button></a>
     <div style="opacity: 0">sdfghjk</div>
+    <div class="user-stats">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <i class="fas fa-users"></i>
+        </div>
+        <div>
+          <p class="stat-label">Utilisateurs</p>
+          <p class="stat-value" id="statvalueUsersId"></p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon online">
+          <i class="fas fa-circle"></i>
+        </div>
+        <div>
+          <p class="stat-label">Connecté(s)</p>
+          <p class="stat-value" id="statvalueUsersConnectId"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+      .user-stats {
+        display: flex;
+        flex-wrap: nowrap;
+        /* reste sur une seule ligne */
+        gap: 20px;
+        overflow-x: auto;
+        /* permet de scroller sur mobile si pas assez de place */
+        padding: 10px;
+        -webkit-overflow-scrolling: touch;
+        /* scroll fluide sur iOS */
+      }
+
+      .stat-card {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(145deg, #ffffff, #f3f3f3);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 15px 20px;
+        min-width: 110px;
+        flex-shrink: 0;
+        /* empêche la réduction de taille */
+        transition: transform 0.2s ease-in-out;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-3px);
+      }
+
+      .stat-icon {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 18px;
+        color: white;
+        margin-right: 15px;
+      }
+
+      .stat-icon.total {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+      }
+
+      .stat-icon.online {
+        background: linear-gradient(135deg, #28a745, #1e7d34);
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: #777;
+        margin: 0;
+      }
+
+      .stat-value {
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0;
+        color: #333;
+      }
+    </style>
+
+
     <ul id="result" class="user-list">
       <li>
         <h3>Loading...</h3>
@@ -235,9 +326,16 @@
           <hr>
           <div class="input-group">
             <div class="input-group-prepend">
+              <span class="input-group-text">Pdf</span>
+            </div>
+            <input type="file" id="imageFile" accept="application/pdf" class="form-control" />
+          </div>
+          <hr>
+          <div class="input-group">
+            <div class="input-group-prepend">
               <span class="input-group-text">Image</span>
             </div>
-            <input type="file" id="imageFile" accept="image/*" class="form-control" />
+            <input type="file" id="imageFileNotPdf" class="form-control" />
           </div>
         </div>
         <div class="modal-footer">

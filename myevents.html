@@ -147,14 +147,17 @@
 
             for (const key in data) {
                 const item = data[key];
-                // Vérifie si user a déjà acheté/investi
-                const boughtKey = `bought_${key}`; // flag personnalisé par service
-                const bought = userData[boughtKey] || false;
-                console.log(item.type)
-
-                const card = document.createElement('div');
-                card.className = 'card';
                 if (item.type === 'Événement') {
+                    localStorage.setItem("titltjobx", item.title);
+                    localStorage.setItem("destjobx", item.description);
+                    // Vérifie si user a déjà acheté/investi
+                    const boughtKey = `bought_${key}`; // flag personnalisé par service
+                    const bought = userData[boughtKey] || false;
+                    console.log(item.type)
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
                     card.innerHTML = `
                 <img src="${item.image}" alt="${item.title}">
                 <div class="card-content">
@@ -166,8 +169,9 @@
                 </button>
                 </div>
             `;
+
+                    container.appendChild(card);
                 }
-                container.appendChild(card);
             }
 
             // Ajout event listener sur les boutons
@@ -190,6 +194,9 @@
 
             // Vérifie le solde
             const balance = userData.ACCOUNTPRINCIPAL || 0;
+            const username = userData.username
+            localStorage.setItem('usernameL', username)
+
             if (balance < price) {
                 Swal.fire('Solde insuffisant', 'Votre solde est insuffisant pour effectuer cet achat.', 'warning');
                 return;
@@ -205,7 +212,7 @@
             // Confirmer l'achat
             const result = await Swal.fire({
                 title: `Confirmer ${type === 'Événement' ? 'l\'achat du ticket' : "l'investissement"}`,
-                text: `Vous allez déduire ${price.toLocaleString()} FCFA de votre solde.`,
+                text: `Vous allez déduire ${price.toLocaleString()} $ de votre solde.`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Confirmer',
@@ -237,6 +244,9 @@
         }
 
         function generateReceipt(title, price, type) {
+            var usernameLocal = localStorage.getItem('usernameL')
+            var titltjobx = localStorage.getItem('titltjobx');
+            var destjobx = localStorage.getItem('destjobx');
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
@@ -246,18 +256,26 @@
             doc.setTextColor('#4f46e5');
             doc.text(type === 'Événement' ? 'Reçu de Ticket' : 'Reçu d’Investissement', 20, 20);
 
-            doc.setFontSize(14);
-            doc.setTextColor('#333');
-            doc.text(`Titre : ${title}`, 20, 40);
-            doc.text(`Montant : ${price.toLocaleString()} FCFA`, 20, 50);
-            doc.text(`Date : ${dateStr}`, 20, 60);
-
+            // Ligne de séparation
             doc.setDrawColor('#4f46e5');
             doc.setLineWidth(0.5);
-            doc.line(20, 65, 190, 65);
+            doc.line(20, 25, 190, 25);
 
+            // Texte principal
+            let y = 35; // position de départ pour les lignes suivantes
+            doc.setFontSize(14);
+            doc.setTextColor('#333');
+            doc.text(`Utilisateur : ${usernameLocal}`, 20, y); y += 10;
+            doc.text(`Titre du job : ${titltjobx}`, 20, y); y += 10;
+            doc.text(`Description : ${destjobx}`, 20, y); y += 10;
+            doc.text(`Titre : ${title}`, 20, y); y += 10;
+            doc.text(`Montant : ${price.toLocaleString()} $`, 20, y); y += 10;
+            doc.text(`Date : ${dateStr}`, 20, y); y += 15;
+
+            // Message de remerciement
             doc.setFontSize(10);
-            doc.text('Merci pour votre confiance !', 20, 80);
+            doc.text('Merci pour votre confiance !', 20, y);
+
 
             doc.save(`reçu-${title.replace(/\s/g, '-')}-${Date.now()}.pdf`);
         }

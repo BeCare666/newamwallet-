@@ -17,6 +17,8 @@ var tableOfPrice = [];
 var tableEmail = [];
 var urlImage = [];
 var tableTakeIdUserDelete = [];
+var totalUsers = []
+var totalUsersConnectAll = []
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     var userId = user.uid;
@@ -31,6 +33,10 @@ firebase.auth().onAuthStateChanged(function (user) {
         result.innerHTML = "";
         snapshot.forEach((productSnapshot) => {
           const productData = productSnapshot.val();
+
+          totalUsers.push(productData)
+          console.log("totalUsers", totalUsers.length)
+          document.getElementById('statvalueUsersId').textContent = `${totalUsers.length}`
           var mxcompt = productData.ACCOUNTPRINCIPAL;
           const li = document.createElement("li");
           li.addEventListener("click", function () {
@@ -477,20 +483,93 @@ firebase.auth().onAuthStateChanged(function (user) {
               });
           });
 
+          // Création du li
+
           listItems.push(li);
           li.style.cursor = "pointer";
+
+          // HTML avec ID unique pour le statut
+          const statusId = `user-status-${productData.id}`; // Assure que chaque utilisateur a un ID unique
+
           li.innerHTML = `
-            <img src="../img/user_logo.png" alt="">
-            <div class="user-info">
-                <h5 style="width: 34vh !important; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${productData.email}</h5>
-                <p>${productData.username}, &nbsp; &nbsp;&nbsp; Solde : ${productData.ACCOUNTPRINCIPAL}$  Invest: ${productData.ACCOUNTINVEST}$</p>
-                <p style="display: flex !important;"> 
-                <strong style="color: blue;">CDDR : ${productData.ACCOUNTINVESTGETCIDR}$</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <strong style="color: blue;">POINTS: ${productData.points ? productData.points : " 0"} </strong>
-                
-                </p>
+          <div style="position: relative; display: inline-block;">
+            <img src="../img/user_logo.png" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+            <div id="${statusId}" style="
+                position: absolute;
+                bottom: -5px;
+                right: -5px;
+                min-width: 20px;
+                min-height: 20px;
+                padding: 2px 4px;
+                background-color: green;
+                color: white;
+                font-size: 10px;
+                border: 2px solid white;
+                border-radius: 50%;
+                text-align: center;
+                line-height: 15px;
+            ">
             </div>
-            `;
+          </div>
+          <div class="user-info" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+              <h5 style=" width: 37vh !important;text-overflow: ellipsis; overflow: hidden;">
+                ${productData.email}
+              </h5>
+              <p>${productData.username}, &nbsp; &nbsp;&nbsp; Solde : ${productData.ACCOUNTPRINCIPAL}$  
+                Invest: ${productData.ACCOUNTINVEST}$</p>
+              <p style="display: flex !important;"> 
+                <strong style="color: blue;">CDDR : ${productData.ACCOUNTINVESTGETCIDR}$</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <strong style="color: blue;">POINTS: ${productData.points ? productData.points : "0"} </strong>
+              </p>
+          </div>
+        `;
+
+          // Sélection du statut après injection HTML  white-space: nowrap;
+          const statusElement = li.querySelector(`#${statusId}`);
+
+          let lastSeenValue = productData.last_seen || null;
+          let isOnline = !!productData.online;
+
+          // Fonction format "vu il y a"
+          function formatLastSeen(timestamp) {
+            const diff = Date.now() - timestamp;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (seconds < 60) return `${seconds} sec`;
+            if (minutes < 60) return `${minutes} min`;
+            if (hours < 24) return `${hours} h`;
+            return `${days} j`;
+          }
+
+          // Mise à jour affichage du statut
+          function updateStatus() {
+            if (isOnline) {
+              totalUsersConnectAll.push(isOnline)
+              document.getElementById('statvalueUsersConnectId').textContent = totalUsersConnectAll?.length || 0;
+              //statusElement.innerText = "🟢";
+              statusElement.style.backgroundColor = "green";
+            } else {
+              // statusElement.innerText = "⚪";
+              statusElement.style.backgroundColor = "gray";
+              if (lastSeenValue) {
+                statusElement.title = formatLastSeen(lastSeenValue); // info bulle
+              }
+            }
+          }
+
+          updateStatus();
+
+          // Mise à jour toutes les minutes si offline
+          setInterval(() => {
+            if (!isOnline && lastSeenValue) {
+              statusElement.title = formatLastSeen(lastSeenValue);
+            }
+          }, 60 * 1000);
+
+
           result.appendChild(li);
         });
       });
@@ -578,6 +657,28 @@ firebase.auth().onAuthStateChanged(function (user) {
         }
       });
 
+      const imageFileNotPdfInputBase64Array = []; // Tableau pour stocker les images en base64
+      const imageFileNotPdfInput = document.getElementById('imageFileNotPdf');
+
+      imageFileNotPdfInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const base64String = e.target.result;
+
+            // Ajoute dans le tableau
+            imageFileNotPdfInputBase64Array.push(base64String);
+            console.log("Image ajoutée au tableau:", base64String);
+
+
+          };
+
+          reader.readAsDataURL(file);
+        }
+      });
+
       var postJobsIdSend = document.getElementById("postJobsIdSend");
       postJobsIdSend.addEventListener("click", function () {
         function generateUUID() {
@@ -603,6 +704,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         var xDescription_de_job =
           document.getElementById("Description_de_job").value;
         const lastImage = imageBase64Array[imageBase64Array.length - 1];
+        const lastImageNotPdf = imageFileNotPdfInputBase64Array[imageFileNotPdfInputBase64Array.length - 1];
         // Vérifier si la valeur est vide
 
 
@@ -635,7 +737,8 @@ firebase.auth().onAuthStateChanged(function (user) {
               Descriptiondejob: xDescription_de_job,
               time: dateFormatee,
               jobId: uniqueId,
-              formationimg: lastImage
+              formationimg: lastImage,
+              formationimgNotPdf: lastImageNotPdf
             })
             .then(() => {
               // Affichez la notification de succès une fois que toutes les notifications ont été envoyées

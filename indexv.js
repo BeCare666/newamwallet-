@@ -16,6 +16,61 @@ var tableEmail = [];
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     var userId = user.uid;
+    // start functin to online or offline //
+    const userRef = firebase.database().ref(`/utilisateurs/${userId}`);
+    const connectedRef = firebase.database().ref(".info/connected");
+
+
+    // Mettre online
+    function setOnlineStatus() {
+      userRef.update({
+        online: true,
+        last_seen: firebase.database.ServerValue.TIMESTAMP
+      });
+    }
+
+    // Mettre offline
+    function setOfflineStatus() {
+      userRef.update({
+        online: false,
+        last_seen: firebase.database.ServerValue.TIMESTAMP
+      });
+    }
+
+    // Détection d'inactivité (5 minutes)
+    let inactivityTimer;
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        setOfflineStatus();
+      }, 5 * 60 * 1000);
+    }
+
+    // Événements d'activité
+    ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evt => {
+      window.addEventListener(evt, () => {
+        setOnlineStatus();
+        resetInactivityTimer();
+      });
+    });
+
+    // Suivi de connexion Firebase
+    connectedRef.on("value", (snap) => {
+      if (snap.val() === true) {
+        setOnlineStatus();
+        resetInactivityTimer();
+      } else {
+        setOfflineStatus();
+      }
+    });
+
+    // Déconnexion en fermant la page
+    window.addEventListener("beforeunload", () => {
+      setOfflineStatus();
+    });
+    // end functin to online or offline //
+
+
     firebase
       .database()
       .ref("userdelete/")
@@ -672,10 +727,12 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                     const job = userArrayAJob[i];
                     const urlFormation = job.urlformation ? encodeURIComponent(job.urlformation) : "null";
-
+                    const imageform = job.formationimgNotPdf
+                      ? job.formationimgNotPdf
+                      : 'img/logo_of_wallet.jpg';
                     content =
                       job.XitledeCategorie === "Formation"
-                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&urlformation=${urlFormation}">Acheter</a>`
+                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&urlformation=${job.formationimg}">Acheter</a>`
                         : `<a class="btn btn-primary" href="indexe.html">Postuler</a>`;
 
                     var contentxc;
@@ -684,12 +741,10 @@ firebase.auth().onAuthStateChanged(function (user) {
                         ? ` <p class="card__owner"><strong>Prix  :</strong> ${userArrayAJob[i].Salairedejob} $</p>`
                         : ` <p class="card__owner"><strong>Salaire :</strong> ${userArrayAJob[i].Salairedejob} $</p> `;
 
-                    const imageform = job.formationimg
-                      ? job.formationimg
-                      : 'img/logo_of_wallet.jpg';
+
 
                     userLix.innerHTML = ` 
-                      <img src="${imageform}" alt="" style="height: 25%; width: 25%; border-radius: 100%;">
+                      <img src="${imageform}" alt="" style="height: 35%; width: 35%; border-radius: 100%;">
                       <p class="card__number">${userArrayAJob[i].Titledejob}</p>
                       ${contentxc}
                       <div class="card__info">
@@ -703,6 +758,29 @@ firebase.auth().onAuthStateChanged(function (user) {
                     userLix.addEventListener(
                       "mouseover",
                       (function (usergax) {
+                        // alert("Mouse over event triggered for job: " + usergax.Titledejob);
+                        function stockerPDFBase64(base64PDF) {
+                          const request = indexedDB.open("PDFDatabase", 1);
+
+                          request.onupgradeneeded = function (event) {
+                            const db = event.target.result;
+                            db.createObjectStore("pdfs", { keyPath: "id" });
+                          };
+
+                          request.onsuccess = function (event) {
+                            const db = event.target.result;
+                            const tx = db.transaction("pdfs", "readwrite");
+                            const store = tx.objectStore("pdfs");
+
+                            store.put({ id: "monPDF", content: base64PDF });
+
+                            tx.oncomplete = () => console.log("PDF stocké !");
+                            tx.onerror = () => console.error("Erreur de stockage.");
+                          };
+                        }
+
+                        stockerPDFBase64(`${userArrayAJob[i].formationimgNotPdf}`);
+
                         return function () {
                           // console.log(usergax.Descriptiondejob);
                           var titltjobx = userArrayAJob[i].Titledejob;
@@ -830,7 +908,7 @@ menubtnId.addEventListener("click", function () {
 <div id="crypto-section" style="display: none;">
   <p><strong>⚠️ Cette adresse accepte uniquement du TRON</strong></p>
   <p><strong>Adresse TRON :</strong></p>
-  <input type="text" id="tron-address" class="swal2-input" readonly value="TUa3YvU52mK7yZSRabZx5R3R7wXkNRXZfP" />
+  <input type="text" id="tron-address" class="swal2-input" readonly value="TLtD67k5gpndKibbdb4osbiV5fyZ6tbPm6" />
   <button onclick="copyTronAddress()" class="swal2-confirm swal2-styled" style="margin-top:10px;">📋 Copier l'adresse</button>
   <p id="copy-feedback" style="color: green; font-weight: bold; display: none; margin-top: 5px;">✅ Adresse copiée !</p>
 </div>
@@ -939,7 +1017,7 @@ menubtnId.addEventListener("click", function () {
         const newData = {
           ACCOUNTPRINCIPAL: myCommissionAdd,
         };
-        const userRefx = database.ref(`/ utilisateurs / ${unserconnectuserIdE}`);
+        const userRefx = database.ref(`/utilisateurs/${unserconnectuserIdE}`);
         userRefx.update(newData, (error) => {
           if (error) {
             Swal.fire("Ooops", "Votre recharge a échoué.", "error");
