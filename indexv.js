@@ -560,7 +560,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 //linkInput.value = `Copier ici votre lien d'affiliation.`
                 // function to hide border when you click
                 copyButtonx.addEventListener("click", () => {
-                  linkInputx.value = `https://amwallet.netlify.app/?user-id=${unserconnectId}`;
+                  linkInputx.value = `https://amowa.online//?affiliate-id=${unserconnectId}`;
                   linkInputx.select(); // Sélectionne le texte dans l'input
                   document.execCommand("copy"); // Copie le texte sélectionné dans le presse-papiers
                   Swal.fire({
