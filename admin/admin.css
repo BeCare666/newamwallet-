@@ -1,5 +1,4 @@
 /*=============== GOOGLE FONTS =============== height: 100vh;*/
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
 
 * {
@@ -13,6 +12,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  
   overflow: hidden;
   margin: 0;
 }

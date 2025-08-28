@@ -35,7 +35,7 @@ firebase.auth().onAuthStateChanged(function (user) {
           const productData = productSnapshot.val();
 
           totalUsers.push(productData)
-          // console.log("totalUsers", totalUsers.length)
+          console.log("totalUsers", totalUsers.length)
           document.getElementById('statvalueUsersId').textContent = `${totalUsers.length}`
           var mxcompt = productData.ACCOUNTPRINCIPAL;
           const li = document.createElement("li");
@@ -529,7 +529,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 
           let lastSeenValue = productData.last_seen || null;
           let isOnline = !!productData.online;
-          console.log("lastSeenValue", lastSeenValue)
+
           // Fonction format "vu il y a"
           function formatLastSeen(timestamp) {
             const diff = Date.now() - timestamp;
@@ -549,16 +549,14 @@ firebase.auth().onAuthStateChanged(function (user) {
             if (isOnline) {
               totalUsersConnectAll.push(isOnline)
               document.getElementById('statvalueUsersConnectId').textContent = totalUsersConnectAll?.length || 0;
-              // statusElement.innerText = "🟢";
+              //statusElement.innerText = "🟢";
               statusElement.style.backgroundColor = "green";
             } else {
-              //statusElement.innerText = "⚪";
+              // statusElement.innerText = "⚪";
               statusElement.style.backgroundColor = "gray";
-
               if (lastSeenValue) {
                 statusElement.innerHTML = formatLastSeen(lastSeenValue); // info bulle
                 statusElement.style.minHeight = "30px";
-
               }
             }
           }

@@ -55,12 +55,33 @@ function handleclick(){
               }
            })
         }else{
+            function recupererEtTelechargerPDF() {
+            // Récupération du paramètre `urlformation` dans l'URL
+            const params = new URLSearchParams(window.location.search);
+            const base64PDF = params.get('urlformation');
+        
+            if (base64PDF) {
+              // Crée un lien de téléchargement invisible
+              const a = document.createElement('a');
+              a.href = base64PDF;
+        
+              // Nom du fichier (tu peux le changer dynamiquement)
+              a.download = 'document.pdf';
+        
+              // Ajoute le lien au DOM, déclenche le clic, puis le retire
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            } else {
+              alert("Aucun PDF trouvé dans l'URL.");
+            }
+
           localStorage.setItem('titltjobxttt', titltjobxv)
           localStorage.setItem('destjobxttt', destjobxv)
           Swal.fire({
             title: "Congratulation",
             text: `Your apply has been processed successfully. `,
-            confirmButtonText: "Get your job_Card",
+            confirmButtonText: "Get your formation_card",
             allowOutsideClick: false,
             icon: 'success',
             }).then((result)=>{

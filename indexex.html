@@ -85,41 +85,6 @@
                   }
                 });
               } else {
-                // Fonction pour télécharger un fichier à partir d'une base64
-                function downloadBase64File(base64Data, filename) {
-                  const arr = base64Data.split(',');
-                  const mime = arr[0].match(/:(.*?);/)[1];
-                  const bstr = atob(arr[1]);
-                  let n = bstr.length;
-                  const u8arr = new Uint8Array(n);
-
-                  while (n--) {
-                    u8arr[n] = bstr.charCodeAt(n);
-                  }
-
-                  const blob = new Blob([u8arr], { type: mime });
-                  const url = URL.createObjectURL(blob);
-
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = filename || 'fichier.pdf';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }
-
-                // Récupère le paramètre de l’URL
-                const params = new URLSearchParams(window.location.search);
-                const base64PDF = params.get('urlformation');
-
-                if (base64PDF) {
-                  downloadBase64File(base64PDF, 'document.pdf');
-                } else {
-                  alert("Aucun fichier trouvé.");
-                }
-
-
                 localStorage.setItem('titltjobxttt', titltjobxv);
                 localStorage.setItem('destjobxttt', destjobxv);
 

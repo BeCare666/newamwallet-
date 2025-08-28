@@ -151,7 +151,9 @@ window.onload = function() {
             //console.log(sommes)
             const balanceIDAWW = localStorage.getItem('balanceIDAWWW')
             console.log(balanceIDAWW)
-            if( numberIdx <= balanceIDAWW ){
+             var myComptaConvertisx = parseFloat(balanceIDAWW);
+            var addCommissionConvertisx = parseFloat(numberIdx)
+            if( addCommissionConvertisx <= myComptaConvertisx ){
             if(Amont.value && numberIdx){
                 const dateActuelle = new Date();
                 var myComptaConvertis = parseFloat(balanceIDAWW);

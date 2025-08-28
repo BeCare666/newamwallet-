@@ -162,7 +162,8 @@
                     <h2>${item.title}</h2>
                     <p>${item.description}</p>
                     <p class="price">${item.prix.toLocaleString()} $</p>
-                    <button class="btn-buy" ${bought ? 'disabled' : ''} data-id="${key}" data-price="${item.prix}" data-title="${item.title}" data-type="${item.type}">
+                    <button class="btn-buy" ${bought ? 'disabled' : ''} data-id="${key}" data-price="${item.prix}" data-title="${item.title}" data-type="${item.type}"
+                    data-description="${item.description}">
                         ${bought ? 'Déjà acheté' : (item.type === 'Événement' ? 'Acheter un ticket' : 'Investir maintenant')}
                     </button>
                     </div>
@@ -241,7 +242,7 @@
             }
         }
 
-        function generateReceipt(title, price, type) {
+        function generateReceipt(title, price, type, description) {
             var usernameLocal = localStorage.getItem('usernameL')
             var titltjobx = localStorage.getItem('titltjobx');
             var destjobx = localStorage.getItem('destjobx');
@@ -264,8 +265,8 @@
             doc.setFontSize(14);
             doc.setTextColor('#333');
             doc.text(`Utilisateur : ${usernameLocal}`, 20, y); y += 10;
-            doc.text(`Titre du job : ${titltjobx}`, 20, y); y += 10;
-            doc.text(`Description : ${destjobx}`, 20, y); y += 10;
+           // doc.text(`Titre du job : ${titltjobx}`, 20, y); y += 10;
+            doc.text(`Description : ${description}`, 20, y); y += 10;
             doc.text(`Titre : ${title}`, 20, y); y += 10;
             doc.text(`Montant : ${price.toLocaleString()} $`, 20, y); y += 10;
             doc.text(`Date : ${dateStr}`, 20, y); y += 15;

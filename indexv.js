@@ -16,26 +16,12 @@ var tableEmail = [];
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     var userId = user.uid;
+
     // start functin to online or offline //
     const userRef = firebase.database().ref(`/utilisateurs/${userId}`);
     const connectedRef = firebase.database().ref(".info/connected");
 
 
-    // Mettre online
-    function setOnlineStatus() {
-      userRef.update({
-        online: true,
-        last_seen: firebase.database.ServerValue.TIMESTAMP
-      });
-    }
-
-    // Mettre offline
-    function setOfflineStatus() {
-      userRef.update({
-        online: false,
-        last_seen: firebase.database.ServerValue.TIMESTAMP
-      });
-    }
 
     // Détection d'inactivité (5 minutes)
     let inactivityTimer;
@@ -46,30 +32,12 @@ firebase.auth().onAuthStateChanged(function (user) {
       }, 5 * 60 * 1000);
     }
 
-    // Événements d'activité
-    ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evt => {
-      window.addEventListener(evt, () => {
-        setOnlineStatus();
-        resetInactivityTimer();
-      });
-    });
-
-    // Suivi de connexion Firebase
-    connectedRef.on("value", (snap) => {
-      if (snap.val() === true) {
-        setOnlineStatus();
-        resetInactivityTimer();
-      } else {
-        setOfflineStatus();
-      }
-    });
 
     // Déconnexion en fermant la page
     window.addEventListener("beforeunload", () => {
       setOfflineStatus();
     });
     // end functin to online or offline //
-
 
     firebase
       .database()
@@ -87,6 +55,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         });
 
         if (found) {
+
           console.log("✅ userId trouvé dans userdelete.");
           document.getElementById("sameToBody").style.display = "none";
           Swal.fire({
@@ -194,10 +163,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
               });
             } else {
+              document.getElementById("sameToBody").style.display = "none";
               // function to secure my account
-              if (snapshot.val().securemyaccountR) {
-
-              } else {
+              if (!snapshot.val().securemyaccountR) {
                 $("#secureMyAccountId").modal({
                   show: true,
                   backdrop: "static",
@@ -254,9 +222,40 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                   }
                 });
-              }
-              if (snapshot.val().USERSTATUS) {
+              } else if (snapshot.val().USERSTATUS && snapshot.val().securemyaccountR) {
                 getJobs();
+                // Événements d'activité
+                ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evt => {
+                  window.addEventListener(evt, () => {
+                    setOnlineStatus();
+                    resetInactivityTimer();
+                  });
+                });
+
+                // Suivi de connexion Firebase
+                connectedRef.on("value", (snap) => {
+                  if (snap.val() === true) {
+                    setOnlineStatus();
+                    resetInactivityTimer();
+                  } else {
+                    setOfflineStatus();
+                  }
+                });
+                // Mettre online
+                function setOnlineStatus() {
+                  userRef.update({
+                    online: true,
+                    last_seen: firebase.database.ServerValue.TIMESTAMP
+                  });
+                }
+
+                // Mettre offline
+                function setOfflineStatus() {
+                  userRef.update({
+                    online: false,
+                    last_seen: firebase.database.ServerValue.TIMESTAMP
+                  });
+                }
                 // function to validate code of transfert
                 if (!snapshot.val().transfert_code_id) {
                   const unserconnectuserId = localStorage.getItem("unserconnectuserId");
@@ -560,7 +559,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 //linkInput.value = `Copier ici votre lien d'affiliation.`
                 // function to hide border when you click
                 copyButtonx.addEventListener("click", () => {
-                  linkInputx.value = `https://amowa.online//?affiliate-id=${unserconnectId}`;
+                  linkInputx.value = `https://amowa.online/signup.html?affiliate-id=${unserconnectId}`;
                   linkInputx.select(); // Sélectionne le texte dans l'input
                   document.execCommand("copy"); // Copie le texte sélectionné dans le presse-papiers
                   Swal.fire({
@@ -580,68 +579,6 @@ firebase.auth().onAuthStateChanged(function (user) {
                     icon: "success",
                     confirmButtonText: "OK",
                   });
-                  {
-                    /*Swal.fire({
-      title: "Super !",
-      text: "Your link has been copied to the clipboard",
-      icon: "success",
-      input: 'text',
-      confirmButtonText: "Send",
-      cancelButtonText: "Back",
-      showCancelButton: true,
-      inputAttributes: {
-        placeholder: 'Enter a amount',
-        style: 'text-align: center;' // Center the input text
-      },
-      inputValidator: (value) => {
-        if (!value || value <= 0 || isNaN(value)) {
-          return 'Please enter a number';
-        }else{
-          if(balanceIDAW >= value){
-            const newData = {
-              ACCOUNTPRINCIPALACCESS: value
-              };
-              const userRefx = database.ref(`/utilisateurs/${unserconnectId}`);
-              userRefx.update(newData, (error) => {
-                if (error){
-                  Swal.fire({
-                      title: "Ooops",
-                      confirmButtonText: "D'accord",
-                      allowOutsideClick: false,
-                      text: "les données ne sont pas mise à jour ",
-                      icon: 'error'
-                      }).then((result)=>{
-                      if(result.isConfirmed){
-                          window.location.reload(); 
-                      }
-                   })
-                }else{
-                  Swal.fire({
-                      icon: 'success',
-                      title:"Succès",
-                      confirmButtonText: "D'accord",
-                      allowOutsideClick: false,
-                      text : `les données ont été mise à jour avec succès !`,
-                      }).then((result)=>{
-                      if(result.isConfirmed){
-                      window.location.reload();
-                      }
-                  })
-                }
-              })
-          }else{
-            Swal.fire({
-              title: "Info ",
-              text: "Your balance is insufficient",
-              icon: "error",
-              allowOutsideClick: false,
-            }) 
-          }
-        }
-      },
-      closeOnClickOutside: false
-      });*/
-                  }
                 });
                 const Cffiliate_id = localStorage.getItem("Cffiliate_id");
                 if (Cffiliate_id) {
@@ -680,6 +617,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   icon: "error",
                   footer: `<a href="mailto:amobilewallet.inter@gmail.com">Contact technical support.</a>`,
                 });
+
               }
 
               function getJobs() {
@@ -727,12 +665,10 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                     const job = userArrayAJob[i];
                     const urlFormation = job.urlformation ? encodeURIComponent(job.urlformation) : "null";
-                    const imageform = job.formationimgNotPdf
-                      ? job.formationimgNotPdf
-                      : 'img/logo_of_wallet.jpg';
+
                     content =
                       job.XitledeCategorie === "Formation"
-                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&urlformation=${job.formationimg}">Acheter</a>`
+                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&urlformation=${urlFormation}">Acheter</a>`
                         : `<a class="btn btn-primary" href="indexe.html">Postuler</a>`;
 
                     var contentxc;
@@ -741,7 +677,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                         ? ` <p class="card__owner"><strong>Prix  :</strong> ${userArrayAJob[i].Salairedejob} $</p>`
                         : ` <p class="card__owner"><strong>Salaire :</strong> ${userArrayAJob[i].Salairedejob} $</p> `;
 
-
+                    const imageform = job.formationimgNotPdf
+                      ? job.formationimgNotPdf
+                      : 'img/logo_of_wallet.jpg';
 
                     userLix.innerHTML = ` 
                       <img src="${imageform}" alt="" style="height: 35%; width: 35%; border-radius: 100%;">
@@ -758,7 +696,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                     userLix.addEventListener(
                       "mouseover",
                       (function (usergax) {
-                        // alert("Mouse over event triggered for job: " + usergax.Titledejob);
+
                         function stockerPDFBase64(base64PDF) {
                           const request = indexedDB.open("PDFDatabase", 1);
 
@@ -1017,7 +955,7 @@ menubtnId.addEventListener("click", function () {
         const newData = {
           ACCOUNTPRINCIPAL: myCommissionAdd,
         };
-        const userRefx = database.ref(`/utilisateurs/${unserconnectuserIdE}`);
+        const userRefx = database.ref(`/ utilisateurs / ${unserconnectuserIdE}`);
         userRefx.update(newData, (error) => {
           if (error) {
             Swal.fire("Ooops", "Votre recharge a échoué.", "error");
@@ -1391,4 +1329,68 @@ usersRef.once('value', (snapshot) => {
 });
 
 })*/
+}
+
+
+{
+  /*Swal.fire({
+title: "Super !",
+text: "Your link has been copied to the clipboard",
+icon: "success",
+input: 'text',
+confirmButtonText: "Send",
+cancelButtonText: "Back",
+showCancelButton: true,
+inputAttributes: {
+placeholder: 'Enter a amount',
+style: 'text-align: center;' // Center the input text
+},
+inputValidator: (value) => {
+if (!value || value <= 0 || isNaN(value)) {
+return 'Please enter a number';
+}else{
+if(balanceIDAW >= value){
+const newData = {
+ACCOUNTPRINCIPALACCESS: value
+};
+const userRefx = database.ref(`/utilisateurs/${unserconnectId}`);
+userRefx.update(newData, (error) => {
+if (error){
+Swal.fire({
+    title: "Ooops",
+    confirmButtonText: "D'accord",
+    allowOutsideClick: false,
+    text: "les données ne sont pas mise à jour ",
+    icon: 'error'
+    }).then((result)=>{
+    if(result.isConfirmed){
+        window.location.reload(); 
+    }
+ })
+}else{
+Swal.fire({
+    icon: 'success',
+    title:"Succès",
+    confirmButtonText: "D'accord",
+    allowOutsideClick: false,
+    text : `les données ont été mise à jour avec succès !`,
+    }).then((result)=>{
+    if(result.isConfirmed){
+    window.location.reload();
+    }
+})
+}
+})
+}else{
+Swal.fire({
+title: "Info ",
+text: "Your balance is insufficient",
+icon: "error",
+allowOutsideClick: false,
+}) 
+}
+}
+},
+closeOnClickOutside: false
+});*/
 }
