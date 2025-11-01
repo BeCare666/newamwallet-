@@ -19,6 +19,8 @@ var urlImage = [];
 var tableTakeIdUserDelete = [];
 var totalUsers = []
 var totalUsersConnectAll = []
+const imageUrls = [];
+const imageNotPdfUrls = [];
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     var userId = user.uid;
@@ -636,47 +638,49 @@ firebase.auth().onAuthStateChanged(function (user) {
       // end function to send notification
 
       // Start function to send job
-      const imageBase64Array = []; // Tableau pour stocker les images en base64
-      const imageInput = document.getElementById('imageFile');
+      const cloudName = "dyyr3mx44";         // Remplace par ton Cloudinary cloud_name
+      const uploadPreset = "frontend_upload";   // Remplace par ton upload preset
 
-      imageInput.addEventListener('change', function () {
+      // Fonction pour uploader un fichier sur Cloudinary
+      async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", uploadPreset);
+
+        try {
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: "POST",
+            body: formData
+          });
+          const data = await res.json();
+          return data.secure_url; // URL publique de l'image
+        } catch (err) {
+          console.error("Erreur upload Cloudinary :", err);
+          return null;
+        }
+      }
+
+      // Gestion du premier input
+      document.getElementById('imageFile').addEventListener('change', async function () {
         const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
+        if (!file) return;
 
-          reader.onload = function (e) {
-            const base64String = e.target.result;
-
-            // Ajoute dans le tableau
-            imageBase64Array.push(base64String);
-            console.log("Image ajoutée au tableau:", base64String);
-
-
-          };
-
-          reader.readAsDataURL(file);
+        const url = await uploadToCloudinary(file);
+        if (url) {
+          imageUrls.push(url);
+          console.log("ImageFile URL ajoutée:", url);
         }
       });
 
-      const imageFileNotPdfInputBase64Array = []; // Tableau pour stocker les images en base64
-      const imageFileNotPdfInput = document.getElementById('imageFileNotPdf');
-
-      imageFileNotPdfInput.addEventListener('change', function () {
+      // Gestion du second input
+      document.getElementById('imageFileNotPdf').addEventListener('change', async function () {
         const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
+        if (!file) return;
 
-          reader.onload = function (e) {
-            const base64String = e.target.result;
-
-            // Ajoute dans le tableau
-            imageFileNotPdfInputBase64Array.push(base64String);
-            console.log("Image ajoutée au tableau:", base64String);
-
-
-          };
-
-          reader.readAsDataURL(file);
+        const url = await uploadToCloudinary(file);
+        if (url) {
+          imageNotPdfUrls.push(url);
+          console.log("ImageFileNotPdf URL ajoutée:", url);
         }
       });
 
@@ -704,8 +708,8 @@ firebase.auth().onAuthStateChanged(function (user) {
         var Salaire_de_job = document.getElementById("Salaire_de_job").value;
         var xDescription_de_job =
           document.getElementById("Description_de_job").value;
-        const lastImage = imageBase64Array[imageBase64Array.length - 1];
-        const lastImageNotPdf = imageFileNotPdfInputBase64Array[imageFileNotPdfInputBase64Array.length - 1];
+        const lastImage = imageUrls[imageUrls.length - 1];
+        const lastImageNotPdf = imageNotPdfUrls[imageNotPdfUrls.length - 1];
         // Vérifier si la valeur est vide
 
 

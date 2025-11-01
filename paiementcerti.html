@@ -67,9 +67,11 @@
         const usernameT = localStorage.getItem('usernameT')
         const phoneT = localStorage.getItem('lenumero')
         const selectedCodeT = localStorage.getItem('tableNomPaysL')
+        const reasonT = localStorage.getItem('reason')
         document.getElementById('Prabsaran').innerHTML = ` <strong>Date</strong> : ${DateNow} `
         document.getElementById('paysMyId').innerHTML = ` <strong>Phone</strong> : ${phoneT} `
         document.getElementById('phoneMyId').innerHTML = ` <strong>Pays</strong> : ${selectedCodeT} `
+        document.getElementById('Prabsaran').innerHTML += ` <strong>Raison</strong> : ${reasonT} `
         document.getElementById('Student').innerHTML = ` <strong>Montant retiré</strong> : ${MyCommissionAdd} $`
         document.getElementById('Studentx').innerHTML = ` <strong>Nom</strong> : ${usernameT}`
         if (MyCommissionAdd) {

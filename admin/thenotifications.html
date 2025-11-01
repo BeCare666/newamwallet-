@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Messages Dashboard — Feed</title>
+    <link href="../img/logo_of_wallet.jpg" rel="icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #071026;
+            --card: #0b1220;
+            --muted: #9aa9bf;
+            --accent: #7c3aed;
+            --glass: rgba(255, 255, 255, 0.02);
+            --glass-2: rgba(255, 255, 255, 0.01);
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.18s ease-in-out;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            background: linear-gradient(180deg, #061025 0%, #07122a 100%);
+            color: #e6eef8;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 14px 45px rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+
+        /* Left panel */
+        .panel {
+            background: linear-gradient(180deg, var(--card), rgba(11, 18, 32, 0.6));
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-height: 600px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), #5b21b6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0
+        }
+
+        p.lead {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: var(--glass);
+            color: inherit;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn.primary {
+            background: linear-gradient(90deg, var(--accent), #5b21b6);
+            border: none;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .stat {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .small-muted {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* Feed */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .feedHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sub {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* user-block grouping */
+        .user-block {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 6px 18px rgba(3, 7, 18, 0.6);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
+        }
+
+        .user-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #e6eef8;
+        }
+
+        .user-meta {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .user-messages {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .txn-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            color: #0b1220;
+        }
+
+        .txn-list {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px;
+            border-radius: 8px;
+            color: #e6eef8;
+        }
+
+        .txn-card h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #005cb5;
+        }
+
+        .txn-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .msg-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .msg-time {
+            font-size: 13px;
+            color: #28a745;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn.small {
+            padding: 6px 8px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .loadMore {
+            padding: 14px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        @media (max-width: 1000px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .feedHeader {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .panel {
+                min-height: auto;
+            }
+
+            .logo {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <aside class="panel">
+            <div class="brand">
+                <div class="logo">MB</div>
+                <div>
+                    <h1>Boîte Messages</h1>
+                    <p class="lead">Administration — affichage des messages utilisateurs</p>
+                </div>
+            </div>
+
+            <div class="search">
+                <input id="globalSearch" placeholder="Rechercher id, texte, raison ou uid..." />
+            </div>
+
+            <div class="controls">
+                <button id="btnRefresh" class="btn primary">Rafraîchir</button>
+                <button id="btnClearFilters" class="btn">Effacer</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">Utilisateurs chargés: <strong id="statUsers">0</strong></div>
+                <div class="stat">Messages récupérés: <strong id="statMessages">0</strong></div>
+                <div class="stat">Notifications (IDs uniques): <strong id="statNotifs">0</strong></div>
+            </div>
+            <div class="small-muted" style="margin-top:6px">Astuce: scroll vers le bas pour charger plus d'utilisateurs.
+            </div>
+        </aside>
+
+        <main class="feed">
+            <div class="feedHeader">
+                <div>
+                    <div class="title">Fil des messages</div>
+                    <div class="sub">Sélectionne, cherche et consulte les messages reçus par les utilisateurs</div>
+                </div>
+                <div class="sub" id="loadHint">Chargement initial...</div>
+            </div>
+
+            <div id="cards" class="cards"></div>
+            <div id="loader" class="loadMore" style="display:none">Chargement...</div>
+            <div id="end" class="loadMore" style="display:none">Fin de la liste</div>
+        </main>
+    </div>
+
+    <!-- Firebase & SweetAlert -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // --- config firebase (la même que toi) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        };
+
+        // init
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // --- state & refs ---
+        const PAGE_SIZE = 30;
+        let lastUserKey = null, usersLoaded = 0, loading = false, reachedEnd = false;
+        let allMessages = [], uniqueNotifIds = new Set();
+
+        const cardsEl = document.getElementById('cards');
+        const loaderEl = document.getElementById('loader');
+        const endEl = document.getElementById('end');
+        const statUsers = document.getElementById('statUsers');
+        const statMessages = document.getElementById('statMessages');
+        const statNotifs = document.getElementById('statNotifs');
+        const searchInput = document.getElementById('globalSearch');
+        const btnRefresh = document.getElementById('btnRefresh');
+        const btnClear = document.getElementById('btnClearFilters');
+        const loadHint = document.getElementById('loadHint');
+
+        // helpers
+        function escapeHtml(str) { if (str === undefined || str === null) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function findFirstString(value) { if (typeof value === 'string' && value.trim() !== '') return value; if (!value || typeof value !== 'object') return null; for (const k in value) { try { const res = findFirstString(value[k]); if (res) return res; } catch (e) { } } return null; }
+        function normalizeEntry(raw) {
+            const out = { notificationid: null, message: null, Raison: null, time: null, status: null, body: null, raw };
+            if (!raw) return out;
+            if (typeof raw === 'string') { out.message = raw; return out; }
+            for (const k in raw) {
+                const low = k.toLowerCase(), val = raw[k];
+                if (['notificationid', 'notification_id', 'notifid'].includes(low)) out.notificationid = val;
+                else if (['message', 'msg'].includes(low)) out.message = typeof val === 'string' ? val : findFirstString(val);
+                else if (low === 'body') out.body = typeof val === 'string' ? val : findFirstString(val);
+                else if (['raison', 'reason', 'raison_transfert'].includes(low)) out.Raison = typeof val === 'string' ? val : findFirstString(val);
+                else if (['time', 'date', 'timestamp', 'created_at'].includes(low)) out.time = val;
+                else if (low === 'status') out.status = val;
+            }
+            if (!out.message && !out.body) { const rec = findFirstString(raw); if (rec) out.message = rec; }
+            return out;
+        }
+
+        // -------- LOAD PAGE (pagination) ----------
+        async function loadUsersPage() {
+            if (loading || reachedEnd) return;
+            loading = true;
+            loaderEl.style.display = 'block';
+            loadHint.textContent = 'Chargement...';
+            try {
+                let qRef = database.ref('/utilisateurs').orderByKey().limitToFirst(PAGE_SIZE + (lastUserKey ? 1 : 0));
+                if (lastUserKey) qRef = database.ref('/utilisateurs').orderByKey().startAt(lastUserKey).limitToFirst(PAGE_SIZE + 1);
+                const snap = await qRef.once('value');
+                if (!snap.exists()) { reachedEnd = true; endEl.style.display = 'block'; loaderEl.style.display = 'none'; loadHint.textContent = 'Aucun nouvel utilisateur.'; loading = false; return; }
+
+                const pageUsers = [];
+                snap.forEach(child => pageUsers.push({ uid: child.key, val: child.val() }));
+                if (lastUserKey && pageUsers[0]?.uid === lastUserKey) pageUsers.shift();
+                if (!pageUsers.length) { reachedEnd = true; endEl.style.display = 'block'; loaderEl.style.display = 'none'; loadHint.textContent = 'Fin.'; loading = false; return; }
+
+                for (const u of pageUsers) {
+                    usersLoaded++;
+                    statUsers.textContent = usersLoaded;
+                    const node = u.val || {}, msgs = node.MESSAGES || node.messages || null;
+                    if (msgs && typeof msgs === 'object') {
+                        for (const key in msgs) {
+                            const norm = normalizeEntry(msgs[key]);
+                            allMessages.push({
+                                uid: u.uid,
+                                key,
+                                notificationid: norm.notificationid,
+                                message: norm.message,
+                                body: norm.body,
+                                Raison: norm.Raison,
+                                time: norm.time,
+                                status: norm.status,
+                                raw: norm.raw
+                            });
+                            if (norm.notificationid) uniqueNotifIds.add(String(norm.notificationid));
+                        }
+                    }
+                }
+
+                lastUserKey = pageUsers[pageUsers.length - 1].uid;
+                statMessages.textContent = allMessages.length;
+                statNotifs.textContent = uniqueNotifIds.size;
+
+                // render grouped by user (newest users first)
+                renderGroupedByUser();
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Erreur', text: err.message || err });
+            } finally {
+                loading = false;
+                loaderEl.style.display = 'none';
+                loadHint.textContent = reachedEnd ? 'Fin de la liste' : 'Scroll pour charger plus';
+            }
+        }
+
+        // -------- RENDER grouped by user ----------
+        function renderGroupedByUser(filteredList) {
+            // filteredList is optional: if provided, it's a subset of allMessages
+            const source = filteredList || allMessages.slice(); // shallow copy
+            // group by uid. We want newest messages first; allMessages pushes in DB order, so reverse for newest-first
+            // We'll preserve per-user newest-first by reversing the source and then grouping in that order
+            const reversed = source.slice().reverse();
+            const groups = new Map(); // uid -> array of message objects (newest first)
+            for (const item of reversed) {
+                const uid = item.uid || 'unknown';
+                if (!groups.has(uid)) groups.set(uid, []);
+                groups.get(uid).push(item);
+            }
+
+            // To show newest users first, we iterate groups in insertion order of reversed source
+            // But Map keeps insertion order of first appearance; that matches newest-user-first since we processed reversed.
+
+            cardsEl.innerHTML = '';
+            if (groups.size === 0) {
+                cardsEl.innerHTML = '<div class="card">Aucun message trouvé.</div>';
+                return;
+            }
+
+            const frag = document.createDocumentFragment();
+            for (const [uid, messages] of groups.entries()) {
+                // user block
+                const userBlock = document.createElement('div');
+                userBlock.className = 'user-block';
+
+                // header with uid and counts
+                const header = document.createElement('div');
+                header.className = 'user-header';
+
+                const left = document.createElement('div');
+                left.innerHTML = `<div class="user-title">${escapeHtml(uid)}</div><div class="user-meta">${messages.length} message(s)</div>`;
+
+                // compute notif count in this user
+                const notifCount = messages.reduce((c, m) => c + (m.notificationid ? 1 : 0), 0);
+                const right = document.createElement('div');
+                right.innerHTML = `<div class="user-meta">${notifCount} notif(s)</div>`;
+
+                header.appendChild(left);
+                header.appendChild(right);
+                userBlock.appendChild(header);
+
+                // messages list
+                const list = document.createElement('div');
+                list.className = 'user-messages';
+
+                // messages is newest-first array
+                for (const msg of messages) {
+                    // decide rendering case
+                    if (msg.notificationid) {
+                        const ni = document.createElement('div');
+                        ni.className = 'txn-list';
+                        ni.innerHTML = `<strong>${escapeHtml(String(msg.notificationid))}</strong><div style="margin-top:6px;" class="msg-time">${escapeHtml(msg.time || '')}</div>`;
+
+                        // actions small (view/delete)
+                        const actions = document.createElement('div');
+                        actions.className = 'card-actions';
+                        actions.style.marginTop = '6px';
+
+                        const viewBtn = document.createElement('button');
+                        viewBtn.className = 'btn small';
+                        viewBtn.textContent = 'Voir';
+                        viewBtn.addEventListener('click', () => showDetail(msg));
+
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'btn small';
+                        delBtn.textContent = 'Supprimer';
+                        delBtn.addEventListener('click', () => handleDelete(msg));
+
+                        actions.appendChild(viewBtn);
+                        actions.appendChild(delBtn);
+                        ni.appendChild(actions);
+
+                        list.appendChild(ni);
+                    } else if (msg.message) {
+                        const card = document.createElement('div');
+                        card.className = 'txn-card';
+
+                        const h4 = document.createElement('h4');
+                        h4.textContent = '💸 Message de Transfert';
+                        card.appendChild(h4);
+
+                        if (msg.Raison) {
+                            const reasonRow = document.createElement('div');
+                            reasonRow.style.display = 'flex';
+                            reasonRow.style.gap = '8px';
+                            reasonRow.style.marginBottom = '6px';
+                            reasonRow.innerHTML = `<strong>Raison :</strong><div style="color:#333">${escapeHtml(msg.Raison)}</div>`;
+                            card.appendChild(reasonRow);
+                        }
+
+                        const p = document.createElement('p');
+                        p.textContent = msg.message;
+                        card.appendChild(p);
+
+                        const footer = document.createElement('div');
+                        footer.className = 'msg-footer';
+                        const timeSpan = document.createElement('span');
+                        timeSpan.className = 'msg-time';
+                        timeSpan.textContent = msg.time || '';
+                        footer.appendChild(timeSpan);
+
+                        const actions = document.createElement('div');
+                        actions.className = 'card-actions';
+                        const viewBtn = document.createElement('button');
+                        viewBtn.className = 'btn small';
+                        viewBtn.textContent = 'Voir';
+                        viewBtn.addEventListener('click', () => showDetail(msg));
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'btn small';
+                        delBtn.textContent = 'Supprimer';
+                        delBtn.addEventListener('click', () => handleDelete(msg));
+                        actions.appendChild(viewBtn);
+                        actions.appendChild(delBtn);
+                        footer.appendChild(actions);
+
+                        card.appendChild(footer);
+                        list.appendChild(card);
+                    } else if (msg.body) {
+                        const card = document.createElement('div');
+                        card.className = 'txn-card';
+
+                        const h4 = document.createElement('h4');
+                        h4.textContent = '💸 Message de amwallet';
+                        card.appendChild(h4);
+
+                        const p = document.createElement('p');
+                        p.textContent = msg.body;
+                        card.appendChild(p);
+
+                        const footer = document.createElement('div');
+                        footer.className = 'msg-footer';
+                        const timeSpan = document.createElement('span');
+                        timeSpan.className = 'msg-time';
+                        timeSpan.textContent = msg.time || '';
+                        footer.appendChild(timeSpan);
+
+                        const actions = document.createElement('div');
+                        actions.className = 'card-actions';
+                        const viewBtn = document.createElement('button');
+                        viewBtn.className = 'btn small';
+                        viewBtn.textContent = 'Voir';
+                        viewBtn.addEventListener('click', () => showDetail(msg));
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'btn small';
+                        delBtn.textContent = 'Supprimer';
+                        delBtn.addEventListener('click', () => handleDelete(msg));
+                        actions.appendChild(viewBtn);
+                        actions.appendChild(delBtn);
+                        footer.appendChild(actions);
+
+                        card.appendChild(footer);
+                        list.appendChild(card);
+                    } else {
+                        // fallback raw
+                        const pre = document.createElement('pre');
+                        pre.style.whiteSpace = 'pre-wrap';
+                        pre.style.color = 'var(--muted)';
+                        pre.textContent = JSON.stringify(msg.raw || msg, null, 2);
+                        list.appendChild(pre);
+                    }
+                }
+
+                userBlock.appendChild(list);
+                frag.appendChild(userBlock);
+            }
+
+            cardsEl.appendChild(frag);
+
+            // update stats in case some filtering changed counts
+            statMessages.textContent = allMessages.length;
+            statNotifs.textContent = uniqueNotifIds.size;
+        }
+
+        // helper: show detail modal
+        function showDetail(item) {
+            Swal.fire({
+                title: item.message ? 'Message de Transfert' : (item.body ? 'Message amwallet' : 'Détail'),
+                html: `<div style="text-align:left"><pre style="white-space:pre-wrap">${escapeHtml(JSON.stringify(item.raw || item, null, 2))}</pre></div>`,
+                width: 760
+            });
+        }
+
+        // Delete handler (same as before)
+        function handleDelete(item) {
+            if (!item || !item.uid || !item.key) { Swal.fire('Erreur', 'Impossible de supprimer (données manquantes).', 'error'); return; }
+            Swal.fire({
+                title: 'Supprimer ?',
+                text: 'Voulez-vous vraiment supprimer ce message ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui, supprimer'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    database.ref(`/utilisateurs/${item.uid}/MESSAGES/${item.key}`).remove()
+                        .then(() => {
+                            // remove locally and rerender grouped view
+                            allMessages = allMessages.filter(m => !(m.uid === item.uid && m.key === item.key));
+                            // recompute uniqueNotifIds
+                            uniqueNotifIds = new Set(allMessages.filter(m => m.notificationid).map(m => String(m.notificationid)));
+                            renderGroupedByUser();
+                            statMessages.textContent = allMessages.length;
+                            statNotifs.textContent = uniqueNotifIds.size;
+                            Swal.fire('Supprimé', 'Le message a été supprimé.', 'success');
+                        })
+                        .catch(err => { console.error(err); Swal.fire('Erreur', 'Suppression échouée.', 'error'); });
+                }
+            });
+        }
+
+        // --- Search & controls ---
+        let searchTimer = null;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimer);
+            const q = e.target.value.trim().toLowerCase();
+            searchTimer = setTimeout(() => {
+                if (!q) { renderGroupedByUser(); return; }
+                // filter messages that contain query (in notificationid, message, Raison, uid)
+                const filtered = allMessages.filter(it => {
+                    const hay = ((it.notificationid || '') + ' ' + (it.message || '') + ' ' + (it.Raison || '') + ' ' + it.uid).toLowerCase();
+                    return hay.includes(q);
+                });
+                renderGroupedByUser(filtered);
+            }, 220);
+        });
+
+        btnRefresh.addEventListener('click', resetAndReload);
+        btnClear.addEventListener('click', () => { searchInput.value = ''; renderGroupedByUser(); });
+
+        function resetAndReload() {
+            lastUserKey = null; usersLoaded = 0; loading = false; reachedEnd = false;
+            allMessages = []; uniqueNotifIds = new Set();
+            statUsers.textContent = '0'; statMessages.textContent = '0'; statNotifs.textContent = '0';
+            cardsEl.innerHTML = ''; endEl.style.display = 'none'; loaderEl.style.display = 'block';
+            loadUsersPage();
+        }
+
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 160) loadUsersPage();
+        });
+
+        // ---------- AUTH handling ----------
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                console.log('User logged in:', user.uid);
+                // load messages if not loaded yet
+                if (!allMessages.length) loadUsersPage();
+            } else {
+                console.log('No user, show login prompt');
+                Swal.fire({
+                    title: 'Connectez-vous',
+                    html:
+                        `<input id="swal-email" class="swal2-input" placeholder="Email">` +
+                        `<input id="swal-pass" type="password" class="swal2-input" placeholder="Mot de passe">`,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Se connecter',
+                    preConfirm: () => {
+                        const email = document.getElementById('swal-email').value;
+                        const pass = document.getElementById('swal-pass').value;
+                        if (!email || !pass) { Swal.showValidationMessage('Email et mot de passe requis'); return false; }
+                        return firebase.auth().signInWithEmailAndPassword(email, pass)
+                            .then(() => true)
+                            .catch(err => {
+                                Swal.showValidationMessage(`Erreur: ${err.message}`);
+                                return false;
+                            });
+                    }
+                }).then(res => {
+                    if (res.isDismissed) {
+                        Swal.fire('Accès restreint', 'Vous devez vous connecter pour voir les messages.', 'info');
+                    }
+                });
+            }
+        });
+
+        // expose signout if desired
+        window.signOutDashboard = function () { auth.signOut().then(() => Swal.fire('Déconnecté', 'Vous êtes déconnecté.', 'success')); };
+
+        // initial (do nothing until auth confirmed)
+        // loadUsersPage() will be called inside auth.onAuthStateChanged when authorized
+    </script>
+</body>
+
+</html>

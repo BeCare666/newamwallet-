@@ -34,7 +34,7 @@
     function handleclick() {
       const urlParams = new URLSearchParams(window.location.search);
       const postId = urlParams.get("id");
-      const urlFormation = urlParams.get("urlformation");
+      const urlFormation = urlParams.get("required");
       const balanceIDAWWW = localStorage.getItem('balanceIDAWWW');
       const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
 
@@ -98,16 +98,41 @@
                   icon: 'success',
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    if (urlFormation && urlFormation !== "null") {
-                      // Télécharger le PDF base64
-                      const link = document.createElement('a');
-                      link.href = decodeURIComponent(urlFormation);
-                      link.download = 'formation.pdf';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    } else {
-                      window.location.href = "pdfx.html";
+                    const params = new URLSearchParams(window.location.search);
+                    const url = params.get('required'); // ?url=...
+
+                    if (url) {
+                      fetch(decodeURIComponent(url))
+                        .then(response => {
+                          if (!response.ok) throw new Error("Erreur lors du téléchargement");
+                          return response.blob();
+                        })
+                        .then(blob => {
+                          const blobUrl = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = blobUrl;
+                          a.download = 'formation.pdf'; // nom du fichier
+                          document.body.appendChild(a);
+                          a.click();
+                          a.remove();
+                          window.URL.revokeObjectURL(blobUrl);
+
+                          Swal.fire({
+                            title: "Congratulation",
+                            text: "Votre téléchargement a démarré.",
+                            icon: "success",
+                            allowOutsideClick: false
+                          });
+                        })
+                        .catch(err => {
+                          console.error(err);
+                          Swal.fire({
+                            title: "Ooops",
+                            text: "Impossible de télécharger le fichier. " + err.message,
+                            icon: "error",
+                            allowOutsideClick: false
+                          });
+                        });
                     }
                   }
                 });

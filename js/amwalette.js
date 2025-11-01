@@ -21,10 +21,12 @@ firebase.auth().onAuthStateChanged(function (user) {
     submitid.addEventListener("click", submitmy)
     function submitmy() {
       const transfertCodeId = document.getElementById("amwalette_Adress")?.value?.trim();
+      const amwalette_reason = document.getElementById("amwalette_reason")?.value?.trim();
       const soldeInput = document.getElementById("soldeId")?.value?.trim();
       const userSenderId = localStorage.getItem("unserconnect");
       const usernameSender = localStorage.getItem("usernameT");
       const amwalletAddress = localStorage.getItem("amwalette_adress");
+      const reasonTransfer = localStorage.getItem("reason");
       const senderBalanceStr = localStorage.getItem("balanceIDAWWW");
       console.log(userSenderId);
       console.log(usernameSender);
@@ -32,7 +34,7 @@ firebase.auth().onAuthStateChanged(function (user) {
       console.log(senderBalanceStr);
 
 
-      if (!transfertCodeId || !soldeInput || !userSenderId || !senderBalanceStr) {
+      if (!transfertCodeId || !soldeInput || !userSenderId || !senderBalanceStr || !amwalette_reason) {
         Swal.fire("Erreur", "Données manquantes ou invalides", "error");
         return;
       }
@@ -113,6 +115,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 type: "transfert",
                 message: `Vous avez transféré ${soldeToSend} $ à ${receiverName} `,
                 montant: soldeToSend,
+                Raison: amwalette_reason,
                 status: true,
                 time: dateFormatted,
                 diffuser: true,
@@ -122,6 +125,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 type: "réception",
                 message: `Vous avez reçu ${soldeToSend} $ de ${usernameSender}`,
                 montant: soldeToSend,
+                Raison: amwalette_reason,
                 status: true,
                 time: dateFormatted,
                 diffuser: true,

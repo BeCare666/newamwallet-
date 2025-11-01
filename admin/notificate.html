@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard Notifications — Utilisateurs</title>
+    <link href="../img/logo_of_wallet.jpg" rel="icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1724;
+            /* dark blue-gray */
+            --card: #0b1220;
+            --muted: #94a3b8;
+            --accent: #7c3aed;
+            /* premium purple */
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-2: rgba(255, 255, 255, 0.02);
+            --success: #10b981;
+            --danger: #ef4444;
+            color-scheme: dark;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            background: linear-gradient(180deg, #071026 0%, #091226 60%);
+            color: #e6eef8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 28px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1180px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, var(--card), rgba(11, 18, 32, 0.6));
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white
+        }
+
+        .brand h1 {
+            font-size: 16px;
+            margin: 0
+        }
+
+        .brand p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .searchBox {
+            margin-top: 12px
+        }
+
+        .searchBox input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: var(--glass);
+            color: inherit;
+            outline: none
+        }
+
+        .controls {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: inherit
+        }
+
+        .btn.primary {
+            background: linear-gradient(90deg, var(--accent), #5b21b6);
+            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.15);
+            border: none
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .listWrap {
+            margin-top: 14px;
+            max-height: 64vh;
+            overflow: auto;
+            padding-right: 6px
+        }
+
+        .userItem {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background .12s
+        }
+
+        .userItem:hover {
+            background: var(--glass-2)
+        }
+
+        .userAvatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0ea5a0, #06b6d4);
+            color: #022;
+            font-weight: 700
+        }
+
+        .userInfo {
+            flex: 1
+        }
+
+        .userInfo .name {
+            font-weight: 600
+        }
+
+        .userInfo .sub {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .userSelect {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .selectAll {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px
+        }
+
+        /* Main area */
+        .main {
+            padding: 18px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .headerRow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 700
+        }
+
+        .meta {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .compose {
+            display: grid;
+            grid-template-columns: 1fr 160px;
+            gap: 12px
+        }
+
+        .compose textarea {
+            resize: none;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: var(--glass);
+            color: inherit
+        }
+
+        .compose .colRight {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .smallInput {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: var(--glass)
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center
+        }
+
+        .stats {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .statCard {
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .usersGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 8px
+        }
+
+        .cardUser {
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            gap: 10px;
+            align-items: center
+        }
+
+        .loader {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted)
+        }
+
+        footer {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        @media (max-width:900px) {
+            .app {
+                grid-template-columns: 1fr;
+                padding: 14px
+            }
+
+            .sidebar {
+                order: 2
+            }
+
+            .main {
+                order: 1
+            }
+
+            .compose {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo">NB</div>
+                <div>
+                    <h1>amwallete Notifications</h1>
+                    <p>Envoyer des messages à tes utilisateurs</p>
+                </div>
+            </div>
+
+            <div class="searchBox">
+                <input id="searchInput" placeholder="Rechercher un utilisateur (nom, email...)" />
+            </div>
+
+            <div class="controls">
+                <label class="muted">Afficher :</label>
+                <button id="btnRefresh" class="btn">Rafraîchir</button>
+                <button id="btnSelectAllVisible" class="btn">Sélectionner visible</button>
+            </div>
+
+            <div class="selectAll">
+                <label style="display:flex;align-items:center;gap:8px;">
+                    <input id="selectAll" type="checkbox" /> <span class="muted">Tout</span>
+                </label>
+                <div style="flex:1; text-align:right" class="muted">Chargés: <span id="loadedCount">0</span></div>
+            </div>
+
+            <div class="listWrap" id="usersListContainer">
+                <!-- Users list rendered here (virtual/paginated) -->
+                <div id="usersList"></div>
+                <div id="listLoader" style="padding:12px; text-align:center; display:none" class="loader">Chargement...
+                </div>
+                <div id="listEnd" style="padding:12px; text-align:center; color:var(--muted); display:none">Fin de la
+                    liste</div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="headerRow">
+                <div>
+                    <div class="title">Envoyer une notification</div>
+                    <div class="meta">Sélectionne des utilisateurs à gauche, compose ton message et envoie.</div>
+                </div>
+                <div class="stats">
+                    <div class="statCard">Sélectionnés: <strong id="selectedCount">0</strong></div>
+                    <div class="statCard">Total chargés: <strong id="totalLoaded">0</strong></div>
+                </div>
+            </div>
+
+            <div class="compose">
+                <textarea id="messageBody" placeholder="Écris le message / id de notification..."></textarea>
+                <div class="colRight">
+                    <input id="messageTitle" class="smallInput" placeholder="Titre (optionnel)" />
+                    <input id="messageLink" class="smallInput" placeholder="Lien (optionnel)" />
+                    <div style="flex:1"></div>
+                    <div class="actions">
+                        <button id="btnPreview" class="btn">Aperçu</button>
+                        <button id="sendBtn" class="btn primary">Envoyer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recentArea">
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <div class="muted">Aperçu utilisateurs sélectionnés</div>
+                    <div class="muted">Scroll pour charger plus</div>
+                </div>
+                <div class="usersGrid" id="selectedPreview"></div>
+            </div>
+
+            <footer>
+                <div>Design épuré — amwallete · Dashboard Notifications</div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Librairies: Firebase compat (simple) + SweetAlert2 -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        /**********************
+         * CONFIGURATION
+         **********************/
+        // Remplace par ta config Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        };
+
+        // nombre d'utilisateurs par page
+        const PAGE_SIZE = 25;
+
+        // ------------------- INIT -------------------
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        var auth = firebase.auth();
+        const userRef = database.ref('/utilisateurs');
+        auth.onAuthStateChanged(function (user) {
+            if (user) {
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("uploadSection").style.display = "block";
+                afficherFichiers(user.uid);
+            } else {
+                document.getElementById("authSection").style.display = "block";
+                document.getElementById("uploadSection").style.display = "none";
+            }
+        });
+        // ------------------- STATE -------------------
+        let lastKey = null;        // dernière clé chargée pour pagination
+        let loading = false;
+        let reachedEnd = false;
+        let loadedUsers = [];      // array of { uid, data }
+        let displayedUsers = [];   // current DOM filtered list
+
+        // DOM
+        const usersList = document.getElementById('usersList');
+        const listLoader = document.getElementById('listLoader');
+        const listEnd = document.getElementById('listEnd');
+        const loadedCountEl = document.getElementById('loadedCount');
+        const totalLoadedEl = document.getElementById('totalLoaded');
+        const selectedCountEl = document.getElementById('selectedCount');
+        const selectedPreview = document.getElementById('selectedPreview');
+        const searchInput = document.getElementById('searchInput');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const btnRefresh = document.getElementById('btnRefresh');
+        const btnSelectAllVisible = document.getElementById('btnSelectAllVisible');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendPreviewBtn = document.getElementById('btnPreview');
+        const messageBodyEl = document.getElementById('messageBody');
+        const messageTitleEl = document.getElementById('messageTitle');
+        const messageLinkEl = document.getElementById('messageLink');
+        const usersListContainer = document.getElementById('usersListContainer');
+
+        /**********************
+         * UI HELPERS
+         **********************/
+        function formatDisplayName(data, uid) {
+            return (data && (data.nom || data.name || data.displayName)) || data.email || uid;
+        }
+
+        function createUserRow(uid, data) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'userItem';
+            wrapper.dataset.uid = uid;
+
+            const avatar = document.createElement('div'); avatar.className = 'userAvatar';
+            const initials = (formatDisplayName(data, uid).split(' ').map(s => s[0] || '').join('')).slice(0, 2).toUpperCase();
+            avatar.textContent = initials || 'U';
+
+            const info = document.createElement('div'); info.className = 'userInfo';
+            const name = document.createElement('div'); name.className = 'name'; name.textContent = formatDisplayName(data, uid);
+            const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = data.email || (data.phone || '—');
+            info.appendChild(name); info.appendChild(sub);
+
+            const selWrap = document.createElement('div'); selWrap.className = 'userSelect';
+            const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'user-checkbox'; checkbox.dataset.uid = uid;
+            selWrap.appendChild(checkbox);
+
+            wrapper.appendChild(avatar); wrapper.appendChild(info); wrapper.appendChild(selWrap);
+
+            // interactions
+            wrapper.addEventListener('click', (e) => {
+                if (e.target.tagName.toLowerCase() === 'input') return; // checkbox handled separately
+                checkbox.checked = !checkbox.checked; updateSelectionUI();
+            });
+            checkbox.addEventListener('click', (e) => { e.stopPropagation(); updateSelectionUI(); });
+
+            return wrapper;
+        }
+
+        function renderUsersList(users) {
+            // users: array of {uid, data}
+            usersList.innerHTML = '';
+            displayedUsers = users;
+            users.forEach(u => {
+                const row = createUserRow(u.uid, u.data);
+                usersList.appendChild(row);
+            });
+            loadedCountEl.textContent = users.length;
+            totalLoadedEl.textContent = loadedUsers.length;
+            updateSelectionUI();
+        }
+
+        function appendUsers(users) {
+            users.forEach(u => {
+                const row = createUserRow(u.uid, u.data);
+                usersList.appendChild(row);
+            });
+            loadedCountEl.textContent = usersList.querySelectorAll('.userItem').length;
+            totalLoadedEl.textContent = loadedUsers.length;
+        }
+
+        function updateSelectionUI() {
+            const checked = usersList.querySelectorAll('.user-checkbox:checked').length;
+            const totalVisible = usersList.querySelectorAll('.user-checkbox').length;
+            selectedCountEl.textContent = checked;
+
+            // preview selected
+            selectedPreview.innerHTML = '';
+            usersList.querySelectorAll('.user-checkbox:checked').forEach(cb => {
+                const uid = cb.dataset.uid; const u = loadedUsers.find(x => x.uid === uid);
+                if (!u) return;
+                const card = document.createElement('div'); card.className = 'cardUser';
+                card.innerHTML = `<div style="width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,#60a5fa,#7c3aed); display:flex; align-items:center; justify-content:center; font-weight:700">${(formatDisplayName(u.data, u.uid).split(' ').map(s => s[0] || '').join('').slice(0, 2)).toUpperCase()}</div><div style="flex:1"><div style="font-weight:700">${escapeHtml(formatDisplayName(u.data, u.uid))}</div><div class="muted" style="font-size:12px">${escapeHtml(u.data.email || '')}</div></div>`;
+                selectedPreview.appendChild(card);
+            });
+
+            // select all checkbox state
+            if (totalVisible === 0) { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = false; }
+            else if (checked === 0) { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = false; }
+            else if (checked === totalVisible) { selectAllCheckbox.checked = true; selectAllCheckbox.indeterminate = false; }
+            else { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = true; }
+        }
+
+        function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        /**********************
+         * DATA LOADING & PAGINATION
+         **********************/
+        async function loadNextPage() {
+            if (loading || reachedEnd) return;
+            loading = true; listLoader.style.display = 'block'; listEnd.style.display = 'none';
+
+            try {
+                let q;
+                if (!lastKey) {
+                    q = userRef.orderByKey().limitToFirst(PAGE_SIZE);
+                } else {
+                    // startAfter-like behaviour: startAt lastKey then skip first result which equals lastKey
+                    q = userRef.orderByKey().startAt(lastKey).limitToFirst(PAGE_SIZE + 1);
+                }
+                const snap = await q.once('value');
+                if (!snap.exists()) {
+                    reachedEnd = true; listEnd.style.display = 'block'; listLoader.style.display = 'none'; loading = false; return;
+                }
+                const page = [];
+                snap.forEach(child => {
+                    page.push({ uid: child.key, data: child.val() });
+                });
+                // if we used startAt with lastKey, first element = lastKey -> drop it
+                if (lastKey && page.length > 0 && page[0].uid === lastKey) { page.shift(); }
+
+                if (page.length === 0) { reachedEnd = true; listEnd.style.display = 'block'; }
+                else {
+                    // append to loadedUsers
+                    loadedUsers = loadedUsers.concat(page);
+                    appendUsers(page);
+                    // update lastKey
+                    lastKey = loadedUsers[loadedUsers.length - 1].uid;
+                }
+            } catch (err) { console.error('Load page err', err); Swal.fire({ icon: 'error', title: 'Erreur', text: (err.message || err) }); }
+            finally { loading = false; listLoader.style.display = 'none'; totalLoadedEl.textContent = loadedUsers.length; }
+        }
+
+        // Reset cursor & reload
+        function resetAndLoad() { lastKey = null; loadedUsers = []; displayedUsers = []; reachedEnd = false; usersList.innerHTML = ''; totalLoadedEl.textContent = '0'; loadNextPage(); }
+
+        // infinite scroll handler
+        usersListContainer.addEventListener('scroll', () => {
+            const el = usersListContainer;
+            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 140) {
+                loadNextPage();
+            }
+        });
+
+        // initial load
+        loadNextPage();
+
+        /**********************
+         * SEARCH (local + fallback)
+         **********************/
+        let searchTimer = null;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimer);
+            const q = e.target.value.trim().toLowerCase();
+            searchTimer = setTimeout(() => {
+                if (q === '') {
+                    // render what we have loaded
+                    renderUsersList(loadedUsers);
+                    listEnd.style.display = reachedEnd ? 'block' : 'none';
+                    return;
+                }
+                // local search first
+                const local = loadedUsers.filter(u => {
+                    const name = (u.data.nom || u.data.name || u.data.displayName || '').toString().toLowerCase();
+                    const email = (u.data.email || '').toString().toLowerCase();
+                    return name.includes(q) || email.includes(q) || u.uid.toLowerCase().includes(q);
+                });
+                if (local.length > 0) { renderUsersList(local); listEnd.style.display = 'none'; }
+                else {
+                    // fallback: full scan (once) - caution: can be heavy if many users
+                    listLoader.style.display = 'block';
+                    userRef.once('value').then(snap => {
+                        const all = [];
+                        snap.forEach(child => all.push({ uid: child.key, data: child.val() }));
+                        const filtered = all.filter(u => {
+                            const name = (u.data.nom || u.data.name || u.data.displayName || '').toString().toLowerCase();
+                            const email = (u.data.email || '').toString().toLowerCase();
+                            return name.includes(q) || email.includes(q) || u.uid.toLowerCase().includes(q);
+                        });
+                        renderUsersList(filtered);
+                        listLoader.style.display = 'none';
+                        listEnd.style.display = 'none';
+                    }).catch(err => { console.error(err); listLoader.style.display = 'none'; Swal.fire({ icon: 'error', title: 'Erreur', text: err.message || err }); });
+                }
+            }, 350);
+        });
+
+        /**********************
+         * SELECTION HELPERS
+         **********************/
+        selectAllCheckbox.addEventListener('change', (e) => {
+            const checked = e.target.checked;
+            usersList.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = checked);
+            updateSelectionUI();
+        });
+
+        btnSelectAllVisible.addEventListener('click', () => {
+            usersList.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = true);
+            updateSelectionUI();
+        });
+
+        btnRefresh.addEventListener('click', () => { resetAndLoad(); });
+
+        /**********************
+         * SENDING NOTIFICATIONS
+         **********************/
+        function buildPayload() {
+            const title = (messageTitleEl.value || '').trim();
+            const body = (messageBodyEl.value || '').trim();
+            const link = (messageLinkEl.value || '').trim();
+            if (!body) { Swal.fire({ icon: 'error', title: 'Message vide', text: 'Écris le message avant d\'envoyer.' }); return null; }
+            // formatted time
+            const now = new Date();
+            const formatted = now.toLocaleString();
+            return { title, body, link, time: formatted, status: true };
+        }
+
+        async function sendNotifications() {
+            const payload = buildPayload(); if (!payload) return;
+
+            const selected = Array.from(usersList.querySelectorAll('.user-checkbox:checked')).map(cb => cb.dataset.uid);
+            if (selected.length === 0) { Swal.fire({ icon: 'warning', title: 'Aucun utilisateur', text: 'Sélectionne au moins un utilisateur.' }); return; }
+
+            const confirm = await Swal.fire({ title: `Envoyer à ${selected.length} utilisateur(s) ?`, text: payload.body, showCancelButton: true, confirmButtonText: 'Confirmer', cancelButtonText: 'Annuler' });
+            if (!confirm.isConfirmed) return;
+
+            sendBtn.disabled = true; sendBtn.textContent = 'Envoi...';
+            const promises = selected.map(uid => {
+                const messagesRef = database.ref(`/utilisateurs/${uid}/MESSAGES`);
+                const newRef = messagesRef.push();
+                return newRef.set(payload).then(() => ({ uid, ok: true })).catch(err => ({ uid, ok: false, err }));
+            });
+            const results = await Promise.all(promises);
+            const failed = results.filter(r => !r.ok);
+            if (failed.length > 0) {
+                Swal.fire({ icon: 'warning', title: 'Terminé (avec erreurs)', html: `Envoyé: ${selected.length - failed.length} <br> Échecs: ${failed.length}` });
+            } else {
+                Swal.fire({ icon: 'success', title: 'Envoyé', text: `Notification envoyée à ${selected.length} utilisateur(s).` });
+                // reset message
+                messageBodyEl.value = ''; messageTitleEl.value = ''; messageLinkEl.value = '';
+            }
+            sendBtn.disabled = false; sendBtn.textContent = 'Envoyer';
+            updateSelectionUI();
+        }
+
+        sendBtn.addEventListener('click', sendNotifications);
+
+        // preview
+        sendPreviewBtn.addEventListener('click', () => {
+            const payload = buildPayload(); if (!payload) return;
+            Swal.fire({ title: payload.title || 'Aperçu', html: `<strong>Message :</strong><div style="text-align:left; margin-top:8px">${escapeHtml(payload.body)}</div><div style="margin-top:8px; color:var(--muted)">${escapeHtml(payload.link || '')}</div>` });
+        });
+
+        // utility: load first X for demo
+        // Note: you can call resetAndLoad() to restart
+    </script>
+</body>
+
+</html>

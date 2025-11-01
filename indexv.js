@@ -453,6 +453,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 const userListP = document.getElementById("phistoryId");
                 const userListUl = document.createElement("span");
                 var MESSAGES = snapshot.val().MESSAGES;
+                console.log("MESSAGES", MESSAGES)
                 var deletenotfifId = document.getElementById("deletenotfifId");
 
                 deletenotfifId.addEventListener("click", function () {
@@ -496,8 +497,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                     if (userga.notificationid) {
                       const userLi = document.createElement("p");
                       userLi.innerHTML = `<p class="txn-list" style="cursor: pointer !important; border-radius: 5px !important;">
-                    <strong id="IDTRANSLATEWALLETU">${userga.notificationid}</strong><br><br><span class="debit-amount" style="color: green !important; position:relative; right:0 !important;">${userga.time}</span></p><hr style="color:white;">`;
-                      userListUl.appendChild(userLi);
+                    <strong id="IDTRANSLATEWALLETU">${userga.notificationid}</strong><br><br><span class="debit-amount" style="color: green !important; position:relative; right:0 !important;">${userga.time}</span>
+                    </p><hr style="color:white;">`;
+                      userListUl.prepend(userLi);
                     } else if (userga.message) {
                       const userLi = document.createElement("p");
                       userLi.innerHTML = `
@@ -518,6 +520,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                     ">
                       💸 Message de Transfert
                     </h4>
+                     <div style="display: flex; color: #333; font-size: 15px; line-height: 1.4;">
+                  <strong>Raison : </strong> <p>&nbsp; ${userga.Raison}</p>
+                </div>
                     <p style="
                       margin: 0;
                       font-size: 15px;
@@ -540,14 +545,60 @@ firebase.auth().onAuthStateChanged(function (user) {
                   </div>
                 `;
 
-                      userListUl.appendChild(userLi);
+                      userListUl.prepend(userLi);
+                    } else if (userga.body) {
+                      const userLi = document.createElement("p");
+                      userLi.innerHTML = `
+                  <div class="txn-card" style="
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 12px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                    transition: transform 0.2s ease;
+                    cursor: pointer;
+                  " title="Message de transfert">
+                    <h4 style="
+                      margin: 0 0 10px 0;
+                      font-size: 16px;
+                      font-weight: 600;
+                      color: #005cb5;
+                    ">
+                      💸 Message de amwallet
+                    </h4>
+                     <div style="display: none; color: #333; font-size: 15px; line-height: 1.4;">
+                  <strong>Raison : </strong> <p>&nbsp; ${userga.Raison}</p>
+                </div>
+                    <p style="
+                      margin: 0;
+                      font-size: 15px;
+                      color: #333;
+                      line-height: 1.4;
+                    ">
+                      ${userga.body}
+                    </p>
+                    <div style="
+                      margin-top: 10px;
+                      text-align: right;
+                    ">
+                      <span style="
+                        font-size: 13px;
+                        color: #28a745;
+                      ">
+                        ${userga.time}
+                      </span>
+                    </div>
+                  </div>
+                `;
+
+                      userListUl.prepend(userLi);
                     }
 
                   }
                   const indicatClass = document.getElementById("indicatClass");
                   indicatClass.innerHTML = `&nbsp;${userArrayAXXXX.length}`;
                   // Ajoutez la liste à la balise p
-                  userListP.appendChild(userListUl);
+                  userListP.prepend(userListUl);
                 }
 
                 var balanceIDAW = snapshot.val().ACCOUNTPRINCIPAL;
@@ -664,11 +715,12 @@ firebase.auth().onAuthStateChanged(function (user) {
                     var content;
 
                     const job = userArrayAJob[i];
+                    console.log("job urlformation:", job);
                     const urlFormation = job.urlformation ? encodeURIComponent(job.urlformation) : "null";
-
+                    //formationimgNotPdf
                     content =
                       job.XitledeCategorie === "Formation"
-                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&urlformation=${urlFormation}">Acheter</a>`
+                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&required=${job.formationimgNotPdf}">Acheter</a>`
                         : `<a class="btn btn-primary" href="indexe.html">Postuler</a>`;
 
                     var contentxc;
@@ -730,11 +782,11 @@ firebase.auth().onAuthStateChanged(function (user) {
                       })(userArrayAJob[i])
                     );
 
-                    userListUlx.appendChild(userLix);
+                    userListUlx.prepend(userLix);
                   }
 
                   // Append the list to the parent container
-                  indicatClassJob.appendChild(userListUlx);
+                  indicatClassJob.prepend(userListUlx);
                 });
               }
             }
@@ -1006,7 +1058,8 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
 
       <label id="swal-label" for="phone-input">📱 Numéro de téléphone</label>
       <input type="text" id="phone-input" class="swal2-input" placeholder="Ex: +22990123456" style="margin-bottom:10px; width:60%; max-width:300px;"/>
-
+  <label id="swal-label" for="reason-input">La raison du rétrait</label>
+      <input type="text" id="reason-input" class="swal2-input" placeholder="Ex: Retrait pour achat" style="margin-bottom:10px; width:60%; max-width:300px;"/>
       <label id="swal-label" for="amount-input">💵 Montant à retirer</label>
       <input
         type="text"
@@ -1042,6 +1095,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
         return false;
       }
       return {
+        reason: document.getElementById("reason-input").value.trim(),
         selectedCode: document.getElementById("country-select").value,
         phone: document.getElementById("phone-input").value.trim(),
         amount,
@@ -1068,6 +1122,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
   localStorage.setItem("phone", value.phone);
   localStorage.setItem("selectedCode", value.selectedCode);
   localStorage.setItem("lenumero", value.selectedCode + value.phone);
+  localStorage.setItem("reason", value.reason);
   localStorage.setItem("tableNomPaysL", countryName);
 
   try {
