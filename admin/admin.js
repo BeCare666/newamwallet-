@@ -1,5 +1,3 @@
-// ⚡ Initialisation Supabase
-import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = "https://rakxwngpnfiwnjiiidge.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3h3bmdwbmZpd25qaWlpZGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNTA5NDcsImV4cCI6MjA3ODgyNjk0N30.LXoSpUiCYuptQ02tqITcHEULJIuu2QfU6WsUS7GlOrE";
