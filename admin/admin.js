@@ -1,7 +1,7 @@
 
 const supabaseUrl = "https://rakxwngpnfiwnjiiidge.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3h3bmdwbmZpd25qaWlpZGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNTA5NDcsImV4cCI6MjA3ODgyNjk0N30.LXoSpUiCYuptQ02tqITcHEULJIuu2QfU6WsUS7GlOrE";
-const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 const firebaseConfig = {
   apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
   authDomain: "am-wallet.firebaseapp.com",
