@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - AM Wallet</title>
+    <style>
+        :root {
+            --bg: #071026;
+            --card: #0b1220;
+            --muted: #9aa9bf;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --white: #f9f9fb;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", system-ui, sans-serif;
+            background: linear-gradient(180deg, #061025, #07122a);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--card);
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 14px 45px rgba(2, 6, 23, 0.6);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.85;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 30px;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 6px;
+        }
+
+        .message-list {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 4px 10px rgba(3, 7, 18, 0.6);
+        }
+
+        .message-card h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .message-card p {
+            margin: 6px 0;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .message-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--success);
+            margin-top: 6px;
+        }
+
+        .user-block {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 20px;
+        }
+
+        .user-header {
+            font-weight: 600;
+            color: #7c3aed;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 16px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📨 Tous les Messages</h1>
+            <button class="logout-btn" onclick="logout()">Déconnexion</button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input"
+                placeholder="🔍 Rechercher par nom d'utilisateur...">
+        </div>
+
+        <div id="content">
+            <div class="loading">Chargement des messages...</div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        const contentDiv = document.getElementById("content");
+        const searchInput = document.getElementById("searchInput");
+        let allUsersData = [];
+
+        // 🔐 Authentification
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const userRef = database.ref("/utilisateurs/");
+                userRef.once("value").then(snapshot => {
+                    if (!snapshot.exists()) {
+                        contentDiv.innerHTML = "<p>Aucun utilisateur trouvé.</p>";
+                        return;
+                    }
+
+                    allUsersData = [];
+                    snapshot.forEach(userSnap => {
+                        const userData = userSnap.val();
+                        allUsersData.push(userData);
+                    });
+
+                    renderUsers(allUsersData);
+                });
+            } else {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Authentification requise",
+                    text: "Veuillez vous connecter pour voir les messages.",
+                    confirmButtonColor: "#7c3aed"
+                }).then(() => window.location.href = "login.html");
+            }
+        });
+
+        // 🔎 Fonction de recherche
+        searchInput.addEventListener("input", () => {
+            const searchValue = searchInput.value.trim().toLowerCase();
+            const filteredUsers = allUsersData.filter(u => {
+                const username = String(u.username || "Utilisateur inconnu").toLowerCase();
+                return username.includes(searchValue);
+            });
+            renderUsers(filteredUsers);
+        });
+
+        // 🧩 Affichage des utilisateurs et messages
+        // 🧩 Affichage des utilisateurs et messages (triés du plus récent au plus ancien)
+        function renderUsers(users) {
+            let html = "";
+
+            users.forEach(userData => {
+                const messages = userData.MESSAGES;
+                const username = userData.username || "Utilisateur inconnu";
+
+                if (!messages) return;
+
+                // On transforme les messages en tableau et on garde uniquement ceux avec Raison
+                let msgArray = Object.keys(messages)
+                    .map(key => messages[key])
+                    .filter(msg => msg.Raison)
+                    .map(msg => {
+                        // Transformation de la string "dd/mm/yyyy hh:mm" en Date
+                        const parts = msg.time.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{1,2})h:(\d{2})min/);
+                        if (parts) {
+                            const [_, day, month, year, hours, minutes] = parts;
+                            msg._dateObj = new Date(year, month - 1, day, hours, minutes);
+                        } else {
+                            msg._dateObj = new Date(); // fallback si format invalide
+                        }
+                        return msg;
+                    })
+                    .sort((a, b) => b._dateObj - a._dateObj); // tri du plus récent au plus ancien
+
+                // Si l'utilisateur n'a aucun message avec Raison, on ne l'affiche pas
+                if (msgArray.length === 0) return;
+
+                let raisonHTML = "";
+
+                msgArray.forEach(msg => {
+                    raisonHTML += `
+              <div class="message-card">
+                <h3>💬 ${msg.type === "réception" ? "Réception de fonds" : msg.type}</h3>
+                <p>${msg.message}</p>
+                <p><strong>Montant :</strong> ${msg.montant} $</p>
+                <p><strong>Raison :</strong> ${msg.Raison}</p>
+                <div class="message-footer">
+                  <span>${msg.status ? "✅ Confirmé" : "⏳ En attente"}</span>
+                  <span>${msg.time}</span>
+                </div>
+              </div>`;
+                });
+
+                html += `
+          <div class="user-block">
+            <div class="user-header">👤 ${username}</div>
+            <div class="section-title">💬 Transactions / Raisons</div>
+            <div class="message-list">${raisonHTML}</div>
+          </div>`;
+            });
+
+            if (html === "") {
+                contentDiv.innerHTML = "<p>Aucun message trouvé.</p>";
+            } else {
+                contentDiv.innerHTML = html;
+            }
+        }
+
+
+        // 🚪 Déconnexion
+        function logout() {
+            auth.signOut().then(() => {
+                Swal.fire({
+                    icon: "success",
+                    title: "Déconnecté",
+                    text: "Vous avez été déconnecté avec succès.",
+                    confirmButtonColor: "#7c3aed"
+                }).then(() => window.location.href = "login.html");
+            });
+        }
+    </script>
+</body>
+
+</html>

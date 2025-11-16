@@ -372,7 +372,7 @@
         const PAGE_SIZE = 30;
         let lastUserKey = null, usersLoaded = 0, loading = false, reachedEnd = false;
         let allMessages = [], uniqueNotifIds = new Set();
-
+        let loadedUserKeys = new Set(); // évite doublons d'utilisateurs
         const cardsEl = document.getElementById('cards');
         const loaderEl = document.getElementById('loader');
         const endEl = document.getElementById('end');
@@ -383,6 +383,9 @@
         const btnRefresh = document.getElementById('btnRefresh');
         const btnClear = document.getElementById('btnClearFilters');
         const loadHint = document.getElementById('loadHint');
+
+        // bouton pour envoyer aux utilisateurs sélectionnés (assure-toi d'avoir un élément avec id sendSelectedBtn)
+        const sendSelectedBtn = document.getElementById('sendSelectedBtn');
 
         // helpers
         function escapeHtml(str) { if (str === undefined || str === null) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -410,21 +413,53 @@
             loading = true;
             loaderEl.style.display = 'block';
             loadHint.textContent = 'Chargement...';
+
             try {
-                let qRef = database.ref('/utilisateurs').orderByKey().limitToFirst(PAGE_SIZE + (lastUserKey ? 1 : 0));
-                if (lastUserKey) qRef = database.ref('/utilisateurs').orderByKey().startAt(lastUserKey).limitToFirst(PAGE_SIZE + 1);
+                // on récupère PAGE_SIZE + 1 si on a lastUserKey pour pouvoir retirer l'élément de recouvrement
+                let qRef;
+                if (!lastUserKey) {
+                    qRef = database.ref('/utilisateurs').orderByKey().limitToFirst(PAGE_SIZE);
+                } else {
+                    // startAt + limit, puis on décalera si le premier est equal lastUserKey
+                    qRef = database.ref('/utilisateurs').orderByKey().startAt(lastUserKey).limitToFirst(PAGE_SIZE + 1);
+                }
+
                 const snap = await qRef.once('value');
-                if (!snap.exists()) { reachedEnd = true; endEl.style.display = 'block'; loaderEl.style.display = 'none'; loadHint.textContent = 'Aucun nouvel utilisateur.'; loading = false; return; }
+                if (!snap.exists()) {
+                    reachedEnd = true;
+                    endEl.style.display = 'block';
+                    loaderEl.style.display = 'none';
+                    loadHint.textContent = 'Aucun nouvel utilisateur.';
+                    loading = false;
+                    return;
+                }
 
                 const pageUsers = [];
                 snap.forEach(child => pageUsers.push({ uid: child.key, val: child.val() }));
-                if (lastUserKey && pageUsers[0]?.uid === lastUserKey) pageUsers.shift();
-                if (!pageUsers.length) { reachedEnd = true; endEl.style.display = 'block'; loaderEl.style.display = 'none'; loadHint.textContent = 'Fin.'; loading = false; return; }
 
-                for (const u of pageUsers) {
+                // si startAt renvoie le dernier user précédent, on le supprime
+                if (lastUserKey && pageUsers[0]?.uid === lastUserKey) pageUsers.shift();
+
+                // filtrer les utilisateurs déjà chargés (sécurité contre doublons)
+                const newPage = pageUsers.filter(u => !loadedUserKeys.has(u.uid));
+
+                if (!newPage.length) {
+                    // si aucune nouvelle entrée, cela veut dire qu'on a atteint la fin logique
+                    reachedEnd = true;
+                    endEl.style.display = 'block';
+                    loaderEl.style.display = 'none';
+                    loadHint.textContent = 'Fin.';
+                    loading = false;
+                    return;
+                }
+
+                for (const u of newPage) {
+                    loadedUserKeys.add(u.uid);
                     usersLoaded++;
                     statUsers.textContent = usersLoaded;
-                    const node = u.val || {}, msgs = node.MESSAGES || node.messages || null;
+
+                    const node = u.val || {};
+                    const msgs = node.MESSAGES || node.messages || null;
                     if (msgs && typeof msgs === 'object') {
                         for (const key in msgs) {
                             const norm = normalizeEntry(msgs[key]);
@@ -444,11 +479,14 @@
                     }
                 }
 
-                lastUserKey = pageUsers[pageUsers.length - 1].uid;
+                // mise à jour lastUserKey sur la dernière entrée effective de la page (pas la pageUsers initiale)
+                lastUserKey = newPage[newPage.length - 1].uid;
+
+                // stats
                 statMessages.textContent = allMessages.length;
                 statNotifs.textContent = uniqueNotifIds.size;
 
-                // render grouped by user (newest users first)
+                // render grouped by user (nouveaux au début)
                 renderGroupedByUser();
             } catch (err) {
                 console.error(err);
@@ -462,22 +500,19 @@
 
         // -------- RENDER grouped by user ----------
         function renderGroupedByUser(filteredList) {
-            // filteredList is optional: if provided, it's a subset of allMessages
+            // filteredList est optionnel : subset de allMessages
             const source = filteredList || allMessages.slice(); // shallow copy
-            // group by uid. We want newest messages first; allMessages pushes in DB order, so reverse for newest-first
-            // We'll preserve per-user newest-first by reversing the source and then grouping in that order
+            // on veut newest-first par utilisateur -> reverse source (car allMessages push dans l'ordre DB)
             const reversed = source.slice().reverse();
-            const groups = new Map(); // uid -> array of message objects (newest first)
+            const groups = new Map(); // uid -> array messages (newest first)
             for (const item of reversed) {
                 const uid = item.uid || 'unknown';
                 if (!groups.has(uid)) groups.set(uid, []);
                 groups.get(uid).push(item);
             }
 
-            // To show newest users first, we iterate groups in insertion order of reversed source
-            // But Map keeps insertion order of first appearance; that matches newest-user-first since we processed reversed.
-
             cardsEl.innerHTML = '';
+
             if (groups.size === 0) {
                 cardsEl.innerHTML = '<div class="card">Aucun message trouvé.</div>';
                 return;
@@ -485,24 +520,33 @@
 
             const frag = document.createDocumentFragment();
             for (const [uid, messages] of groups.entries()) {
-                // user block
                 const userBlock = document.createElement('div');
                 userBlock.className = 'user-block';
 
-                // header with uid and counts
+                // header with uid, counts and selection checkbox
                 const header = document.createElement('div');
                 header.className = 'user-header';
 
                 const left = document.createElement('div');
                 left.innerHTML = `<div class="user-title">${escapeHtml(uid)}</div><div class="user-meta">${messages.length} message(s)</div>`;
 
+                const right = document.createElement('div');
                 // compute notif count in this user
                 const notifCount = messages.reduce((c, m) => c + (m.notificationid ? 1 : 0), 0);
-                const right = document.createElement('div');
-                right.innerHTML = `<div class="user-meta">${notifCount} notif(s)</div>`;
+
+                // checkbox for selecting this user for bulk actions
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'user-select';
+                checkbox.dataset.uid = uid;
+                checkbox.title = 'Sélectionner cet utilisateur';
+
+                const rightInner = document.createElement('div');
+                rightInner.innerHTML = `<div class="user-meta">${notifCount} notif(s)</div>`;
+                rightInner.appendChild(checkbox);
 
                 header.appendChild(left);
-                header.appendChild(right);
+                header.appendChild(rightInner);
                 userBlock.appendChild(header);
 
                 // messages list
@@ -511,13 +555,11 @@
 
                 // messages is newest-first array
                 for (const msg of messages) {
-                    // decide rendering case
                     if (msg.notificationid) {
                         const ni = document.createElement('div');
                         ni.className = 'txn-list';
                         ni.innerHTML = `<strong>${escapeHtml(String(msg.notificationid))}</strong><div style="margin-top:6px;" class="msg-time">${escapeHtml(msg.time || '')}</div>`;
 
-                        // actions small (view/delete)
                         const actions = document.createElement('div');
                         actions.className = 'card-actions';
                         actions.style.marginTop = '6px';
@@ -617,12 +659,17 @@
                         card.appendChild(footer);
                         list.appendChild(card);
                     } else {
-                        // fallback raw
-                        const pre = document.createElement('pre');
-                        pre.style.whiteSpace = 'pre-wrap';
-                        pre.style.color = 'var(--muted)';
-                        pre.textContent = JSON.stringify(msg.raw || msg, null, 2);
-                        list.appendChild(pre);
+                        // fallback raw -> par défaut on n'affiche PAS les raw vides (selon ta demande)
+                        const rawText = JSON.stringify(msg.raw || msg, null, 2);
+                        if (rawText && rawText !== '{}' && rawText !== 'null') {
+                            const pre = document.createElement('pre');
+                            pre.style.whiteSpace = 'pre-wrap';
+                            pre.style.color = 'var(--muted)';
+                            pre.textContent = rawText;
+                            list.appendChild(pre);
+                        } else {
+                            // ne rien afficher si aucun contenu lisible (évite les blocs vides)
+                        }
                     }
                 }
 
@@ -632,7 +679,7 @@
 
             cardsEl.appendChild(frag);
 
-            // update stats in case some filtering changed counts
+            // update stats (recalcule fiable)
             statMessages.textContent = allMessages.length;
             statNotifs.textContent = uniqueNotifIds.size;
         }
@@ -646,7 +693,7 @@
             });
         }
 
-        // Delete handler (same as before)
+        // Delete handler
         function handleDelete(item) {
             if (!item || !item.uid || !item.key) { Swal.fire('Erreur', 'Impossible de supprimer (données manquantes).', 'error'); return; }
             Swal.fire({
@@ -663,6 +710,11 @@
                             allMessages = allMessages.filter(m => !(m.uid === item.uid && m.key === item.key));
                             // recompute uniqueNotifIds
                             uniqueNotifIds = new Set(allMessages.filter(m => m.notificationid).map(m => String(m.notificationid)));
+                            // if user n'a plus de messages, on peut aussi retirer loadedUserKeys afin de permettre un reload futur
+                            const stillHas = allMessages.some(m => m.uid === item.uid);
+                            if (!stillHas) {
+                                loadedUserKeys.delete(item.uid);
+                            }
                             renderGroupedByUser();
                             statMessages.textContent = allMessages.length;
                             statNotifs.textContent = uniqueNotifIds.size;
@@ -682,7 +734,7 @@
                 if (!q) { renderGroupedByUser(); return; }
                 // filter messages that contain query (in notificationid, message, Raison, uid)
                 const filtered = allMessages.filter(it => {
-                    const hay = ((it.notificationid || '') + ' ' + (it.message || '') + ' ' + (it.Raison || '') + ' ' + it.uid).toLowerCase();
+                    const hay = ((it.notificationid || '') + ' ' + (it.message || '') + ' ' + (it.Raison || '') + ' ' + (it.uid || '')).toLowerCase();
                     return hay.includes(q);
                 });
                 renderGroupedByUser(filtered);
@@ -694,13 +746,18 @@
 
         function resetAndReload() {
             lastUserKey = null; usersLoaded = 0; loading = false; reachedEnd = false;
-            allMessages = []; uniqueNotifIds = new Set();
+            allMessages = []; uniqueNotifIds = new Set(); loadedUserKeys = new Set();
             statUsers.textContent = '0'; statMessages.textContent = '0'; statNotifs.textContent = '0';
             cardsEl.innerHTML = ''; endEl.style.display = 'none'; loaderEl.style.display = 'block';
             loadUsersPage();
         }
 
+        // Scroll throttle to avoid raf flood
+        let lastScroll = 0;
         window.addEventListener('scroll', () => {
+            const now = Date.now();
+            if (now - lastScroll < 200) return;
+            lastScroll = now;
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 160) loadUsersPage();
         });
 
@@ -708,8 +765,11 @@
         auth.onAuthStateChanged(user => {
             if (user) {
                 console.log('User logged in:', user.uid);
-                // load messages if not loaded yet
-                if (!allMessages.length) loadUsersPage();
+                // NE PAS faire un second chargement complet qui duplique les données.
+                // On se contente de lancer la pagination si on n'a rien chargé.
+                if (!allMessages.length) {
+                    resetAndReload();
+                }
             } else {
                 console.log('No user, show login prompt');
                 Swal.fire({
@@ -742,9 +802,64 @@
         // expose signout if desired
         window.signOutDashboard = function () { auth.signOut().then(() => Swal.fire('Déconnecté', 'Vous êtes déconnecté.', 'success')); };
 
-        // initial (do nothing until auth confirmed)
-        // loadUsersPage() will be called inside auth.onAuthStateChanged when authorized
+        // ------------- Sélection & envoi (exemple) ----------------
+        // récupère les uids sélectionnés via les checkboxes
+        function getSelectedUids() {
+            const checks = document.querySelectorAll('.user-select');
+            const uids = [];
+            checks.forEach(cb => { if (cb.checked) uids.push(cb.dataset.uid); });
+            return uids;
+        }
+
+        // Exemple : fonction à appeler pour envoyer (à adapter selon ton flux)
+        async function sendToSelected() {
+            const selected = getSelectedUids();
+            if (!selected.length) { Swal.fire('Info', 'Aucun utilisateur sélectionné.', 'info'); return; }
+
+            // Exemple de confirmation
+            const { value: text } = await Swal.fire({
+                title: `Envoyer un message à ${selected.length} utilisateur(s)`,
+                input: 'textarea',
+                inputLabel: 'Message',
+                inputPlaceholder: 'Écris ton message ici...',
+                showCancelButton: true,
+                preConfirm: (val) => { if (!val || !val.trim()) Swal.showValidationMessage('Message requis'); return val; }
+            });
+
+            if (!text) return;
+
+            // Exemple minimal : on push un objet dans /utilisateurs/{uid}/OUTBOX ou MESSAGES selon ton besoin
+            // -> ADAPTE CETTE PARTIE à TON BACKEND / ROUTE D'ENVOI RÉELLE
+            const updates = {};
+            selected.forEach(uid => {
+                const newKey = database.ref().push().key;
+                // exemple: ajoute un OUTBOX/<key> = {text, created_at}
+                updates[`/utilisateurs/${uid}/OUTBOX/${newKey}`] = { text, created_at: Date.now() };
+            });
+
+            try {
+                await database.ref().update(updates);
+                Swal.fire('Envoyé', `Message poussé pour ${selected.length} utilisateur(s).`, 'success');
+
+                // facultatif : désélectionner après envoi
+                document.querySelectorAll('.user-select').forEach(cb => cb.checked = false);
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Erreur', 'Envoi échoué.', 'error');
+            }
+        }
+
+        if (sendSelectedBtn) {
+            sendSelectedBtn.addEventListener('click', sendToSelected);
+        } else {
+            // si le bouton n'existe pas, tu peux appeler sendToSelected() manuellement ou ajouter un bouton dans ton HTML
+            console.warn('sendSelectedBtn introuvable — ajoute un bouton avec id="sendSelectedBtn" pour utiliser la fonction d\'envoi.');
+        }
+
+        // initial (ne rien faire jusqu'à l'auth)
+        // loadUsersPage() sera appelé depuis auth.onAuthStateChanged via resetAndReload() si autorisé
     </script>
+
 </body>
 
 </html>

@@ -716,11 +716,13 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                     const job = userArrayAJob[i];
                     console.log("job urlformation:", job);
+                    console.log("job urlformation:", job.urlformation);
+                    console.log("job urlformation pdf:", job.formationimgNotPdf);
                     const urlFormation = job.urlformation ? encodeURIComponent(job.urlformation) : "null";
                     //formationimgNotPdf
                     content =
                       job.XitledeCategorie === "Formation"
-                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&required=${job.formationimgNotPdf}">Acheter</a>`
+                        ? `<a class="btn btn-secondary" href="indexex.html?id=${job.Salairedejob}&required=${job.formationimg}">Acheter</a>`
                         : `<a class="btn btn-primary" href="indexe.html">Postuler</a>`;
 
                     var contentxc;
@@ -970,9 +972,15 @@ menubtnId.addEventListener("click", function () {
         id: "65c89373ac34723190f5087e",
         amount: `${fcfaAmount}`,
         token: "fp_RyjzKSop3kh7DF1vy3LG0KRDTYYgF3ebSZSDsTR6MIrYauAU83IrSS7qUE3HksLe",
-        callback: () => {
-          console.log("Paiement réussi !");
-          addSuccessListener();
+        callback: (response) => {       // ✅ Correction : la fonction reçoit une réponse
+          if (response && response.status === "success") {
+            console.log("✅ Paiement réussi !");
+            addSuccessListener(); // ton action après succès
+          } else if (response && response.status === "failed") {
+            console.log("❌ Paiement échoué !");
+          } else {
+            console.log("ℹ️ Paiement annulé ou indéfini :", response);
+          }
         },
         callback_url: "your_callback_url",
         mode: "LIVE",
@@ -1051,7 +1059,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
   const { isConfirmed, value } = await Swal.fire({
     title: "Your amount",
     html: `
-        < label id = "swal-label" for= "country-select" >🌍 Choisissez votre pays</label >
+        <label id = "swal-label" for= "country-select" >🌍 Choisissez votre pays</label >
       <select id="country-select" class="swal2-select" style="margin-bottom:10px; width:60%; max-width:300px;">
         ${countryOptions}
       </select>

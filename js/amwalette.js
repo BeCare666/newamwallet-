@@ -21,7 +21,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     submitid.addEventListener("click", submitmy)
     function submitmy() {
       const transfertCodeId = document.getElementById("amwalette_Adress")?.value?.trim();
-      const amwalette_reason = document.getElementById("amwalette_reason")?.value?.trim();
+      const amwalette_reason = document.getElementById("amwalette_reason").value;
       const soldeInput = document.getElementById("soldeId")?.value?.trim();
       const userSenderId = localStorage.getItem("unserconnect");
       const usernameSender = localStorage.getItem("usernameT");

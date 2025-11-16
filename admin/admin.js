@@ -1,3 +1,9 @@
+// ⚡ Initialisation Supabase
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = "https://rakxwngpnfiwnjiiidge.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3h3bmdwbmZpd25qaWlpZGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNTA5NDcsImV4cCI6MjA3ODgyNjk0N30.LXoSpUiCYuptQ02tqITcHEULJIuu2QfU6WsUS7GlOrE";
+const supabase = createClient(supabaseUrl, supabaseKey);
 const firebaseConfig = {
   apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
   authDomain: "am-wallet.firebaseapp.com",
@@ -582,8 +588,7 @@ firebase.auth().onAuthStateChanged(function (user) {
       var sendnotificationidxw = document.getElementById("sendnotificationidw");
       sendnotificationidxw.addEventListener("click", function () {
         // Récupérer la valeur du champ de saisie
-        const notificationidw =
-          document.getElementById("notificationidw").value;
+        const notificationidw = document.getElementById("notificationidw").value;
         // Vérifier si la valeur est vide
         if (!notificationidw) {
           // Afficher un message d'erreur ou empêcher l'exécution de la suite du code
@@ -637,28 +642,40 @@ firebase.auth().onAuthStateChanged(function (user) {
 
       // end function to send notification
 
-      // Start function to send job
-      const cloudName = "dyyr3mx44";         // Remplace par ton Cloudinary cloud_name
-      const uploadPreset = "frontend_upload";   // Remplace par ton upload preset
+
 
       // Fonction pour uploader un fichier sur Cloudinary
       async function uploadToCloudinary(file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", uploadPreset);
-
         try {
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-            method: "POST",
-            body: formData
-          });
-          const data = await res.json();
-          return data.secure_url; // URL publique de l'image
+          // Crée un nom unique pour le fichier
+          const fileName = `${Date.now()}_${file.name}`;
+          const { data, error } = await supabase.storage
+            .from('uploads')  // Nom du bucket que tu as créé dans Supabase
+            .upload(fileName, file);
+
+          if (error) {
+            console.error("Erreur upload Supabase:", error.message);
+            return null;
+          }
+
+          // Récupérer l'URL publique
+          const { publicUrl, error: urlError } = supabase
+            .storage
+            .from('uploads')
+            .getPublicUrl(fileName);
+
+          if (urlError) {
+            console.error("Erreur récupération URL Supabase:", urlError.message);
+            return null;
+          }
+
+          return publicUrl;
         } catch (err) {
-          console.error("Erreur upload Cloudinary :", err);
+          console.error("Erreur upload Supabase:", err);
           return null;
         }
       }
+
 
       // Gestion du premier input
       document.getElementById('imageFile').addEventListener('change', async function () {
@@ -683,6 +700,7 @@ firebase.auth().onAuthStateChanged(function (user) {
           console.log("ImageFileNotPdf URL ajoutée:", url);
         }
       });
+
 
       var postJobsIdSend = document.getElementById("postJobsIdSend");
       postJobsIdSend.addEventListener("click", function () {

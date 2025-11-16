@@ -416,7 +416,6 @@
         /**********************
          * CONFIGURATION
          **********************/
-        // Remplace par ta config Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
             authDomain: "am-wallet.firebaseapp.com",
@@ -427,7 +426,6 @@
             appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
         };
 
-        // nombre d'utilisateurs par page
         const PAGE_SIZE = 25;
 
         // ------------------- INIT -------------------
@@ -435,6 +433,7 @@
         const database = firebase.database();
         var auth = firebase.auth();
         const userRef = database.ref('/utilisateurs');
+
         auth.onAuthStateChanged(function (user) {
             if (user) {
                 document.getElementById("authSection").style.display = "none";
@@ -445,12 +444,16 @@
                 document.getElementById("uploadSection").style.display = "none";
             }
         });
+
         // ------------------- STATE -------------------
-        let lastKey = null;        // dernière clé chargée pour pagination
+        let lastKey = null;
         let loading = false;
         let reachedEnd = false;
-        let loadedUsers = [];      // array of { uid, data }
-        let displayedUsers = [];   // current DOM filtered list
+        let loadedUsers = [];
+        let displayedUsers = [];
+
+        // ✅ NOUVEAU : ensemble des utilisateurs sélectionnés
+        let selectedUids = new Set();
 
         // DOM
         const usersList = document.getElementById('usersList');
@@ -483,33 +486,60 @@
             wrapper.className = 'userItem';
             wrapper.dataset.uid = uid;
 
-            const avatar = document.createElement('div'); avatar.className = 'userAvatar';
+            const avatar = document.createElement('div');
+            avatar.className = 'userAvatar';
             const initials = (formatDisplayName(data, uid).split(' ').map(s => s[0] || '').join('')).slice(0, 2).toUpperCase();
             avatar.textContent = initials || 'U';
 
-            const info = document.createElement('div'); info.className = 'userInfo';
-            const name = document.createElement('div'); name.className = 'name'; name.textContent = formatDisplayName(data, uid);
-            const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = data.email || (data.phone || '—');
-            info.appendChild(name); info.appendChild(sub);
+            const info = document.createElement('div');
+            info.className = 'userInfo';
+            const name = document.createElement('div');
+            name.className = 'name';
+            name.textContent = formatDisplayName(data, uid);
+            const sub = document.createElement('div');
+            sub.className = 'sub';
+            sub.textContent = data.email || (data.phone || '—');
+            info.appendChild(name);
+            info.appendChild(sub);
 
-            const selWrap = document.createElement('div'); selWrap.className = 'userSelect';
-            const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'user-checkbox'; checkbox.dataset.uid = uid;
+            const selWrap = document.createElement('div');
+            selWrap.className = 'userSelect';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'user-checkbox';
+            checkbox.dataset.uid = uid;
+
+            // ✅ Conserver la sélection si déjà choisi
+            if (selectedUids.has(uid)) checkbox.checked = true;
+
             selWrap.appendChild(checkbox);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(info);
+            wrapper.appendChild(selWrap);
 
-            wrapper.appendChild(avatar); wrapper.appendChild(info); wrapper.appendChild(selWrap);
-
-            // interactions
             wrapper.addEventListener('click', (e) => {
-                if (e.target.tagName.toLowerCase() === 'input') return; // checkbox handled separately
-                checkbox.checked = !checkbox.checked; updateSelectionUI();
+                if (e.target.tagName.toLowerCase() === 'input') return;
+                checkbox.checked = !checkbox.checked;
+                toggleSelection(uid, checkbox.checked);
+                updateSelectionUI();
             });
-            checkbox.addEventListener('click', (e) => { e.stopPropagation(); updateSelectionUI(); });
+
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSelection(uid, checkbox.checked);
+                updateSelectionUI();
+            });
 
             return wrapper;
         }
 
+        // ✅ Nouvelle fonction : gestion du set global
+        function toggleSelection(uid, checked) {
+            if (checked) selectedUids.add(uid);
+            else selectedUids.delete(uid);
+        }
+
         function renderUsersList(users) {
-            // users: array of {uid, data}
             usersList.innerHTML = '';
             displayedUsers = users;
             users.forEach(u => {
@@ -531,25 +561,27 @@
         }
 
         function updateSelectionUI() {
-            const checked = usersList.querySelectorAll('.user-checkbox:checked').length;
+            const checked = selectedUids.size;
             const totalVisible = usersList.querySelectorAll('.user-checkbox').length;
             selectedCountEl.textContent = checked;
 
-            // preview selected
             selectedPreview.innerHTML = '';
-            usersList.querySelectorAll('.user-checkbox:checked').forEach(cb => {
-                const uid = cb.dataset.uid; const u = loadedUsers.find(x => x.uid === uid);
+            selectedUids.forEach(uid => {
+                const u = loadedUsers.find(x => x.uid === uid);
                 if (!u) return;
-                const card = document.createElement('div'); card.className = 'cardUser';
+                const card = document.createElement('div');
+                card.className = 'cardUser';
                 card.innerHTML = `<div style="width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,#60a5fa,#7c3aed); display:flex; align-items:center; justify-content:center; font-weight:700">${(formatDisplayName(u.data, u.uid).split(' ').map(s => s[0] || '').join('').slice(0, 2)).toUpperCase()}</div><div style="flex:1"><div style="font-weight:700">${escapeHtml(formatDisplayName(u.data, u.uid))}</div><div class="muted" style="font-size:12px">${escapeHtml(u.data.email || '')}</div></div>`;
                 selectedPreview.appendChild(card);
             });
 
-            // select all checkbox state
             if (totalVisible === 0) { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = false; }
-            else if (checked === 0) { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = false; }
-            else if (checked === totalVisible) { selectAllCheckbox.checked = true; selectAllCheckbox.indeterminate = false; }
-            else { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = true; }
+            else {
+                const visibleChecked = Array.from(usersList.querySelectorAll('.user-checkbox')).filter(cb => cb.checked).length;
+                if (visibleChecked === 0) { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = false; }
+                else if (visibleChecked === totalVisible) { selectAllCheckbox.checked = true; selectAllCheckbox.indeterminate = false; }
+                else { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = true; }
+            }
         }
 
         function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -563,51 +595,48 @@
 
             try {
                 let q;
-                if (!lastKey) {
-                    q = userRef.orderByKey().limitToFirst(PAGE_SIZE);
-                } else {
-                    // startAfter-like behaviour: startAt lastKey then skip first result which equals lastKey
-                    q = userRef.orderByKey().startAt(lastKey).limitToFirst(PAGE_SIZE + 1);
-                }
+                if (!lastKey) q = userRef.orderByKey().limitToFirst(PAGE_SIZE);
+                else q = userRef.orderByKey().startAt(lastKey).limitToFirst(PAGE_SIZE + 1);
+
                 const snap = await q.once('value');
                 if (!snap.exists()) {
                     reachedEnd = true; listEnd.style.display = 'block'; listLoader.style.display = 'none'; loading = false; return;
                 }
                 const page = [];
-                snap.forEach(child => {
-                    page.push({ uid: child.key, data: child.val() });
-                });
-                // if we used startAt with lastKey, first element = lastKey -> drop it
+                snap.forEach(child => { page.push({ uid: child.key, data: child.val() }); });
                 if (lastKey && page.length > 0 && page[0].uid === lastKey) { page.shift(); }
 
                 if (page.length === 0) { reachedEnd = true; listEnd.style.display = 'block'; }
                 else {
-                    // append to loadedUsers
                     loadedUsers = loadedUsers.concat(page);
                     appendUsers(page);
-                    // update lastKey
                     lastKey = loadedUsers[loadedUsers.length - 1].uid;
                 }
-            } catch (err) { console.error('Load page err', err); Swal.fire({ icon: 'error', title: 'Erreur', text: (err.message || err) }); }
-            finally { loading = false; listLoader.style.display = 'none'; totalLoadedEl.textContent = loadedUsers.length; }
+            } catch (err) {
+                console.error('Load page err', err);
+                Swal.fire({ icon: 'error', title: 'Erreur', text: (err.message || err) });
+            } finally {
+                loading = false;
+                listLoader.style.display = 'none';
+                totalLoadedEl.textContent = loadedUsers.length;
+            }
         }
 
-        // Reset cursor & reload
-        function resetAndLoad() { lastKey = null; loadedUsers = []; displayedUsers = []; reachedEnd = false; usersList.innerHTML = ''; totalLoadedEl.textContent = '0'; loadNextPage(); }
+        function resetAndLoad() {
+            lastKey = null; loadedUsers = []; displayedUsers = []; reachedEnd = false;
+            usersList.innerHTML = ''; totalLoadedEl.textContent = '0';
+            loadNextPage();
+        }
 
-        // infinite scroll handler
         usersListContainer.addEventListener('scroll', () => {
             const el = usersListContainer;
-            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 140) {
-                loadNextPage();
-            }
+            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 140) loadNextPage();
         });
 
-        // initial load
         loadNextPage();
 
         /**********************
-         * SEARCH (local + fallback)
+         * SEARCH
          **********************/
         let searchTimer = null;
         searchInput.addEventListener('input', (e) => {
@@ -615,20 +644,19 @@
             const q = e.target.value.trim().toLowerCase();
             searchTimer = setTimeout(() => {
                 if (q === '') {
-                    // render what we have loaded
                     renderUsersList(loadedUsers);
                     listEnd.style.display = reachedEnd ? 'block' : 'none';
                     return;
                 }
-                // local search first
                 const local = loadedUsers.filter(u => {
                     const name = (u.data.nom || u.data.name || u.data.displayName || '').toString().toLowerCase();
                     const email = (u.data.email || '').toString().toLowerCase();
                     return name.includes(q) || email.includes(q) || u.uid.toLowerCase().includes(q);
                 });
-                if (local.length > 0) { renderUsersList(local); listEnd.style.display = 'none'; }
-                else {
-                    // fallback: full scan (once) - caution: can be heavy if many users
+                if (local.length > 0) {
+                    renderUsersList(local);
+                    listEnd.style.display = 'none';
+                } else {
                     listLoader.style.display = 'block';
                     userRef.once('value').then(snap => {
                         const all = [];
@@ -641,7 +669,11 @@
                         renderUsersList(filtered);
                         listLoader.style.display = 'none';
                         listEnd.style.display = 'none';
-                    }).catch(err => { console.error(err); listLoader.style.display = 'none'; Swal.fire({ icon: 'error', title: 'Erreur', text: err.message || err }); });
+                    }).catch(err => {
+                        console.error(err);
+                        listLoader.style.display = 'none';
+                        Swal.fire({ icon: 'error', title: 'Erreur', text: err.message || err });
+                    });
                 }
             }, 350);
         });
@@ -651,12 +683,18 @@
          **********************/
         selectAllCheckbox.addEventListener('change', (e) => {
             const checked = e.target.checked;
-            usersList.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = checked);
+            usersList.querySelectorAll('.user-checkbox').forEach(cb => {
+                cb.checked = checked;
+                toggleSelection(cb.dataset.uid, checked);
+            });
             updateSelectionUI();
         });
 
         btnSelectAllVisible.addEventListener('click', () => {
-            usersList.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = true);
+            usersList.querySelectorAll('.user-checkbox').forEach(cb => {
+                cb.checked = true;
+                toggleSelection(cb.dataset.uid, true);
+            });
             updateSelectionUI();
         });
 
@@ -670,7 +708,6 @@
             const body = (messageBodyEl.value || '').trim();
             const link = (messageLinkEl.value || '').trim();
             if (!body) { Swal.fire({ icon: 'error', title: 'Message vide', text: 'Écris le message avant d\'envoyer.' }); return null; }
-            // formatted time
             const now = new Date();
             const formatted = now.toLocaleString();
             return { title, body, link, time: formatted, status: true };
@@ -678,9 +715,11 @@
 
         async function sendNotifications() {
             const payload = buildPayload(); if (!payload) return;
-
-            const selected = Array.from(usersList.querySelectorAll('.user-checkbox:checked')).map(cb => cb.dataset.uid);
-            if (selected.length === 0) { Swal.fire({ icon: 'warning', title: 'Aucun utilisateur', text: 'Sélectionne au moins un utilisateur.' }); return; }
+            const selected = Array.from(selectedUids);
+            if (selected.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Aucun utilisateur', text: 'Sélectionne au moins un utilisateur.' });
+                return;
+            }
 
             const confirm = await Swal.fire({ title: `Envoyer à ${selected.length} utilisateur(s) ?`, text: payload.body, showCancelButton: true, confirmButtonText: 'Confirmer', cancelButtonText: 'Annuler' });
             if (!confirm.isConfirmed) return;
@@ -697,7 +736,6 @@
                 Swal.fire({ icon: 'warning', title: 'Terminé (avec erreurs)', html: `Envoyé: ${selected.length - failed.length} <br> Échecs: ${failed.length}` });
             } else {
                 Swal.fire({ icon: 'success', title: 'Envoyé', text: `Notification envoyée à ${selected.length} utilisateur(s).` });
-                // reset message
                 messageBodyEl.value = ''; messageTitleEl.value = ''; messageLinkEl.value = '';
             }
             sendBtn.disabled = false; sendBtn.textContent = 'Envoyer';
@@ -706,15 +744,12 @@
 
         sendBtn.addEventListener('click', sendNotifications);
 
-        // preview
         sendPreviewBtn.addEventListener('click', () => {
             const payload = buildPayload(); if (!payload) return;
             Swal.fire({ title: payload.title || 'Aperçu', html: `<strong>Message :</strong><div style="text-align:left; margin-top:8px">${escapeHtml(payload.body)}</div><div style="margin-top:8px; color:var(--muted)">${escapeHtml(payload.link || '')}</div>` });
         });
-
-        // utility: load first X for demo
-        // Note: you can call resetAndLoad() to restart
     </script>
+
 </body>
 
 </html>
