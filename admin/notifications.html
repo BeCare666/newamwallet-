@@ -169,6 +169,16 @@
                 font-size: 18px;
             }
         }
+
+        .message-card {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .message-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
@@ -260,12 +270,13 @@
             users.forEach(userData => {
                 const messages = userData.MESSAGES;
                 const username = userData.username || "Utilisateur inconnu";
+                const uid = userData.userId; // 🔥 obligatoire pour update le bon utilisateur
 
                 if (!messages) return;
 
                 // On transforme les messages en tableau et on garde uniquement ceux avec Raison
                 let msgArray = Object.keys(messages)
-                    .map(key => messages[key])
+                    .map(key => ({ id: key, ...messages[key] }))  // 🔥 on récupère aussi l'id Firebase du message
                     .filter(msg => msg.Raison)
                     .map(msg => {
                         // Transformation de la string "dd/mm/yyyy hh:mm" en Date
@@ -287,24 +298,24 @@
 
                 msgArray.forEach(msg => {
                     raisonHTML += `
-              <div class="message-card">
-                <h3>💬 ${msg.type === "réception" ? "Réception de fonds" : msg.type}</h3>
-                <p>${msg.message}</p>
-                <p><strong>Montant :</strong> ${msg.montant} $</p>
-                <p><strong>Raison :</strong> ${msg.Raison}</p>
-                <div class="message-footer">
-                  <span>${msg.status ? "✅ Confirmé" : "⏳ En attente"}</span>
-                  <span>${msg.time}</span>
-                </div>
-              </div>`;
+          <div class="message-card" data-uid="${uid}" data-msgid="${msg.id}">
+            <h3>💬 ${msg.type === "réception" ? "Réception de fonds" : msg.type}</h3>
+            <p>${msg.message}</p>
+            <p><strong>Montant :</strong> ${msg.montant} $</p>
+            <p><strong>Raison :</strong> ${msg.Raison}</p>
+            <div class="message-footer">
+              <span>${msg.status ? "✅ Confirmé" : "⏳ En attente"}</span>
+              <span>${msg.time}</span>
+            </div>
+          </div>`;
                 });
 
                 html += `
-          <div class="user-block">
-            <div class="user-header">👤 ${username}</div>
-            <div class="section-title">💬 Transactions / Raisons</div>
-            <div class="message-list">${raisonHTML}</div>
-          </div>`;
+      <div class="user-block">
+        <div class="user-header">👤 ${username}</div>
+        <div class="section-title">💬 Transactions / Raisons</div>
+        <div class="message-list">${raisonHTML}</div>
+      </div>`;
             });
 
             if (html === "") {
@@ -312,7 +323,46 @@
             } else {
                 contentDiv.innerHTML = html;
             }
+
+            // 🔥 Activation des clics SweetAlert sur chaque message
+            setTimeout(() => {
+                document.querySelectorAll(".message-card").forEach(card => {
+                    card.addEventListener("click", () => {
+                        const uid = card.getAttribute("data-uid");
+                        const msgid = card.getAttribute("data-msgid");
+                        //console.log("uid:", uid, "msgid:", msgid);
+                        Swal.fire({
+                            title: "Validation du message",
+                            text: "Mettre ce message en statut EN ATTENTE ?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Valider",
+                            cancelButtonText: "Annuler",
+                            background: "rgb(35,34,63)",
+                            color: "white"
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                firebase.database().ref(`utilisateurs/${uid}/MESSAGES/${msgid}/status`)
+                                    .set(true)
+                                    .then(() => {
+                                        Swal.fire({
+                                            title: "Mis à jour",
+                                            text: "Le statut du message est maintenant en attente.",
+                                            icon: "success",
+                                            background: "rgb(35,34,63)",
+                                            color: "white"
+                                        });
+
+                                        // 🔥 changement visuel instantané
+                                        card.querySelector(".message-footer span:first-child").innerHTML = "⏳ En attente";
+                                    });
+                            }
+                        });
+                    });
+                });
+            }, 300);
         }
+
 
 
         // 🚪 Déconnexion

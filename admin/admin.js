@@ -1,7 +1,4 @@
 
-const supabaseUrl = "https://rakxwngpnfiwnjiiidge.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3h3bmdwbmZpd25qaWlpZGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNTA5NDcsImV4cCI6MjA3ODgyNjk0N30.LXoSpUiCYuptQ02tqITcHEULJIuu2QfU6WsUS7GlOrE";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 const firebaseConfig = {
   apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
   authDomain: "am-wallet.firebaseapp.com",
@@ -39,28 +36,28 @@ firebase.auth().onAuthStateChanged(function (user) {
         result.innerHTML = "";
         snapshot.forEach((productSnapshot) => {
           const productData = productSnapshot.val();
+          if (productData.userId) {
+            totalUsers.push(productData)
+            console.log("total email", productData)
+            document.getElementById('statvalueUsersId').textContent = `${totalUsers.length}`
+            var mxcompt = productData.ACCOUNTPRINCIPAL;
+            const li = document.createElement("li");
+            li.addEventListener("click", function () {
+              li.id = `${productData.userId}`;
+              tableTakeIdUserDelete.push(productData.userId)
+              console.log(li.id);
+              var usermxid = li.id;
 
-          totalUsers.push(productData)
-          console.log("totalUsers", totalUsers.length)
-          document.getElementById('statvalueUsersId').textContent = `${totalUsers.length}`
-          var mxcompt = productData.ACCOUNTPRINCIPAL;
-          const li = document.createElement("li");
-          li.addEventListener("click", function () {
-            li.id = `${productData.userId}`;
-            tableTakeIdUserDelete.push(productData.userId)
-            console.log(li.id);
-            var usermxid = li.id;
-
-            Swal.fire({
-              title: "Modification",
-              html: `Modier le compte de <strong style="color: blue;">${productData.username}</strong>`,
-              showDenyButton: true,
-              showCancelButton: true,
-              confirmButtonText: "Augmenter",
-              denyButtonText: `Diminuer`,
-              cancelButtonText: "Vider",
-              allowOutsideClick: false,
-              footer: `
+              Swal.fire({
+                title: "Modification",
+                html: `Modier le compte de <strong style="color: blue;">${productData.username}</strong>`,
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: "Augmenter",
+                denyButtonText: `Diminuer`,
+                cancelButtonText: "Vider",
+                allowOutsideClick: false,
+                footer: `
               <button id="notificationidx" style="color: white; background-color: #FFB6C1; border: none; padding: 12px; cursor: pointer; border-radius: 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
               <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
             </svg></button>&nbsp;&nbsp;
@@ -89,415 +86,415 @@ firebase.auth().onAuthStateChanged(function (user) {
           </button>
 
               `,
-            }).then((result) => {
-              /* Read more about isConfirmed, isDenied below */
-              if (result.isConfirmed) {
-                // Swal.fire("Saved!", "", "success");
-                $("#exampleModaladd").modal({
-                  show: true,
-                  backdrop: "static",
-                  keyboard: false,
-                });
-              } else if (result.dismiss === Swal.DismissReason.cancel) {
-                //  Swal.fire("OK", "", "info");
-                var sendunityforuserlup = document.getElementById(
-                  "sendunityforuserlupdateO"
-                );
-                sendunityforuserlup.click();
-              } else if (result.isDenied) {
-                // Swal.fire("Changes are not saved", "", "info");
-                $("#exampleModalupdate").modal({
-                  show: true,
-                  backdrop: "static",
-                  keyboard: false,
-                });
-              }
-            });
-
-
-
-
-            var footerButtonwallet =
-              document.getElementById("footerButtonwallet");
-            footerButtonwallet.addEventListener("click", function () {
-              localStorage.setItem("takeidAfil", usermxid);
-              window.location.href = "../admin/detailafi/afiliatedetails.html";
-            });
-
-            // Start function to activate or desactivate account users
-            var footerButtonstatus =
-              document.getElementById("footerButtonstatus");
-            footerButtonstatus.addEventListener("click", function () {
-              Swal.fire({
-                title: "Changer le satus",
-                text: "info",
-                confirmButtonText: "Activer",
-                denyButtonText: `Suspendre`,
-                cancelButtonText: "retour",
-                allowOutsideClick: false,
-                showDenyButton: true,
-                showCancelButton: true,
-                icon: "info",
               }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
-                  const newData = {
-                    USERSTATUS: true,
-                  };
-                  const userRefx = database.ref(`/utilisateurs/${usermxid}`);
-                  userRefx.update(newData, (error) => {
-                    if (error) {
-                      alert("les données ne sont pas mise à jour " + error);
-                    } else {
-                      alert("les données sont mise à jour ");
-                    }
+                  // Swal.fire("Saved!", "", "success");
+                  $("#exampleModaladd").modal({
+                    show: true,
+                    backdrop: "static",
+                    keyboard: false,
                   });
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                   //  Swal.fire("OK", "", "info");
+                  var sendunityforuserlup = document.getElementById(
+                    "sendunityforuserlupdateO"
+                  );
+                  sendunityforuserlup.click();
                 } else if (result.isDenied) {
-                  const newData = {
-                    USERSTATUS: false,
-                  };
-                  const userRefx = database.ref(`/utilisateurs/${usermxid}`);
-                  userRefx.update(newData, (error) => {
-                    if (error) {
-                      alert("les données ne sont pas mise à jour " + error);
-                    } else {
-                      alert("les données sont mise à jour ");
-                    }
+                  // Swal.fire("Changes are not saved", "", "info");
+                  $("#exampleModalupdate").modal({
+                    show: true,
+                    backdrop: "static",
+                    keyboard: false,
                   });
                 }
               });
-            });
-            // End function to activate or desactivate account users 
 
-            // function to delete user
-            var footerButtonDeleteUser = document.getElementById(
-              "footerButtonDeleteUser"
-            );
-            footerButtonDeleteUser.addEventListener("click", footerButtonDeleteUserFunction);
-            function footerButtonDeleteUserFunction() {
-              const lastElementUserId = tableTakeIdUserDelete.slice(-1)[0];
-              //alert(lastElementUserId);
-              const userRef = database.ref(`/utilisateurs/`);
-              // Supposons que vous ayez une variable userId qui contient l'ID de l'utilisateur à supprimer
-              //const userId = 'ID_DE_L_UTILISATEUR';  // Remplacez par l'ID réel
 
-              // Référence à l'utilisateur spécifique
-              var userToDeleteRef = userRef.child(lastElementUserId);
 
-              // Supprimer l'utilisateur
-              userToDeleteRef.remove()
-                .then(() => {
-                  Swal.fire({
-                    title: "supprimé",
-                    text: "Utilisateur supprimé avec succès",
-                    allowOutsideClick: false,
-                    icon: "info",
-                  }).then((result) => {
-                    firebase
-                      .database()
-                      .ref("userdelete/")
-                      .push({
-                        userId: lastElementUserId,
-                      });
 
-                    if (result.isConfirmed) {
-                      location.reload();
-                    }
-                  })
+              var footerButtonwallet =
+                document.getElementById("footerButtonwallet");
+              footerButtonwallet.addEventListener("click", function () {
+                localStorage.setItem("takeidAfil", usermxid);
+                window.location.href = "../admin/detailafi/afiliatedetails.html";
+              });
 
-                })
-                .catch((error) => {
-
-                  Swal.fire({
-                    title: "Oooops",
-                    text: "Erreur lors de la suppression de l'utilisateur",
-                    allowOutsideClick: false,
-                    icon: "error",
-                  }).then((result) => {
-                    if (result.isConfirmed) {
-                      location.reload();
-                    }
-                  })
-                });
-            }
-
-            var footerButtonMessages = document.getElementById(
-              "footerButtonMessages"
-            );
-            footerButtonMessages.addEventListener("click", updateAllUsers);
-            function updateAllUsers() {
-              Swal.fire({
-                title: "The message",
-                input: "text",
-                inputAttributes: {
-                  autocapitalize: "off",
-                },
-                showCancelButton: true,
-                confirmButtonText: "Send",
-                showLoaderOnConfirm: true,
-                allowOutsideClick: false,
-                confirmButtonColor: "#3085d6",
-                preConfirm: (messages) => {
-                  if (messages) {
-                    // Récupérer toutes les données des utilisateurs
-                    database.ref("utilisateurs").once("value", (snapshot) => {
-                      const updates = {}; // Initialise un objet pour stocker les mises à jour pour chaque utilisateur
-                      snapshot.forEach((childSnapshot) => {
-                        const userId = childSnapshot.key;
-                        updates[`utilisateurs/${userId}/MESSAGESAMWALLET`] =
-                          messages; // Ajouter une mise à jour pour le champ 'name' de chaque utilisateur
-                      });
-                      // Appliquer toutes les mises à jour en une seule opération
-                      database
-                        .ref()
-                        .update(updates)
-                        .then(() => {
-                          alert(
-                            "Mises à jour des utilisateurs effectuées avec succès"
-                          );
-                        })
-                        .catch((error) => {
-                          console.error(
-                            "Erreur lors de la mise à jour des utilisateurs:",
-                            error
-                          );
-                          alert(
-                            "Erreur lors de la mise à jour des utilisateurs:"
-                          );
-                        });
+              // Start function to activate or desactivate account users
+              var footerButtonstatus =
+                document.getElementById("footerButtonstatus");
+              footerButtonstatus.addEventListener("click", function () {
+                Swal.fire({
+                  title: "Changer le satus",
+                  text: "info",
+                  confirmButtonText: "Activer",
+                  denyButtonText: `Suspendre`,
+                  cancelButtonText: "retour",
+                  allowOutsideClick: false,
+                  showDenyButton: true,
+                  showCancelButton: true,
+                  icon: "info",
+                }).then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                    const newData = {
+                      USERSTATUS: true,
+                    };
+                    const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                    userRefx.update(newData, (error) => {
+                      if (error) {
+                        alert("les données ne sont pas mise à jour " + error);
+                      } else {
+                        alert("les données sont mise à jour ");
+                      }
                     });
-                  } else {
-                    Swal.showValidationMessage("Please enter something.");
+                  } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    //  Swal.fire("OK", "", "info");
+                  } else if (result.isDenied) {
+                    const newData = {
+                      USERSTATUS: false,
+                    };
+                    const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                    userRefx.update(newData, (error) => {
+                      if (error) {
+                        alert("les données ne sont pas mise à jour " + error);
+                      } else {
+                        alert("les données sont mise à jour ");
+                      }
+                    });
                   }
-                },
+                });
               });
-            }
+              // End function to activate or desactivate account users 
 
-            // Sélectionnez le bouton du pied de page
-            const footerButton = document.getElementById("footerButton");
-            // Ajoutez un gestionnaire d'événements clic pour le bouton du pied de page
-            footerButton.addEventListener("click", function () {
-              // Fermez la boîte de dialogue
-              Swal.close();
-            });
-            // Sélectionnez le bouton du pied de page
-            const notificationidx = document.getElementById("notificationidx");
+              // function to delete user
+              var footerButtonDeleteUser = document.getElementById(
+                "footerButtonDeleteUser"
+              );
+              footerButtonDeleteUser.addEventListener("click", footerButtonDeleteUserFunction);
+              function footerButtonDeleteUserFunction() {
+                const lastElementUserId = tableTakeIdUserDelete.slice(-1)[0];
+                //alert(lastElementUserId);
+                const userRef = database.ref(`/utilisateurs/`);
+                // Supposons que vous ayez une variable userId qui contient l'ID de l'utilisateur à supprimer
+                //const userId = 'ID_DE_L_UTILISATEUR';  // Remplacez par l'ID réel
 
-            const sendnotificationidx =
-              document.getElementById("sendnotificationid");
-            // Ajoutez un gestionnaire d'événements clic pour le bouton du pied de page
+                // Référence à l'utilisateur spécifique
+                var userToDeleteRef = userRef.child(lastElementUserId);
 
-            // start function to send notification
-            notificationidx.addEventListener("click", function () {
-              Swal.close();
-              $("#Modalnotificationid").modal({
-                show: true,
-                backdrop: "static",
-                keyboard: false,
+                // Supprimer l'utilisateur
+                userToDeleteRef.remove()
+                  .then(() => {
+                    Swal.fire({
+                      title: "supprimé",
+                      text: "Utilisateur supprimé avec succès",
+                      allowOutsideClick: false,
+                      icon: "info",
+                    }).then((result) => {
+                      firebase
+                        .database()
+                        .ref("userdelete/")
+                        .push({
+                          userId: lastElementUserId,
+                        });
+
+                      if (result.isConfirmed) {
+                        location.reload();
+                      }
+                    })
+
+                  })
+                  .catch((error) => {
+
+                    Swal.fire({
+                      title: "Oooops",
+                      text: "Erreur lors de la suppression de l'utilisateur",
+                      allowOutsideClick: false,
+                      icon: "error",
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        location.reload();
+                      }
+                    })
+                  });
+              }
+
+              var footerButtonMessages = document.getElementById(
+                "footerButtonMessages"
+              );
+              footerButtonMessages.addEventListener("click", updateAllUsers);
+              function updateAllUsers() {
+                Swal.fire({
+                  title: "The message",
+                  input: "text",
+                  inputAttributes: {
+                    autocapitalize: "off",
+                  },
+                  showCancelButton: true,
+                  confirmButtonText: "Send",
+                  showLoaderOnConfirm: true,
+                  allowOutsideClick: false,
+                  confirmButtonColor: "#3085d6",
+                  preConfirm: (messages) => {
+                    if (messages) {
+                      // Récupérer toutes les données des utilisateurs
+                      database.ref("utilisateurs").once("value", (snapshot) => {
+                        const updates = {}; // Initialise un objet pour stocker les mises à jour pour chaque utilisateur
+                        snapshot.forEach((childSnapshot) => {
+                          const userId = childSnapshot.key;
+                          updates[`utilisateurs/${userId}/MESSAGESAMWALLET`] =
+                            messages; // Ajouter une mise à jour pour le champ 'name' de chaque utilisateur
+                        });
+                        // Appliquer toutes les mises à jour en une seule opération
+                        database
+                          .ref()
+                          .update(updates)
+                          .then(() => {
+                            alert(
+                              "Mises à jour des utilisateurs effectuées avec succès"
+                            );
+                          })
+                          .catch((error) => {
+                            console.error(
+                              "Erreur lors de la mise à jour des utilisateurs:",
+                              error
+                            );
+                            alert(
+                              "Erreur lors de la mise à jour des utilisateurs:"
+                            );
+                          });
+                      });
+                    } else {
+                      Swal.showValidationMessage("Please enter something.");
+                    }
+                  },
+                });
+              }
+
+              // Sélectionnez le bouton du pied de page
+              const footerButton = document.getElementById("footerButton");
+              // Ajoutez un gestionnaire d'événements clic pour le bouton du pied de page
+              footerButton.addEventListener("click", function () {
+                // Fermez la boîte de dialogue
+                Swal.close();
               });
-            });
+              // Sélectionnez le bouton du pied de page
+              const notificationidx = document.getElementById("notificationidx");
 
+              const sendnotificationidx =
+                document.getElementById("sendnotificationid");
+              // Ajoutez un gestionnaire d'événements clic pour le bouton du pied de page
 
-            // function to send points 
-            const footerButtonAddpoints =
-              document.getElementById("footerButtonAddpoints");
-            footerButtonAddpoints.addEventListener("click", function () {
-              Swal.close();
-              $("#ModalfooterButtonAddpoints").modal({
-                show: true,
-                backdrop: "static",
-                keyboard: false,
+              // start function to send notification
+              notificationidx.addEventListener("click", function () {
+                Swal.close();
+                $("#Modalnotificationid").modal({
+                  show: true,
+                  backdrop: "static",
+                  keyboard: false,
+                });
               });
 
-              const userRefxv = database.ref(`/utilisateurs/${usermxid}`);
-              userRefxv
-                .once("value")
-                .then((snapshot) => {
-                  const userData = snapshot.val();
 
-                  if (!userData) {
-                    alert("Utilisateur introuvable");
-                    return;
-                  }
+              // function to send points 
+              const footerButtonAddpoints =
+                document.getElementById("footerButtonAddpoints");
+              footerButtonAddpoints.addEventListener("click", function () {
+                Swal.close();
+                $("#ModalfooterButtonAddpoints").modal({
+                  show: true,
+                  backdrop: "static",
+                  keyboard: false,
+                });
 
-                  const currentPoints = parseFloat(userData.points);
-                  console.log("currentPoints", currentPoints)
+                const userRefxv = database.ref(`/utilisateurs/${usermxid}`);
+                userRefxv
+                  .once("value")
+                  .then((snapshot) => {
+                    const userData = snapshot.val();
 
-                  document.getElementById("ModalfooterButtonAddpointsSend").addEventListener("click", function () {
-                    const inputValue = document.getElementById("recivePointId").value.trim();
-
-                    // Remplacer éventuelle virgule par un point pour supporter les décimales
-                    const parsedValue = parseFloat(inputValue.replace(',', '.'));
-
-                    if (isNaN(parsedValue)) {
-                      alert("Veuillez entrer un nombre valide.");
+                    if (!userData) {
+                      alert("Utilisateur introuvable");
                       return;
                     }
 
-                    // Calcul du nouveau total (peut augmenter ou diminuer)
-                    const newPoints = parseFloat((currentPoints + parsedValue).toFixed(2));
+                    const currentPoints = parseFloat(userData.points);
+                    console.log("currentPoints", currentPoints)
 
-                    console.log("currentPoints:", currentPoints, "inputValue:", parsedValue, "newPoints:", newPoints);
+                    document.getElementById("ModalfooterButtonAddpointsSend").addEventListener("click", function () {
+                      const inputValue = document.getElementById("recivePointId").value.trim();
 
-                    // Mise à jour dans Firebase
-                    const userRefx = database.ref(`/utilisateurs/${usermxid}`);
-                    userRefx.update({ points: newPoints }, (error) => {
-                      if (error) {
-                        alert("Les données n'ont pas été mises à jour : " + error);
-                      } else {
-                        alert("Les données ont été mises à jour !");
-                        window.location.reload();
+                      // Remplacer éventuelle virgule par un point pour supporter les décimales
+                      const parsedValue = parseFloat(inputValue.replace(',', '.'));
+
+                      if (isNaN(parsedValue)) {
+                        alert("Veuillez entrer un nombre valide.");
+                        return;
                       }
+
+                      // Calcul du nouveau total (peut augmenter ou diminuer)
+                      const newPoints = parseFloat((currentPoints + parsedValue).toFixed(2));
+
+                      console.log("currentPoints:", currentPoints, "inputValue:", parsedValue, "newPoints:", newPoints);
+
+                      // Mise à jour dans Firebase
+                      const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                      userRefx.update({ points: newPoints }, (error) => {
+                        if (error) {
+                          alert("Les données n'ont pas été mises à jour : " + error);
+                        } else {
+                          alert("Les données ont été mises à jour !");
+                          window.location.reload();
+                        }
+                      });
                     });
+
+
+
+
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    alert("Une erreur est survenue lors de la récupération des données");
                   });
 
+              });
 
 
-
-                })
-                .catch((err) => {
-                  console.error(err);
-                  alert("Une erreur est survenue lors de la récupération des données");
-                });
-
-            });
-
-
-            // end function to send points
-            sendnotificationidx.addEventListener("click", function () {
-              const notificationid =
-                document.getElementById("notificationid").value;
-              const userRefx = database.ref(`/utilisateurs/${usermxid}`);
-              const dateActuelle = new Date();
-              // Obtenez les composantes de la date et de l'heure
-              const jour = dateActuelle.getDate();
-              const mois = dateActuelle.getMonth() + 1; // Les mois commencent à 0, donc ajoutez 1
-              const annee = dateActuelle.getFullYear();
-              const heures = dateActuelle.getHours();
-              const minutes = dateActuelle.getMinutes();
-              // Formatez la date et l'heure
-              const dateFormatee = `${jour}/${mois}/${annee} ${heures}h:${minutes}min`;
-              //console.log(dateFormatee);
-              // Function to add a gain with status to the user's gains array
-              function addGainToUser(notificationid, status, time) {
-                const newNotification = {
-                  notificationid: notificationid,
-                  status: status,
-                  time: time,
-                };
-                userRefx.child("MESSAGES").push(newNotification);
-              }
-              // Usage
-              addGainToUser(notificationid, true, dateFormatee); // Add a gain of 100 with "won" status
-
-              Swal.fire({
-                icon: "success",
-                title: "Félicitations !",
-                text: "La notification  a été envoyé avec succès !",
-                allowOutsideClick: false,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  location.reload();
+              // end function to send points
+              sendnotificationidx.addEventListener("click", function () {
+                const notificationid =
+                  document.getElementById("notificationid").value;
+                const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                const dateActuelle = new Date();
+                // Obtenez les composantes de la date et de l'heure
+                const jour = dateActuelle.getDate();
+                const mois = dateActuelle.getMonth() + 1; // Les mois commencent à 0, donc ajoutez 1
+                const annee = dateActuelle.getFullYear();
+                const heures = dateActuelle.getHours();
+                const minutes = dateActuelle.getMinutes();
+                // Formatez la date et l'heure
+                const dateFormatee = `${jour}/${mois}/${annee} ${heures}h:${minutes}min`;
+                //console.log(dateFormatee);
+                // Function to add a gain with status to the user's gains array
+                function addGainToUser(notificationid, status, time) {
+                  const newNotification = {
+                    notificationid: notificationid,
+                    status: status,
+                    time: time,
+                  };
+                  userRefx.child("MESSAGES").push(newNotification);
                 }
-              });
-            });
-            // end function to send notification
-            const userRefx = database.ref(`/utilisateurs/${usermxid}`);
-            userRefx
-              .once("value")
-              .then((snapshot) => {
-                snapshot.forEach((roductSnapshot) => {
-                  const productData = roductSnapshot.val();
-                  document
-                    .getElementById("sendunityforuseradd")
-                    .addEventListener("click", function () {
-                      var variableunityx =
-                        document.getElementById("recipientadd").value.trim();
-                      // Remplacer éventuelle virgule par un point pour supporter les décimales
-                      const variableunity = parseFloat(variableunityx.replace(',', '.'));
+                // Usage
+                addGainToUser(notificationid, true, dateFormatee); // Add a gain of 100 with "won" status
 
-                      var myCompta = parseFloat(mxcompt);
-                      var addunityForuser = parseFloat(variableunity);
-                      //var sommesUnity = myCompta + addunityForuser;
-                      var sommesUnity = parseFloat((myCompta + addunityForuser).toFixed(2));
-                      const newData = {
-                        ACCOUNTPRINCIPAL: sommesUnity,
-                      };
-                      const userRefx = database.ref(
-                        `/utilisateurs/${usermxid}`
-                      );
-                      userRefx.update(newData, (error) => {
-                        if (error) {
-                          alert("les données ne sont pas mise à jour " + error);
-                        } else {
-                          window.location.reload();
-                        }
-                      });
-                    });
-
-                  document
-                    .getElementById("sendunityforuserlupdate")
-                    .addEventListener("click", function () {
-                      var variableunityx =
-                        document.getElementById("recipientupdate").value.trim();
-                      // Remplacer éventuelle virgule par un point pour supporter les décimales
-                      var variableunity = parseFloat(variableunityx.replace(',', '.'));
-
-                      var myCompta = parseFloat(mxcompt);
-                      var addunityForuser = parseFloat(variableunity);
-                      //var sommesUnity = myCompta + addunityForuser;
-                      var sommesUnity = parseFloat((myCompta - addunityForuser).toFixed(2));
-
-                      const newData = {
-                        ACCOUNTPRINCIPAL: sommesUnity,
-                      };
-                      const userRefx = database.ref(
-                        `/utilisateurs/${usermxid}`
-                      );
-                      userRefx.update(newData, (error) => {
-                        if (error) {
-                          alert("les données ne sont pas mise à jour " + error);
-                        } else {
-                          window.location.reload();
-                        }
-                      });
-                    });
-
-                  document
-                    .getElementById("sendunityforuserlupdateO")
-                    .addEventListener("click", function () {
-                      const newData = {
-                        ACCOUNTPRINCIPAL: 0,
-                      };
-                      const userRefx = database.ref(
-                        `/utilisateurs/${usermxid}`
-                      );
-                      userRefx.update(newData, (error) => {
-                        if (error) {
-                          alert("les données ne sont pas mise à jour " + error);
-                        } else {
-                          window.location.reload();
-                        }
-                      });
-                    });
+                Swal.fire({
+                  icon: "success",
+                  title: "Félicitations !",
+                  text: "La notification  a été envoyé avec succès !",
+                  allowOutsideClick: false,
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    location.reload();
+                  }
                 });
-              })
-              .catch(() => {
-                alert("il y une erreur");
               });
-          });
+              // end function to send notification
+              const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+              userRefx
+                .once("value")
+                .then((snapshot) => {
+                  snapshot.forEach((roductSnapshot) => {
+                    const productData = roductSnapshot.val();
+                    document
+                      .getElementById("sendunityforuseradd")
+                      .addEventListener("click", function () {
+                        var variableunityx =
+                          document.getElementById("recipientadd").value.trim();
+                        // Remplacer éventuelle virgule par un point pour supporter les décimales
+                        const variableunity = parseFloat(variableunityx.replace(',', '.'));
 
-          // Création du li
+                        var myCompta = parseFloat(mxcompt);
+                        var addunityForuser = parseFloat(variableunity);
+                        //var sommesUnity = myCompta + addunityForuser;
+                        var sommesUnity = parseFloat((myCompta + addunityForuser).toFixed(2));
+                        const newData = {
+                          ACCOUNTPRINCIPAL: sommesUnity,
+                        };
+                        const userRefx = database.ref(
+                          `/utilisateurs/${usermxid}`
+                        );
+                        userRefx.update(newData, (error) => {
+                          if (error) {
+                            alert("les données ne sont pas mise à jour " + error);
+                          } else {
+                            window.location.reload();
+                          }
+                        });
+                      });
 
-          listItems.push(li);
-          li.style.cursor = "pointer";
+                    document
+                      .getElementById("sendunityforuserlupdate")
+                      .addEventListener("click", function () {
+                        var variableunityx =
+                          document.getElementById("recipientupdate").value.trim();
+                        // Remplacer éventuelle virgule par un point pour supporter les décimales
+                        var variableunity = parseFloat(variableunityx.replace(',', '.'));
 
-          // HTML avec ID unique pour le statut
-          const statusId = `user-status-${productData.id}`; // Assure que chaque utilisateur a un ID unique
+                        var myCompta = parseFloat(mxcompt);
+                        var addunityForuser = parseFloat(variableunity);
+                        //var sommesUnity = myCompta + addunityForuser;
+                        var sommesUnity = parseFloat((myCompta - addunityForuser).toFixed(2));
 
-          li.innerHTML = `
+                        const newData = {
+                          ACCOUNTPRINCIPAL: sommesUnity,
+                        };
+                        const userRefx = database.ref(
+                          `/utilisateurs/${usermxid}`
+                        );
+                        userRefx.update(newData, (error) => {
+                          if (error) {
+                            alert("les données ne sont pas mise à jour " + error);
+                          } else {
+                            window.location.reload();
+                          }
+                        });
+                      });
+
+                    document
+                      .getElementById("sendunityforuserlupdateO")
+                      .addEventListener("click", function () {
+                        const newData = {
+                          ACCOUNTPRINCIPAL: 0,
+                        };
+                        const userRefx = database.ref(
+                          `/utilisateurs/${usermxid}`
+                        );
+                        userRefx.update(newData, (error) => {
+                          if (error) {
+                            alert("les données ne sont pas mise à jour " + error);
+                          } else {
+                            window.location.reload();
+                          }
+                        });
+                      });
+                  });
+                })
+                .catch(() => {
+                  alert("il y une erreur");
+                });
+            });
+
+            // Création du li
+
+            listItems.push(li);
+            li.style.cursor = "pointer";
+
+            // HTML avec ID unique pour le statut
+            const statusId = `user-status-${productData.id}`; // Assure que chaque utilisateur a un ID unique
+
+            li.innerHTML = `
           <div style="position: relative; display: inline-block;">
             <img src="../img/user_logo.png" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
             <div id="${statusId}" style="
@@ -530,54 +527,55 @@ firebase.auth().onAuthStateChanged(function (user) {
           </div>
         `;
 
-          // Sélection du statut après injection HTML  white-space: nowrap;
-          const statusElement = li.querySelector(`#${statusId}`);
+            // Sélection du statut après injection HTML  white-space: nowrap;
+            const statusElement = li.querySelector(`#${statusId}`);
 
-          let lastSeenValue = productData.last_seen || null;
-          let isOnline = !!productData.online;
+            let lastSeenValue = productData.last_seen || null;
+            let isOnline = !!productData.online;
 
-          // Fonction format "vu il y a"
-          function formatLastSeen(timestamp) {
-            const diff = Date.now() - timestamp;
-            const seconds = Math.floor(diff / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
+            // Fonction format "vu il y a"
+            function formatLastSeen(timestamp) {
+              const diff = Date.now() - timestamp;
+              const seconds = Math.floor(diff / 1000);
+              const minutes = Math.floor(seconds / 60);
+              const hours = Math.floor(minutes / 60);
+              const days = Math.floor(hours / 24);
 
-            if (seconds < 60) return `${seconds} sec`;
-            if (minutes < 60) return `${minutes} min`;
-            if (hours < 24) return `${hours} h`;
-            return `${days} j`;
-          }
+              if (seconds < 60) return `${seconds} sec`;
+              if (minutes < 60) return `${minutes} min`;
+              if (hours < 24) return `${hours} h`;
+              return `${days} j`;
+            }
 
-          // Mise à jour affichage du statut
-          function updateStatus() {
-            if (isOnline) {
-              totalUsersConnectAll.push(isOnline)
-              document.getElementById('statvalueUsersConnectId').textContent = totalUsersConnectAll?.length || 0;
-              //statusElement.innerText = "🟢";
-              statusElement.style.backgroundColor = "green";
-            } else {
-              // statusElement.innerText = "⚪";
-              statusElement.style.backgroundColor = "gray";
-              if (lastSeenValue) {
-                statusElement.innerHTML = formatLastSeen(lastSeenValue); // info bulle
-                statusElement.style.minHeight = "30px";
+            // Mise à jour affichage du statut
+            function updateStatus() {
+              if (isOnline) {
+                totalUsersConnectAll.push(isOnline)
+                document.getElementById('statvalueUsersConnectId').textContent = totalUsersConnectAll?.length || 0;
+                //statusElement.innerText = "🟢";
+                statusElement.style.backgroundColor = "green";
+              } else {
+                // statusElement.innerText = "⚪";
+                statusElement.style.backgroundColor = "gray";
+                if (lastSeenValue) {
+                  statusElement.innerHTML = formatLastSeen(lastSeenValue); // info bulle
+                  statusElement.style.minHeight = "30px";
+                }
               }
             }
+
+            updateStatus();
+
+            // Mise à jour toutes les minutes si offline
+            setInterval(() => {
+              if (!isOnline && lastSeenValue) {
+                statusElement.title = formatLastSeen(lastSeenValue);
+              }
+            }, 60 * 1000);
+
+
+            result.appendChild(li);
           }
-
-          updateStatus();
-
-          // Mise à jour toutes les minutes si offline
-          setInterval(() => {
-            if (!isOnline && lastSeenValue) {
-              statusElement.title = formatLastSeen(lastSeenValue);
-            }
-          }, 60 * 1000);
-
-
-          result.appendChild(li);
         });
       });
 
@@ -640,64 +638,58 @@ firebase.auth().onAuthStateChanged(function (user) {
 
       // end function to send notification
 
+      const supabaseUrl = "https://rakxwngpnfiwnjiiidge.supabase.co";
+      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3d3bmdwbmZpd25qaWlpZGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNTA5NDcsImV4cCI6MjA3ODgyNjk0N30.LXoSpUiCYuptQ02tqITcHEULJIuu2QfU6WsUS7GlOrE";
 
+      async function uploadFileToSupabase(file) {
+        const fileName = `${Date.now()}_${file.name}`;
+        const url = `${supabaseUrl}/storage/v1/object/upload/uploads/${fileName}`;
 
-      // Fonction pour uploader un fichier sur Cloudinary
-      async function uploadToCloudinary(file) {
-        try {
-          // Crée un nom unique pour le fichier
-          const fileName = `${Date.now()}_${file.name}`;
-          const { data, error } = await supabase.storage
-            .from('uploads')  // Nom du bucket que tu as créé dans Supabase
-            .upload(fileName, file);
+        const formData = new FormData();
+        formData.append('file', file);
 
-          if (error) {
-            console.error("Erreur upload Supabase:", error.message);
-            return null;
-          }
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: file
+        });
 
-          // Récupérer l'URL publique
-          const { publicUrl, error: urlError } = supabase
-            .storage
-            .from('uploads')
-            .getPublicUrl(fileName);
-
-          if (urlError) {
-            console.error("Erreur récupération URL Supabase:", urlError.message);
-            return null;
-          }
-
-          return publicUrl;
-        } catch (err) {
-          console.error("Erreur upload Supabase:", err);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Erreur upload Supabase:", text);
           return null;
         }
+
+        // L'URL publique Supabase pour le fichier uploadé
+        return `${supabaseUrl}/storage/v1/object/public/uploads/${fileName}`;
       }
 
-
-      // Gestion du premier input
+      // Gestion des inputs
       document.getElementById('imageFile').addEventListener('change', async function () {
         const file = this.files[0];
         if (!file) return;
 
-        const url = await uploadToCloudinary(file);
+        const url = await uploadFileToSupabase(file);
         if (url) {
-          imageUrls.push(url);
           console.log("ImageFile URL ajoutée:", url);
         }
       });
 
-      // Gestion du second input
       document.getElementById('imageFileNotPdf').addEventListener('change', async function () {
         const file = this.files[0];
         if (!file) return;
 
-        const url = await uploadToCloudinary(file);
+        const url = await uploadFileToSupabase(file);
         if (url) {
-          imageNotPdfUrls.push(url);
           console.log("ImageFileNotPdf URL ajoutée:", url);
         }
       });
+
+
+
 
 
       var postJobsIdSend = document.getElementById("postJobsIdSend");

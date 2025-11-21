@@ -116,7 +116,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 message: `Vous avez transféré ${soldeToSend} $ à ${receiverName} `,
                 montant: soldeToSend,
                 Raison: amwalette_reason,
-                status: true,
+                status: false,
                 time: dateFormatted,
                 diffuser: true,
               };
@@ -126,42 +126,15 @@ firebase.auth().onAuthStateChanged(function (user) {
                 message: `Vous avez reçu ${soldeToSend} $ de ${usernameSender}`,
                 montant: soldeToSend,
                 Raison: amwalette_reason,
-                status: true,
+                status: false,
                 time: dateFormatted,
                 diffuser: true,
               };
 
               senderRef.child("MESSAGES").push(senderMsg);
               receiverRef.child("MESSAGES").push(receiverMsg);
-
-              // 📧 Envoi de l'e-mail
-              fetch("https://api.elasticemail.com/v2/email/send", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({
-                  apiKey: "TA_CLE_ELASTICEMAIL",
-                  subject: "Notification de transfert",
-                  from: "amobilewallet.inter@gmail.com",
-                  fromName: "AM WALLET",
-                  to: receiverEmail,
-                  bodyHtml: `
-              <div style="padding:20px;background:#f1f1f1">
-                <h3>Bonjour ${receiverName},</h3>
-                <p>Vous avez reçu <strong>${soldeToSend} FCFA</strong> de ${usernameSender} via AM Wallet.</p>
-                <p>Date : ${dateFormatted}</p>
-                <p>Merci pour votre fidélité.</p>
-              </div>
-            `
-                })
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  Swal.fire("Succès", "Transfert effectué avec succès", "success");
-                })
-                .catch((e) => {
-                  console.error("Erreur email :", e);
-                  Swal.fire("Succès", "Transfert OK, mais l’e-mail a échoué", "info");
-                });
+              Swal.fire("Succès", "Transfert effectué avec succès", "success");
+              window.location.href = "amwalette.html";
             });
           });
         })

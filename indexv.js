@@ -164,6 +164,60 @@ firebase.auth().onAuthStateChanged(function (user) {
               });
             } else {
               document.getElementById("sameToBody").style.display = "none";
+              var messages = snapshot.val().MESSAGES;
+              var container = document.getElementById("listeMessagesId");
+              container.innerHTML = ""; // reset
+
+              if (!messages) {
+                container.innerHTML = "<p style='color:#aaa; text-align:center; margin-top:25px;'>Aucun message pour le moment…</p>";
+                return;
+              }
+
+              Object.values(messages).forEach(msg => {
+                let iconType = "";
+                if (msg.type === "transfert") {
+                  iconType = `
+                  <svg width="26" height="26" fill="#6EE7B7" viewBox="0 0 24 24">
+                    <path d="M2 12l7-7v4h8v6H9v4l-7-7z"/>
+                  </svg>`;
+                } else {
+                  iconType = `
+                  <svg width="26" height="26" fill="#60A5FA" viewBox="0 0 24 24">
+                    <path d="M12 2L1 21h22L12 2z"/>
+                  </svg>`;
+                }
+
+                let statusHtml = msg.status
+                  ? `<span class="msg-status success">
+                    <svg width="18" height="18" fill="#10B981" viewBox="0 0 24 24">
+                      <path d="M20 6L9 17l-5-5"/>
+                    </svg> Validé
+                  </span>`
+                  : `<span class="msg-status pending">
+                    <svg width="18" height="18" fill="#FBBF24" viewBox="0 0 24 24">
+                      <path d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+                    </svg> En attente
+                  </span>`;
+
+                container.innerHTML += `
+                <div class="msg-card">
+                  <div class="msg-left">
+                    <div class="msg-icon">${iconType}</div>
+                    <div class="msg-content">
+                      <div class="msg-title">${msg.message}</div>
+                      <div class="msg-sub">${msg.raison || msg.Raison || ""}</div>
+                      <div class="msg-time">${msg.time}</div>
+                    </div>
+                  </div>
+                  <div class="msg-right">
+                    <div class="msg-amount">${msg.montant} $</div>
+                    ${statusHtml}
+                  </div>
+                </div>
+              `;
+              });
+
+              console.log("User data:", snapshot.val())
               // function to secure my account
               if (!snapshot.val().securemyaccountR) {
                 $("#secureMyAccountId").modal({

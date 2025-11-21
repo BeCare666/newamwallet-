@@ -803,3 +803,100 @@ body {
 .author:active {
   color: var(--blue);
 }
+
+
+
+#listeMessagesId {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: "Poppins", sans-serif;
+}
+
+.msg-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  transition: 0.3s;
+}
+
+.msg-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.msg-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.msg-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msg-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.msg-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+}
+
+.msg-sub {
+  font-size: 11px;
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+.msg-time {
+  font-size: 10px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.msg-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.msg-amount {
+  font-size: 15px;
+  font-weight: 600;
+  color: #6EE7B7;
+}
+
+.msg-status {
+  font-size: 11px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+
+.msg-status.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.msg-status.pending {
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
+}

@@ -482,55 +482,61 @@
         }
 
         function createUserRow(uid, data) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'userItem';
-            wrapper.dataset.uid = uid;
+            //console.log("vois un peu ", data)
+            if (data) {
+                console.log(data)
+                const wrapper = document.createElement('div');
+                wrapper.className = 'userItem';
+                wrapper.dataset.uid = uid;
 
-            const avatar = document.createElement('div');
-            avatar.className = 'userAvatar';
-            const initials = (formatDisplayName(data, uid).split(' ').map(s => s[0] || '').join('')).slice(0, 2).toUpperCase();
-            avatar.textContent = initials || 'U';
+                const avatar = document.createElement('div');
+                avatar.className = 'userAvatar';
+                const initials = (formatDisplayName(data, uid).split(' ').map(s => s[0] || '').join('')).slice(0, 2).toUpperCase();
+                avatar.textContent = initials || 'U';
 
-            const info = document.createElement('div');
-            info.className = 'userInfo';
-            const name = document.createElement('div');
-            name.className = 'name';
-            name.textContent = formatDisplayName(data, uid);
-            const sub = document.createElement('div');
-            sub.className = 'sub';
-            sub.textContent = data.email || (data.phone || '—');
-            info.appendChild(name);
-            info.appendChild(sub);
+                const info = document.createElement('div');
+                info.className = 'userInfo';
+                const name = document.createElement('div');
+                name.className = 'name';
+                name.textContent = formatDisplayName(data, uid);
+                const sub = document.createElement('div');
+                sub.className = 'sub';
+                sub.textContent = data.username || (data.phone || '—');
+                info.appendChild(name);
+                info.appendChild(sub);
 
-            const selWrap = document.createElement('div');
-            selWrap.className = 'userSelect';
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'user-checkbox';
-            checkbox.dataset.uid = uid;
 
-            // ✅ Conserver la sélection si déjà choisi
-            if (selectedUids.has(uid)) checkbox.checked = true;
 
-            selWrap.appendChild(checkbox);
-            wrapper.appendChild(avatar);
-            wrapper.appendChild(info);
-            wrapper.appendChild(selWrap);
+                const selWrap = document.createElement('div');
+                selWrap.className = 'userSelect';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'user-checkbox';
+                checkbox.dataset.uid = uid;
 
-            wrapper.addEventListener('click', (e) => {
-                if (e.target.tagName.toLowerCase() === 'input') return;
-                checkbox.checked = !checkbox.checked;
-                toggleSelection(uid, checkbox.checked);
-                updateSelectionUI();
-            });
+                // ✅ Conserver la sélection si déjà choisi
+                if (selectedUids.has(uid)) checkbox.checked = true;
 
-            checkbox.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleSelection(uid, checkbox.checked);
-                updateSelectionUI();
-            });
+                selWrap.appendChild(checkbox);
+                wrapper.appendChild(avatar);
+                wrapper.appendChild(info);
+                wrapper.appendChild(selWrap);
 
-            return wrapper;
+                wrapper.addEventListener('click', (e) => {
+                    if (e.target.tagName.toLowerCase() === 'input') return;
+                    checkbox.checked = !checkbox.checked;
+                    toggleSelection(uid, checkbox.checked);
+                    updateSelectionUI();
+                });
+
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleSelection(uid, checkbox.checked);
+                    updateSelectionUI();
+                });
+
+                return wrapper;
+            }
         }
 
         // ✅ Nouvelle fonction : gestion du set global
@@ -649,7 +655,7 @@
                     return;
                 }
                 const local = loadedUsers.filter(u => {
-                    const name = (u.data.nom || u.data.name || u.data.displayName || '').toString().toLowerCase();
+                    const name = (u.data.nom || u.data.username || u.data.displayName || '').toString().toLowerCase();
                     const email = (u.data.email || '').toString().toLowerCase();
                     return name.includes(q) || email.includes(q) || u.uid.toLowerCase().includes(q);
                 });
