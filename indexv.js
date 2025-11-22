@@ -16,7 +16,7 @@ var tableEmail = [];
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     var userId = user.uid;
-
+    console.log("first date user", userId)
     // start functin to online or offline //
     const userRef = firebase.database().ref(`/utilisateurs/${userId}`);
     const connectedRef = firebase.database().ref(".info/connected");
@@ -164,14 +164,10 @@ firebase.auth().onAuthStateChanged(function (user) {
               });
             } else {
               document.getElementById("sameToBody").style.display = "none";
-              var messages = snapshot.val().MESSAGES;
               var container = document.getElementById("listeMessagesId");
               container.innerHTML = ""; // reset
 
-              if (!messages) {
-                container.innerHTML = "<p style='color:#aaa; text-align:center; margin-top:25px;'>Aucun message pour le moment…</p>";
-                return;
-              }
+              var messages = snapshot.val().MESSAGES;
 
               Object.values(messages).forEach(msg => {
                 let iconType = "";
@@ -216,6 +212,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 </div>
               `;
               });
+
 
               console.log("User data:", snapshot.val())
               // function to secure my account
@@ -1216,6 +1213,16 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
       const formattedDate = `${now.getDate()} /${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()} h:${now.getMinutes()} min`;
       localStorage.setItem("DateNow", formattedDate);
 
+      const receiverMsg = {
+        type: "Rétrait",
+        message: `Vous avez fait un retrait de ${newBalance} $ `,
+        montant: newBalance,
+        Raison: "Rétrait",
+        status: false,
+        time: formattedDate,
+        diffuser: true,
+      };
+      userRef.child("MESSAGES").push(receiverMsg);
       Swal.fire({
         icon: "success",
         title: "Succès",

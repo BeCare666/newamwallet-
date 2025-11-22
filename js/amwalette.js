@@ -116,7 +116,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 message: `Vous avez transféré ${soldeToSend} $ à ${receiverName} `,
                 montant: soldeToSend,
                 Raison: amwalette_reason,
-                status: false,
+                status: true,
                 time: dateFormatted,
                 diffuser: true,
               };
@@ -126,7 +126,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 message: `Vous avez reçu ${soldeToSend} $ de ${usernameSender}`,
                 montant: soldeToSend,
                 Raison: amwalette_reason,
-                status: false,
+                status: true,
                 time: dateFormatted,
                 diffuser: true,
               };
