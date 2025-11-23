@@ -169,49 +169,57 @@ firebase.auth().onAuthStateChanged(function (user) {
 
               var messages = snapshot.val().MESSAGES;
 
+              // Si MESSAGES est un objet contenant plusieurs messages
               Object.values(messages).forEach(msg => {
+                // On garde seulement ceux dont le type est "Rétraits"
+                if (msg.type !== "Rétrait") return;
+
                 let iconType = "";
-                if (msg.type === "transfert") {
+                if (msg.type === "Rétrait") {
                   iconType = `
-                  <svg width="26" height="26" fill="#6EE7B7" viewBox="0 0 24 24">
-                    <path d="M2 12l7-7v4h8v6H9v4l-7-7z"/>
-                  </svg>`;
+      <svg width="26" height="26" fill="#6EE7B7" viewBox="0 0 24 24">
+        <path d="M2 12l7-7v4h8v6H9v4l-7-7z"/>
+      </svg>`;
                 } else {
                   iconType = `
-                  <svg width="26" height="26" fill="#60A5FA" viewBox="0 0 24 24">
-                    <path d="M12 2L1 21h22L12 2z"/>
-                  </svg>`;
+      <svg width="26" height="26" fill="#60A5FA" viewBox="0 0 24 24">
+        <path d="M12 2L1 21h22L12 2z"/>
+      </svg>`;
                 }
 
                 let statusHtml = msg.status
                   ? `<span class="msg-status success">
-                    <svg width="18" height="18" fill="#10B981" viewBox="0 0 24 24">
-                      <path d="M20 6L9 17l-5-5"/>
-                    </svg> Validé
-                  </span>`
+        <svg width="18" height="18" fill="#10B981" viewBox="0 0 24 24">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg> Validé
+      </span>`
                   : `<span class="msg-status pending">
-                    <svg width="18" height="18" fill="#FBBF24" viewBox="0 0 24 24">
-                      <path d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                    </svg> En attente
-                  </span>`;
+        <svg width="18" height="18" fill="#FBBF24" viewBox="0 0 24 24">
+          <path d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+        </svg> En attente
+      </span>`;
 
                 container.innerHTML += `
-                <div class="msg-card">
-                  <div class="msg-left">
-                    <div class="msg-icon">${iconType}</div>
-                    <div class="msg-content">
-                      <div class="msg-title">${msg.message}</div>
-                      <div class="msg-sub">${msg.raison || msg.Raison || ""}</div>
-                      <div class="msg-time">${msg.time}</div>
-                    </div>
-                  </div>
-                  <div class="msg-right">
-                    <div class="msg-amount">${msg.montant} $</div>
-                    ${statusHtml}
-                  </div>
-                </div>
-              `;
+    <div class="msg-card">
+      <div class="msg-left">
+        <div class="msg-icon">${iconType}</div>
+        <div class="msg-content">
+          <div class="msg-title">${msg.message}</div>
+          <div class="msg-sub">${msg.raison || msg.Raison || ""}</div>
+          <div class="msg-time">${msg.time}</div>
+        </div>
+      </div>
+      <div class="msg-right">
+        <div class="msg-amount">${msg.montant} $</div>
+        ${statusHtml}
+      </div>
+    </div>
+  `;
               });
+
+
+
+
 
 
               console.log("User data:", snapshot.val())
@@ -1215,8 +1223,8 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
 
       const receiverMsg = {
         type: "Rétrait",
-        message: `Vous avez fait un retrait de ${newBalance} $ `,
-        montant: newBalance,
+        message: `Vous avez fait un retrait de ${value.amount} $ `,
+        montant: value.amount,
         Raison: "Rétrait",
         status: false,
         time: formattedDate,
