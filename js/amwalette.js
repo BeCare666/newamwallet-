@@ -152,13 +152,11 @@ firebase.auth().onAuthStateChanged(function (user) {
 
 function validerSaisie(input) {
   const valeurSaisie = input.value;
-  const regexLettresAvecEspaces = /^\d+$/;
+  const regexNombreVirgule = /^\d+(,\d*)?$/;
 
-  if (!regexLettresAvecEspaces.test(valeurSaisie)) {
-    //alert("ne fait pas ça")
-    // Effacez la saisie incorrecte
-    input.value = input.value.replace(/\D/g, '');
-
-  } else {
+  if (!regexNombreVirgule.test(valeurSaisie)) {
+    input.value = input.value
+      .replace(/[^0-9,]/g, '')   // enlève tout sauf chiffres et virgule
+      .replace(/(,.*),/g, '$1'); // empêche plusieurs virgules
   }
 }
