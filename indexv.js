@@ -497,11 +497,62 @@ firebase.auth().onAuthStateChanged(function (user) {
                 var ACCOUNTINVESTGETCIDR = snapshot.val().ACCOUNTINVESTGETCIDR;
                 var balanceIDBWXW = snapshot.val().ACCOUNTPRINCIPALX;
                 var ACCOUNTLOTO = snapshot.val().ACCOUNTLOTO;
+                var ACCOUNTGAMES = snapshot.val().ACCOUNTGAMES;
                 document.getElementById(
                   "investId"
                 ).innerHTML = `  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:yellow"></svg>
                  <span style="font-size: 16px; color: white;"> Affiliés : ${balanceIDBWXW} Loto : ${ACCOUNTLOTO || '**'} </span>&nbsp; `;
+                document.getElementById("gameAndAllId").innerHTML = `
+                <span style="display:flex;align-items:center;cursor:pointer; " id="transferWallet">
+                    <svg style="height:2vh;width:2vh;border-radius:100%;background-color:green; margin-right:3px;"></svg>
+                    <span style="font-size:16px;color:white; margin-right:5px;">
+                      Jeux compte : $ ${ACCOUNTGAMES ?? '0'}
+                    </span>
+                    <i class="fal fa-wallet wallet-icon" style="color: green;"></i>
+                </span>
+            `;
 
+                // Ajout du clic pour le transfert
+                document.getElementById("transferWallet").addEventListener("click", () => {
+                  if (!ACCOUNTGAMES || ACCOUNTGAMES <= 0) {
+                    Swal.fire("Votre compte jeux est vide !", "", "info");
+                    return;
+                  }
+
+                  Swal.fire({
+                    title: 'Transférer les fonds ?',
+                    text: `Voulez-vous transférer $${ACCOUNTGAMES.toFixed(2)} vers votre compte principal ?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Oui, transférer',
+                    cancelButtonText: 'Annuler'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      // Récupération du solde principal actuel
+                      userRef.once("value").then(snap => {
+                        const u = snap.val() || {};
+                        const currentPrincipal = u.ACCOUNTPRINCIPAL || 0;
+                        const newPrincipal = currentPrincipal + ACCOUNTGAMES;
+
+                        // Mise à jour Firebase
+                        userRef.update({
+                          ACCOUNTPRINCIPAL: newPrincipal,
+                          ACCOUNTGAMES: 0
+                        }).then(() => {
+                          Swal.fire("Transfert effectué !", `Votre compte principal a été crédité de $${ACCOUNTGAMES.toFixed(2)}`, "success");
+                          // Mise à jour visuelle
+                          renderAccountGames(0);
+                          set
+                        });
+                      });
+                    }
+                  });
+                });
+                // Exemple : récupérer le solde depuis Firebase et afficher
+                userRef.once("value").then(snap => {
+                  const u = snap.val() || {};
+                  renderAccountGames(u.ACCOUNTGAMES ?? 0);
+                });
                 // end function to get invest
                 //balanceIDA.innerHTML = ` &nbsp; &nbsp; &nbsp; &nbsp;${balanceIDAW} <span class="dollar">&dollar;<span class="dollar"> `
                 //balanceIDB.innerHTML = `${balanceIDBW} &dollar;  `

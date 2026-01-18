@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Bet</title>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #0f0f0f, #000);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            padding: 60px 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            opacity: .65;
+            font-size: .95rem;
+        }
+
+        /* 🔢 CALCULATOR GRID */
+        .grid {
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .card {
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(145deg, #151515, #0b0b0b);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            transition: all .4s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(255, 215, 0, .25);
+        }
+
+        .card.active {
+            background: linear-gradient(135deg, gold, #ffb700);
+            color: #000;
+            box-shadow: 0 0 45px rgba(255, 215, 0, .6);
+        }
+
+        /* ▶️ BUTTON FIXE APPARITION */
+        #playBtn {
+            position: fixed;
+            bottom: 20%;
+            left: 50%;
+            transform: translate(-50%, 50px);
+            padding: 18px 75px;
+            border-radius: 60px;
+            border: none;
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgb(15, 158, 63), rgb(60, 161, 94));
+            cursor: pointer;
+            opacity: 0;
+            transition: all .5s cubic-bezier(.4, 0, .2, 1);
+            z-index: 1000;
+        }
+
+        #playBtn.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+            box-shadow: 0 15px 50px rgba(255, 215, 0, .35);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Select Your Bet</h1>
+        <div class="subtitle">Premium betting</div>
+
+        <div class="grid" id="betGrid"></div>
+
+        <button id="playBtn">START GAME</button>
+    </div>
+
+    <script>
+        /* 🔥 FIREBASE CONFIG */
+        firebase.initializeApp({
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        });
+
+        firebase.auth().signInAnonymously();
+
+        const grid = document.getElementById("betGrid");
+        const playBtn = document.getElementById("playBtn");
+        let selectedBet = null;
+
+        // 💰 BET VALUES (shuffle on each visit)
+        const betValues = [0.5, 1, 2, 5, 10, 20, 25, 50, 100];
+        betValues.sort(() => Math.random() - 0.5);
+
+        betValues.forEach(value => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.dataset.value = value;
+            card.textContent = `$${value}`;
+
+            card.addEventListener("click", () => {
+                document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
+                card.classList.add("active");
+                selectedBet = value;
+
+                // faire apparaître le bouton au milieu de l'écran
+                playBtn.classList.add("show");
+            });
+
+            grid.appendChild(card);
+        });
+
+        playBtn.addEventListener("click", () => {
+            if (!selectedBet) return;
+            localStorage.setItem("bet", selectedBet);
+            window.location.href = "game.html";
+        });
+    </script>
+
+</body>
+
+</html>
