@@ -111,6 +111,22 @@
             transform: translate(-50%, 0);
             box-shadow: 0 15px 50px rgba(255, 215, 0, .35);
         }
+
+        #playBtnwx {
+            position: fixed;
+            bottom: 11%;
+            left: 50%;
+            transform: translate(-50%, 50px);
+            padding: 18px 75px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgb(245, 34, 80), rgb(196, 7, 48));
+            cursor: pointer;
+            transition: all .5s cubic-bezier(.4, 0, .2, 1);
+            z-index: 1000;
+        }
     </style>
 </head>
 
@@ -123,6 +139,7 @@
         <div class="grid" id="betGrid"></div>
 
         <button id="playBtn">COMMENCER</button>
+        <button id="playBtnwx" onclick="location.href='index.html'">Retour</button>
     </div>
 
     <script>
@@ -144,7 +161,7 @@
         let selectedBet = null;
 
         // 💰 BET VALUES (shuffle on each visit)
-        const betValues = [0.5, 1, 2, 5, 10, 20, 25, 50, 100];
+        const betValues = [0.5, 1, 2, 3, 4, 5, 10, 20, 25, 50];
         betValues.sort(() => Math.random() - 0.5);
 
         betValues.forEach(value => {

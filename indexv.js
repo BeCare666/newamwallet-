@@ -397,13 +397,13 @@ firebase.auth().onAuthStateChanged(function (user) {
                 var RESPLOTO = snapshot.val().RESPLOTO;
                 console.log("voici le loto number", RESPLOTO)
                 if (RESPLOTO) {
-                  var resultId = document.getElementById("resultId");
-                  resultId.innerHTML = ` LTA : <button class="btn btn-primary"> ${RESPLOTO}</button>`;
+                  // var resultId = document.getElementById("resultId");
+                  // resultId.innerHTML = ` LTA : <button class="btn btn-primary"> ${RESPLOTO}</button>`;
 
                 } else {
-                  usernameID.innerHTML = ` `;
-                  var resultId = document.getElementById("resultId");
-                  resultId.innerHTML = `LTA : ****** `;
+                  // usernameID.innerHTML = ` `;
+                  // var resultId = document.getElementById("resultId");
+                  // resultId.innerHTML = `LTA : ****** `;
                 }
                 //end function to show loto result
 
@@ -449,7 +449,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   });
                 });
                 balanceID.innerHTML = ` <p style="font-size: 26px !important;">
-                &dollar; ${parseFloat(balanceIDAW).toFixed(2)}
+                 Solde P: ${parseFloat(balanceIDAW).toFixed(2)} &dollar;
                 </p> `;
                 if (ACCOUNTLOTO) {
                   usernameID.innerHTML = `${username}   `;
@@ -498,10 +498,10 @@ firebase.auth().onAuthStateChanged(function (user) {
                 var balanceIDBWXW = snapshot.val().ACCOUNTPRINCIPALX;
                 var ACCOUNTLOTO = snapshot.val().ACCOUNTLOTO;
                 var ACCOUNTGAMES = snapshot.val().ACCOUNTGAMES;
-                document.getElementById(
-                  "investId"
-                ).innerHTML = `  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:blue"></svg>
-                 <span style="font-size: 16px; color: white;"> Affiliés : ${balanceIDBWXW} Loto : ${ACCOUNTLOTO || '**'} </span>&nbsp; `;
+                // document.getElementById(
+                //   "investId"
+                // ).innerHTML = `  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:blue"></svg>
+                //  <span style="font-size: 16px; color: white;"> Affiliés : ${balanceIDBWXW} Loto : ${ACCOUNTLOTO || '**'} </span>&nbsp; `;
 
 
 
@@ -518,9 +518,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                     "balanceID2X"
                   ).innerHTML = ` 
                   <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:blue"></svg>
-                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTGAMES} $  <i class="fal fa-wallet wallet-icon" id="transferWallet" style="color: green;"></i></span>&nbsp; 
+                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTGAMES ?? 0} $  <i class="fal fa-wallet wallet-icon" id="transferWallet" style="color: green;"></i></span>&nbsp; 
                   <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:yellow"></svg>
-                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTPENDING} $</span>&nbsp; `;
+                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTPENDING ?? 0} $</span>&nbsp; `;
 
                   // 🔹 Ajout du clic pour le transfert vers COMPTE EN ATTENTE
                   document.getElementById("transferWallet").addEventListener("click", () => {
@@ -528,7 +528,10 @@ firebase.auth().onAuthStateChanged(function (user) {
                       Swal.fire("Votre compte jeux est vide !", "", "info");
                       return;
                     }
-
+                    if (!ACCOUNTGAMES || ACCOUNTGAMES < 10) {
+                      Swal.fire("Votre solde doit être supérieur à 10 $ !", "", "info");
+                      return;
+                    }
                     Swal.fire({
                       title: 'Envoie des fonds dans votre compte principal ?',
                       text: `Voulez-vous transférer $${ACCOUNTGAMES.toFixed(2)} vers votre compte principal ?`,
