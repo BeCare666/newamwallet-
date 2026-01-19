@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter Solde Jeux</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --card: #1e1e1e;
+            --primary: #FFD700;
+            --danger: #ff4d4d;
+            --success: #2ecc71;
+            --text: #fff;
+            --muted: #aaa;
+            --shadow: rgba(255, 215, 0, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 95%;
+            margin: auto;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .search-bar {
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            border: none;
+            background: #2a2a2a;
+            color: var(--text);
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .user-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .user-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 10px 25px var(--shadow);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .user-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .user-info strong {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .user-info span {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .balance-box {
+            background: #121212;
+            border-radius: 12px;
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-direction: column;
+        }
+
+        input.amount-input {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        button {
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: #000;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .no-users {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--muted);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>Ajouter Solde Jeux</h1>
+
+        <div class="search-bar">
+            <input type="text" id="searchUsers" placeholder="Rechercher par nom, email ou username...">
+        </div>
+
+        <div class="users-grid" id="usersContainer">
+            <p style="text-align: center !important;">chargement.....</p>
+        </div>
+        <div class="no-users" id="noUsers" style="display:none;">
+            Aucun utilisateur trouvé
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        const usersContainer = document.getElementById("usersContainer");
+        const noUsers = document.getElementById("noUsers");
+        const searchInput = document.getElementById("searchUsers");
+
+        auth.onAuthStateChanged(user => {
+            if (!user) return;
+            loadUsers();
+        });
+        function loadUsers(filter = "") {
+            const usersRef = db.ref("utilisateurs");
+
+            usersRef.once("value").then(snapshot => {
+                const data = snapshot.val() || {};
+                let users = Object.entries(data);
+
+                if (filter) {
+                    users = users.filter(([uid, u]) => {
+                        const displayName = String(u.displayName || "").toLowerCase();
+                        const email = String(u.email || "").toLowerCase();
+                        const username = String(u.username || "").toLowerCase();
+                        const term = filter.toLowerCase();
+
+                        return displayName.includes(term) || email.includes(term) || username.includes(term);
+                    });
+                }
+
+                usersContainer.innerHTML = "";
+
+                if (users.length === 0) {
+                    noUsers.style.display = "block";
+                    return;
+                }
+
+                noUsers.style.display = "none";
+
+                users.forEach(([uid, u]) => {
+                    const games = Number(u.ACCOUNTGAMES || 0);
+                    const principal = Number(u.ACCOUNTPRINCIPAL || 0);
+                    const username = u.username || "non défini";
+
+                    const card = document.createElement("div");
+                    card.className = "user-card";
+
+                    card.innerHTML = `
+                <div class="user-info">
+                    <img src="https://api.dicebear.com/6.x/identicon/svg?seed=${uid}">
+                    <div>
+                        <strong>${u.displayName || "Anonyme"}</strong>
+                        <span>Email: ${u.email || "non défini"}</span>
+                        <span>Username: ${username}</span>
+                    </div>
+                </div>
+
+                <div class="balance-box">
+                    <span>Compte Jeux</span>
+                    <strong>$${games.toFixed(2)}</strong>
+                </div>
+                <div class="balance-box">
+                    <span>Compte Principal</span>
+                    <strong>$${principal.toFixed(2)}</strong>
+                </div>
+
+                <div class="actions">
+                    <input type="number" min="0" placeholder="Montant à ajouter" class="amount-input" id="amount-${uid}">
+                    <button class="btn-add" onclick="addGames('${uid}')">
+                        <i class="fas fa-plus"></i> Ajouter au compte jeux
+                    </button>
+                </div>
+            `;
+
+                    usersContainer.appendChild(card);
+                });
+            });
+        }
+        function addGames(uid) {
+            const input = document.getElementById(`amount-${uid}`);
+            const amount = Number(input.value);
+            if (isNaN(amount) || amount <= 0) {
+                Swal.fire("Erreur", "Veuillez saisir un montant valide", "error");
+                return;
+            }
+
+            const userRef = db.ref("utilisateurs/" + uid);
+
+            userRef.once("value").then(snap => {
+                const u = snap.val() || {};
+                const currentGames = Number(u.ACCOUNTGAMES || 0);
+
+                userRef.update({
+                    ACCOUNTGAMES: currentGames + amount
+                }).then(() => {
+                    Swal.fire("Succès", `$${amount.toFixed(2)} ajouté au compte jeux`, "success");
+                    loadUsers(searchInput.value);
+                }).catch(err => {
+                    console.error(err);
+                    Swal.fire("Erreur", "Impossible d'ajouter le montant", "error");
+                });
+            });
+        }
+
+        searchInput.addEventListener("input", e => {
+            const term = e.target.value.trim().toLowerCase();
+            loadUsers(term);
+        });
+    </script>
+</body>
+
+</html>

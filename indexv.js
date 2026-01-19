@@ -500,19 +500,20 @@ firebase.auth().onAuthStateChanged(function (user) {
                 var ACCOUNTGAMES = snapshot.val().ACCOUNTGAMES;
                 document.getElementById(
                   "investId"
-                ).innerHTML = `  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:yellow"></svg>
+                ).innerHTML = `  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:blue"></svg>
                  <span style="font-size: 16px; color: white;"> Affiliés : ${balanceIDBWXW} Loto : ${ACCOUNTLOTO || '**'} </span>&nbsp; `;
                 document.getElementById("gameAndAllId").innerHTML = `
                 <span style="display:flex;align-items:center;cursor:pointer; " id="transferWallet">
                     <svg style="height:2vh;width:2vh;border-radius:100%;background-color:green; margin-right:3px;"></svg>
                     <span style="font-size:16px;color:white; margin-right:5px;">
-                      Jeux compte : $ ${ACCOUNTGAMES ?? '0'}
+                      Bonus: $ ${ACCOUNTGAMES ?? '0'}
                     </span>
                     <i class="fal fa-wallet wallet-icon" style="color: green;"></i>
                 </span>
             `;
 
-                // Ajout du clic pour le transfert
+
+                // 🔹 Ajout du clic pour le transfert vers COMPTE EN ATTENTE
                 document.getElementById("transferWallet").addEventListener("click", () => {
                   if (!ACCOUNTGAMES || ACCOUNTGAMES <= 0) {
                     Swal.fire("Votre compte jeux est vide !", "", "info");
@@ -520,39 +521,62 @@ firebase.auth().onAuthStateChanged(function (user) {
                   }
 
                   Swal.fire({
-                    title: 'Transférer les fonds ?',
-                    text: `Voulez-vous transférer $${ACCOUNTGAMES.toFixed(2)} vers votre compte principal ?`,
+                    title: 'Envoyer les fonds en validation ?',
+                    text: `Voulez-vous envoyer $${ACCOUNTGAMES.toFixed(2)} vers votre compte en attente de validation ?`,
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonText: 'Oui, transférer',
+                    confirmButtonText: 'Oui, envoyer',
                     cancelButtonText: 'Annuler'
                   }).then((result) => {
                     if (result.isConfirmed) {
-                      // Récupération du solde principal actuel
+
+                      // 🔹 Récupération des soldes actuels.
                       userRef.once("value").then(snap => {
                         const u = snap.val() || {};
-                        const currentPrincipal = u.ACCOUNTPRINCIPAL || 0;
-                        const newPrincipal = currentPrincipal + ACCOUNTGAMES;
 
-                        // Mise à jour Firebase
+                        const currentPending = u.ACCOUNTPENDING || 0;
+                        const newPending = currentPending + ACCOUNTGAMES;
+
+                        // 🔹 Mise à jour Firebase
                         userRef.update({
-                          ACCOUNTPRINCIPAL: newPrincipal,
+                          ACCOUNTPENDING: newPending,
                           ACCOUNTGAMES: 0
                         }).then(() => {
-                          Swal.fire("Transfert effectué !", `Votre compte principal a été crédité de $${ACCOUNTGAMES.toFixed(2)}`, "success");
-                          // Mise à jour visuelle
-                          renderAccountGames(0);
-                          set
+
+                          Swal.fire(
+                            "Envoyé en validation !",
+                            `Votre demande de $${ACCOUNTGAMES.toFixed(2)} est en attente de validation par l’administrateur.`,
+                            "success"
+                          );
+
+                          // 🔹 Mise à jour visuelle
+                          //renderAccountGames(0);
+                          renderAccountPending(newPending);
                         });
                       });
                     }
                   });
                 });
-                // Exemple : récupérer le solde depuis Firebase et afficher
+
+                // 🔹 Affichage du solde ACCOUNTGAMES
                 userRef.once("value").then(snap => {
                   const u = snap.val() || {};
-                  renderAccountGames(u.ACCOUNTGAMES ?? 0);
+                  //renderAccountGames(u.ACCOUNTGAMES ?? 0);
+                  renderAccountPending(u.ACCOUNTPENDING ?? 0);
+                  console.log("ACCOUNTGAMES loaded:", u.ACCOUNTGAMES);
+                  console.log("ACCOUNTPENDING loaded:", u.ACCOUNTPENDING);
+                  document.getElementById(
+                    "accountPending"
+                  ).innerHTML = `  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:yellow"></svg>
+                 <span style="font-size: 16px; color: white;"> Attente : ${u.ACCOUNTPENDING} $</span>&nbsp; `;
+
                 });
+                function renderAccountPending(amount) {
+                  const el = document.getElementById("accountPending");
+                  if (el) {
+                    el.textContent = `$${amount.toFixed(2)}`;
+                  }
+                }
                 // end function to get invest
                 //balanceIDA.innerHTML = ` &nbsp; &nbsp; &nbsp; &nbsp;${balanceIDAW} <span class="dollar">&dollar;<span class="dollar"> `
                 //balanceIDB.innerHTML = `${balanceIDBW} &dollar;  `

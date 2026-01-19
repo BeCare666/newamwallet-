@@ -3,9 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <title>Wheel Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -31,51 +30,68 @@
             text-align: center;
         }
 
-        .loader {
-            width: 220px;
-            height: 220px;
+        .wheel-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: auto;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid red;
+            z-index: 10;
+        }
+
+        .outer-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffb400, #ff7b00);
+            padding: 14px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 4.5s cubic-bezier(.12, .9, .18, 1);
             position: relative;
         }
 
-        svg {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-
-        circle {
-            fill: none;
-            stroke: #111;
-            stroke-width: 14;
-        }
-
-        #progress {
-            stroke: gold;
-            stroke-dasharray: 440;
-            stroke-dashoffset: 440;
-            transition: .15s linear;
-        }
-
-        .percent {
+        .center {
             position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.3rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffb400, #ff7b00);
+            border: 4px solid #222;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-weight: 700;
+            font-size: 16px;
+            color: #000;
         }
 
         .result {
             display: none;
-        }
-
-        .result h2 {
-            font-size: 2.6rem;
-        }
-
-        .result p {
-            margin: 20px 0;
-            font-size: 1.4rem;
+            margin-top: 30px;
         }
 
         button {
@@ -92,12 +108,13 @@
 <body>
 
     <div class="game">
-        <div class="loader">
-            <svg viewBox="0 0 160 160">
-                <circle cx="80" cy="80" r="70" />
-                <circle cx="80" cy="80" r="70" id="progress" />
-            </svg>
-            <div class="percent">0%</div>
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <div class="outer-ring">
+                <div class="wheel" id="wheel">
+                    <div class="center"></div>
+                </div>
+            </div>
         </div>
 
         <div class="result">
@@ -108,6 +125,7 @@
     </div>
 
     <script>
+        // 🔥 Firebase
         firebase.initializeApp({
             apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
             authDomain: "am-wallet.firebaseapp.com",
@@ -120,96 +138,117 @@
 
         const auth = firebase.auth();
         const db = firebase.database();
+        const wheel = document.getElementById("wheel");
 
+        let currentRotation = 0;
+
+        // 🔹 Fonction pour créer les labels dynamiquement
+        function createWheelLabels(labels) {
+            wheel.innerHTML = '<div class="center"></div>'; // reset
+            const segmentAngle = 360 / labels.length;
+            labels.forEach((label, i) => {
+                const div = document.createElement('div');
+                div.className = 'label';
+                div.textContent = label;
+                div.style.transform = `rotate(${segmentAngle * i + segmentAngle / 2}deg) translate(110px)`;
+                wheel.appendChild(div);
+            });
+        }
+
+        // 🔹 Fonction de rotation précise
+        function spinWheel(targetLabel, segments, done) {
+            const index = segments.indexOf(targetLabel);
+            if (index === -1) return;
+
+            const segmentAngle = 360 / segments.length;
+            const segmentCenter = index * segmentAngle + segmentAngle / 2;
+
+            const spins = 6 + Math.floor(Math.random() * 4);
+            const finalRotation = spins * 360 + (360 - segmentCenter);
+
+            wheel.style.transition = "none";
+            wheel.style.transform = `rotate(${currentRotation % 360}deg)`;
+            wheel.offsetHeight; // force reflow
+
+            currentRotation += finalRotation;
+            wheel.style.transition = "transform 4.5s cubic-bezier(.12,.9,.18,1)";
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(done, 4600);
+        }
+
+        // 🔹 Affichage résultat
+        function showResult(win) {
+            document.querySelector(".result").style.display = "block";
+            document.getElementById("status").textContent = win > 0 ? "YOU WON" : "TRY AGAIN";
+            document.getElementById("amount").textContent = win > 0 ? `+${win.toFixed(2)}$` : "No reward";
+        }
+
+        // 🔹 Génération d'un multiplicateur aléatoire
+        function pickMultiplier() {
+            const pool = [{ m: 1.2, w: 50 }, { m: 1.5, w: 30 }, { m: 2, w: 20 }];
+            let t = pool.reduce((s, o) => s + o.w, 0);
+            let r = Math.random() * t;
+            for (let o of pool) if ((r -= o.w) <= 0) return o.m;
+            return 1.2;
+        }
+
+        // 🔹 Démarrage du jeu
         auth.onAuthStateChanged(user => {
-            if (!user) { location.href = "login.html"; return; }
-            startGame(user.uid);
+            if (!user) location.href = "login.html";
+            else startGame(user.uid);
         });
 
         function startGame(uid) {
             const bet = Number(localStorage.getItem("bet")) || 0;
-            if (bet <= 0) { location.href = "selectmise.html"; return; }
+            if (bet <= 0) return location.href = "selectmise.html";
 
-            const userRef = db.ref("utilisateurs/" + uid);
+            const ref = db.ref("utilisateurs/" + uid);
 
-            userRef.once("value").then(snap => {
+            ref.once("value").then(snap => {
                 let u = snap.val() || {};
-                u.ACCOUNTPRINCIPAL = u.ACCOUNTPRINCIPAL ?? 0;
-                u.ACCOUNTGAMES = u.ACCOUNTGAMES ?? 0;
-                u.gameSpendCounter = u.gameSpendCounter ?? 0;
-                u.isVIP = u.isVIP ?? false;
+                u.ACCOUNTPRINCIPAL ??= 0;
+                u.ACCOUNTGAMES ??= 0;
+                u.gameSpendCounter ??= 0;
+                u.isVIP ??= false;
 
-                // 🔹 Vérification du solde
-                if (u.ACCOUNTPRINCIPAL < bet) {
-                    alert("Solde insuffisant pour jouer !");
-                    window.location.href = "selectmise.html";
-                    return;
-                }
+                if (u.ACCOUNTPRINCIPAL < bet) { alert("Solde insuffisant"); return location.href = "selectmise.html"; }
 
-                // 🔹 Débit immédiat du compte principal
                 u.ACCOUNTPRINCIPAL -= bet;
-
-                // 🔹 Mise à jour du compteur de dépense
                 u.gameSpendCounter += bet;
 
-                // 🔹 Calcul probabilités progressives et gain
                 let win = 0;
-                const requiredSpend = bet * (u.isVIP ? 3 : 4);
-
-                // Probabilité progressive
-                const progress = u.gameSpendCounter / requiredSpend;
-                const baseChance = 0.1; // 10% min chance
-                const chance = Math.min(baseChance + progress * 0.6, 0.85); // max 85%
+                const required = bet * (u.isVIP ? 3 : 4);
+                const chance = Math.min(0.1 + (u.gameSpendCounter / required) * 0.6, 0.85);
 
                 if (Math.random() < chance) {
-                    // Multiplicateur variable
                     win = bet * pickMultiplier();
-                    // reset compteur après gain
                     u.gameSpendCounter = 0;
                 }
 
-                // 🔹 Mise à jour Firebase
-                userRef.update({
+                ref.update({
                     ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL,
                     ACCOUNTGAMES: u.ACCOUNTGAMES + win,
                     gameSpendCounter: u.gameSpendCounter
                 });
 
-                // 🔹 Animation loader
-                animate(() => showResult(win));
+                // 🔹 Déterminer le segment exact pour le gain
+                let segmentLabels = ["LOSE", "50", "100", "200", "300", "500", "JACKPOT"];
+                let targetSegment = "LOSE";
+                if (win > 0) {
+                    if (win >= bet * 4) targetSegment = "JACKPOT";
+                    else if (win >= bet * 2) targetSegment = "500";
+                    else if (win >= bet * 1.5) targetSegment = "300";
+                    else if (win >= bet * 1.2) targetSegment = "200";
+                    else targetSegment = "100";
+                }
+
+                // 🔹 Créer les labels dynamiquement (le gain sur le segment)
+                createWheelLabels(segmentLabels);
+
+                // 🔹 Lancer la rotation
+                spinWheel(targetSegment, segmentLabels, () => showResult(win));
             });
-        }
-
-        function pickMultiplier() {
-            const pool = [
-                { m: 1.2, w: 50 },
-                { m: 1.5, w: 30 },
-                { m: 2, w: 20 }
-            ];
-            let t = pool.reduce((s, o) => s + o.w, 0);
-            let r = Math.random() * t;
-            for (let o of pool) { if ((r -= o.w) <= 0) return o.m; }
-            return 1.2;
-        }
-
-        function animate(done) {
-            let p = 0;
-            const percent = document.querySelector('.percent');
-            const prog = document.getElementById('progress');
-            const int = setInterval(() => {
-                p++;
-                percent.textContent = p + "%";
-                prog.style.strokeDashoffset = 440 - (440 * p / 100);
-                if (p >= 100) { clearInterval(int); setTimeout(done, 500); }
-            }, 25);
-        }
-
-        function showResult(win) {
-            document.querySelector('.loader').style.display = "none";
-            const r = document.querySelector('.result');
-            r.style.display = "block";
-            document.getElementById('status').textContent = win > 0 ? "YOU WON" : "TRY AGAIN";
-            document.getElementById('amount').textContent = win > 0 ? `+${win.toFixed(2)}$` : "No reward";
         }
     </script>
 
