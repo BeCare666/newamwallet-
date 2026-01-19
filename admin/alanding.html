@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocktail Bar Maître D</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: rgba(30, 30, 30, 0.9);
+            --primary: #FFD700;
+            --text: #fff;
+            --muted: #aaa;
+            --shadow: rgba(255, 215, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at center, rgba(255, 215, 0, 0.1), transparent 70%);
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        header img {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 4px solid var(--primary);
+            object-fit: cover;
+            margin-bottom: 1rem;
+            z-index: 1;
+            transition: transform 0.7s ease;
+        }
+
+        header img:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        header h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: var(--primary);
+            font-weight: 800;
+            z-index: 1;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards 0.5s;
+        }
+
+        header p {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards 0.8s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        main {
+            padding: 4rem 1rem 6rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px var(--shadow);
+            transition: transform 0.5s, box-shadow 0.5s;
+            backdrop-filter: blur(5px);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 15px 40px var(--shadow);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 i {
+            font-size: 1.2rem;
+        }
+
+        .card p,
+        .card a {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            word-wrap: break-word;
+        }
+
+        .card a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .card a:hover {
+            color: #fff;
+        }
+
+        .socials {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .socials a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1a1a1a;
+            padding: 0.8rem 1.2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .socials a:hover {
+            background: var(--primary);
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .socials i {
+            font-size: 1.1rem;
+        }
+
+        .cta {
+            font-size: 1.05rem;
+            color: var(--muted);
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+            animation: fadeInUp 1s forwards 1.2s;
+        }
+
+        .cta a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .cta a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 500px) {
+            header img {
+                width: 130px;
+                height: 130px;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .socials a {
+                padding: 0.6rem 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img src="https://via.placeholder.com/160x160.png?text=Logo" alt="Logo Cocktail Bar Maître D">
+        <h1>Cocktail Bar Maître D</h1>
+        <p>Offrez à vos invités une expérience cocktail inoubliable avec un artiste barman passionné.</p>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2><i class="fas fa-phone-alt"></i> Contact</h2>
+            <p>Téléphone : <a href="tel:+22966520447">066 52 04 47</a> / <a href="tel:+22974555683">074 55 56 83</a></p>
+            <p>Email : <a href="mailto:demavodavidbarman@gmail.com">demavodavidbarman@gmail.com</a></p>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-hashtag"></i> Suivez-nous</h2>
+            <div class="socials">
+                <a href="https://facebook.com/MaîtreD" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+                <a href="https://instagram.com/Cocktail_for_my" target="_blank"><i class="fab fa-instagram"></i>
+                    Instagram</a>
+                <a href="https://www.tiktok.com/@Cocktails-for-my241" target="_blank"><i class="fab fa-tiktok"></i>
+                    TikTok</a>
+            </div>
+        </div>
+
+        <div class="cta">
+            Pour tout événement (Anniversaire, mariage, soirée privée, team building…), contactez-nous pour créer des
+            cocktails inoubliables ! <a href="tel:+22966520447">Appelez maintenant</a>
+        </div>
+    </main>
+</body>
+
+</html>
