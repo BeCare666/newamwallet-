@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - AM Wallet</title>
+    <title>Transactions - AM Wallet</title>
     <style>
         :root {
             --bg: #071026;
@@ -185,7 +185,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📨 Tous les Messages</h1>
+            <h1>📨 Tous les transactions</h1>
             <button class="logout-btn" onclick="logout()">Déconnexion</button>
         </div>
 
@@ -195,7 +195,7 @@
         </div>
 
         <div id="content">
-            <div class="loading">Chargement des messages...</div>
+            <div class="loading">Chargement des transactions...</div>
         </div>
     </div>
 
@@ -332,8 +332,8 @@
                         const msgid = card.getAttribute("data-msgid");
                         //console.log("uid:", uid, "msgid:", msgid);
                         Swal.fire({
-                            title: "Validation du message",
-                            text: "Mettre ce message en statut EN ATTENTE ?",
+                            title: "Validation du statut",
+                            text: "Mettre  en statut EN ATTENTE ?",
                             icon: "warning",
                             showCancelButton: true,
                             confirmButtonText: "Valider",
