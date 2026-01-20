@@ -448,7 +448,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                     }
                   });
                 });
-                balanceID.innerHTML = ` <p style="font-size: 26px !important;">
+                balanceID.innerHTML = ` <p style="font-size: 17px !important;">
                  Solde P: ${parseFloat(balanceIDAW).toFixed(2)} &dollar;
                 </p> `;
                 if (ACCOUNTLOTO) {
@@ -525,7 +525,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   // 🔹 Ajout du clic pour le transfert vers COMPTE EN ATTENTE
                   document.getElementById("transferWallet").addEventListener("click", () => {
                     if (!ACCOUNTGAMES || ACCOUNTGAMES <= 0) {
-                      Swal.fire("Votre compte jeux est vide !", "", "info");
+                      Swal.fire("Votre compte épargne est vide !", "", "info");
                       return;
                     }
                     if (!ACCOUNTGAMES || ACCOUNTGAMES < 10) {
