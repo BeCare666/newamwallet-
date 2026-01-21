@@ -3,188 +3,182 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Crash Game Ultra Premium</title>
+    <title>Wheel Game Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Police moderne -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <style>
-        /* 🌑 Fond général et typographie */
+        * {
+            box-sizing: border-box;
+            font-family: Inter;
+        }
+
         body {
             margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #0a0a0a, #1a1a1a);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
             overflow: hidden;
-            color: #fff;
-        }
-
-        /* 🎨 Canvas premium avec ombre et arrondi */
-        #crashCanvas {
-            border-radius: 12px;
-            background: linear-gradient(180deg, #111, #1a1a1a);
-            width: 95%;
-            max-width: 700px;
-            height: 50%;
-            display: block;
-            margin: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-        }
-
-        /* ✨ Multiplicateur premium */
-        .multiplier-display {
-            position: absolute;
-            top: 5%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 3rem;
-            font-weight: 900;
-            color: #FFD700;
-            letter-spacing: 1px;
-            text-shadow: 0 0 12px #FFD700, 0 0 25px #FFED66, 0 0 40px #FFD700AA;
-            transition: all 0.3s ease-out;
-            z-index: 10;
-        }
-
-        /* 🏆 Résultat en card glassmorphism moderne */
-        .result-box {
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 15px;
-            padding: 25px 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-            margin-top: 25px;
-            transition: transform 0.3s, opacity 0.3s;
-            text-align: center;
-            max-width: 400px;
-        }
-
-        .result-box h2 {
-            font-size: 2rem;
-            font-weight: 900;
+            background: radial-gradient(circle at top, #0b0b0b, #000);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
             color: #fff;
         }
 
-        .result-box h2 span {
-            display: inline-block;
-            transition: transform 0.4s ease;
+        .game {
+            text-align: center;
         }
 
-        .result-box p {
-            font-size: 1.6rem;
-            color: #FFD700;
+        .wheel-wrapper {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin: auto;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 35px solid #ff2e2e;
+            z-index: 50;
+            filter: drop-shadow(0 0 10px red);
+        }
+
+        .outer-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffb400, #ff7b00);
+            padding: 14px;
+            box-shadow: 0 0 40px rgba(255, 140, 0, 0.6);
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(#1e1e1e 0%, #2a2a2a 9%, #1e1e1e 18%, #2a2a2a 27%, #1e1e1e 36%, #2a2a2a 45%, #1e1e1e 54%, #2a2a2a 63%, #1e1e1e 72%, #2a2a2a 81%, #1e1e1e 90%, #2a2a2a 100%);
+        }
+
+        .center {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #111, #000);
+            border: 4px solid gold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
             font-weight: 700;
-            text-shadow: 0 0 10px #FFD700;
+            box-shadow: 0 0 20px rgba(255, 200, 0, 0.7);
+            text-align: center;
         }
 
-        /* 🕹️ Bouton premium rond avec effet hover */
+        .center.win {
+            animation: pulseWin 1s infinite;
+            color: #00ff99;
+        }
+
+        .center.lose {
+            animation: pulseLose 1s infinite;
+            color: #ff4444;
+        }
+
+        @keyframes pulseWin {
+            0% {
+                box-shadow: 0 0 10px #00ff99;
+            }
+
+            50% {
+                box-shadow: 0 0 35px #00ff99;
+            }
+
+            100% {
+                box-shadow: 0 0 10px #00ff99;
+            }
+        }
+
+        @keyframes pulseLose {
+            0% {
+                box-shadow: 0 0 10px red;
+            }
+
+            50% {
+                box-shadow: 0 0 35px red;
+            }
+
+            100% {
+                box-shadow: 0 0 10px red;
+            }
+        }
+
+        .label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-weight: 700;
+            font-size: 14px;
+            color: gold;
+            text-shadow: 0 0 5px #000;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
         button {
-            padding: 14px 45px;
+            margin-top: 25px;
+            padding: 14px 60px;
             border-radius: 50px;
             border: none;
-            background: linear-gradient(145deg, #FFD700, #FFC107);
-            color: #000;
-            font-weight: 700;
-            font-size: 1rem;
+            background: linear-gradient(135deg, gold, orange);
             cursor: pointer;
-            box-shadow: 0 8px 18px rgba(255, 215, 0, 0.6);
-            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.6);
         }
 
         button:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 12px 28px rgba(255, 215, 0, 0.8);
-        }
-
-        /* ✨ Particules glow premium */
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            width: 6px;
-            height: 6px;
-            background: #FFD700;
-            box-shadow: 0 0 6px #FFD700, 0 0 12px #FFED66, 0 0 18px #FFD700AA;
-        }
-
-        /* 🔥 Avion SVG glow */
-        #plane {
-            position: absolute;
-            width: 28px;
-            height: 28px;
-            pointer-events: none;
-            filter: drop-shadow(0 0 15px #FFAA00);
-            transition: transform 0.1s linear;
-            z-index: 5;
-        }
-
-        /* Trailing glow */
-        #trail {
-            position: absolute;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            pointer-events: none;
-            background: radial-gradient(circle, #FFD700 0%, transparent 80%);
-            filter: blur(10px);
-            z-index: 4;
-        }
-
-        /* 🔔 Animations de glow supplémentaires */
-        #crashCanvas:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: 0 0 80px rgba(255, 215, 0, 0.2) inset;
-            pointer-events: none;
-            border-radius: 12px;
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
-    <span id="x" onclick="location.href='selectmise.html'"
-        style="position: fixed; top: 5px;; right: 5px; color: white; font-weight: bold;">X</span>
-    <canvas id="crashCanvas"></canvas>
-    <img src="https://cdn-icons-png.flaticon.com/512/681/681494.png" id="plane" />
-    <div id="trail"></div>
-
-    <div class="multiplier-display" id="multiplierDisplay">x1.00</div>
-
-    <div class="result-box">
-        <h2 id="status"><span id="iconResult">🎮</span> Crash Game</h2>
-        <p id="amount"></p>
-        <button onclick="location.reload()">JOUER ENCORE</button>
+    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.wav"></audio>
+    <span onclick="location.href='selectmise.html'" style=" position: fixed; top: 5px; right: 5px; font-weight:
+        bold;">X</span>
+    <div class="game">
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <div class="outer-ring">
+                <div class="wheel" id="wheel">
+                    <div class="center" id="centerText">
+                        <div id="centerMain">1.0x</div>
+                        <small id="centerSub" style="display:none;">Bonne chance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button onclick="location.href='game.html'">JOUER ENCORE</button>
     </div>
 
-    <!-- 🔊 Sons -->
-    <audio id="audioGain" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-    <audio id="audioLoss" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
-    <audio id="audioTick" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-
     <script>
-        // 🔥 Firebase
         firebase.initializeApp({
             apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
             authDomain: "am-wallet.firebaseapp.com",
@@ -192,169 +186,169 @@
             projectId: "am-wallet",
             storageBucket: "am-wallet.appspot.com",
             messagingSenderId: "877693231070",
-            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f"
         });
 
         const auth = firebase.auth();
         const db = firebase.database();
-        const canvas = document.getElementById('crashCanvas');
-        const ctx = canvas.getContext('2d');
-        const plane = document.getElementById('plane');
-        const trail = document.getElementById('trail');
 
-        let width = canvas.width = canvas.offsetWidth;
-        let height = canvas.height = canvas.offsetHeight;
+        const wheel = document.getElementById("wheel");
+        let centerText = document.getElementById("centerText");
+        let centerMain = document.getElementById("centerMain");
+        let centerSub = document.getElementById("centerSub");
 
-        let bet = 0;
-        let targetMultiplier = 1;
-        let progress = 0;
-        let animationRunning = false;
+        const winSound = document.getElementById("winSound");
+        const loseSound = document.getElementById("loseSound");
 
-        const audioGain = document.getElementById('audioGain');
-        const audioLoss = document.getElementById('audioLoss');
-        const audioTick = document.getElementById('audioTick');
+        let currentRotation = 0;
+        let centerRotation = 0;
 
-        let particles = [];
+        const multipliers = [1.1, 1.2, 1.3, 1.4, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2];
+
+        function createWheelLabels(labels) {
+            wheel.innerHTML = "";
+            const center = document.createElement("div");
+            center.className = "center"; center.id = "centerText";
+            const main = document.createElement("div"); main.id = "centerMain"; main.textContent = "1.0x";
+            const sub = document.createElement("small"); sub.id = "centerSub";
+            center.appendChild(main); center.appendChild(sub); wheel.appendChild(center);
+            centerText = center; centerMain = main; centerSub = sub;
+
+            const segmentAngle = 360 / labels.length;
+            labels.forEach((label, i) => {
+                const div = document.createElement("div");
+                div.className = "label";
+                div.textContent = "x" + label;
+                div.style.transform = `rotate(${segmentAngle * i + segmentAngle / 2}deg) translate(120px)`;
+                wheel.appendChild(div);
+            });
+        }
+
+        let counterInterval = null;
+        function animateCenterCounter(finalMultiplier, duration, isWin) {
+            if (counterInterval) clearInterval(counterInterval);
+            let start = 1.0, current = start;
+            const startTime = performance.now();
+            const pattern = Math.floor(Math.random() * 2);
+
+            counterInterval = setInterval(() => {
+                const now = performance.now();
+                const progress = Math.min((now - startTime) / duration, 1);
+
+                if (isWin) {
+                    if (pattern === 0) {
+                        if (progress < 0.4) current = start - 0.4 * (progress / 0.4);
+                        else { const t = (progress - 0.4) / 0.6; current = (start - 0.4) + (finalMultiplier - (start - 0.4)) * t; }
+                    } else {
+                        if (progress < 0.3) current = start + 0.6 * (progress / 0.3);
+                        else if (progress < 0.6) current = (start + 0.6) - 0.8 * ((progress - 0.3) / 0.3);
+                        else { const t = (progress - 0.6) / 0.4; current = (start - 0.2) + (finalMultiplier - (start - 0.2)) * t; }
+                    }
+                } else {
+                    if (progress < 0.5) current = start + 0.5 * (progress * 2);
+                    else current = (start + 0.5) - 0.5 * ((progress - 0.5) * 2);
+                }
+                centerMain.textContent = current.toFixed(2) + "x";
+
+                if (progress >= 1) { clearInterval(counterInterval); centerMain.textContent = finalMultiplier.toFixed(2) + "x"; }
+            }, 50);
+        }
+
+        function spinWheel(targetMultiplier, segments, done, isWin) {
+            const index = segments.indexOf(targetMultiplier);
+            if (index === -1) return;
+
+            const segmentAngle = 360 / segments.length;
+            const segmentCenter = index * segmentAngle + segmentAngle / 2;
+            const spins = (6 + Math.floor(Math.random() * 4)) * 5; // 5x plus
+            const finalRotation = spins * 360 + (360 - segmentCenter);
+            const duration = 6500;
+            const preStopDelay = duration - 2000; // 🔥 2s avant l'arrêt labels disparaissent
+
+            wheel.style.transition = "none"; wheel.style.transform = `rotate(${currentRotation % 360}deg)`;
+            centerText.style.transition = "none"; centerText.style.transform = `translate(-50%, -50%) rotate(${centerRotation % 360}deg)`;
+
+            wheel.offsetHeight;
+
+            currentRotation += finalRotation; centerRotation -= finalRotation;
+
+            wheel.style.transition = `transform ${duration}ms cubic-bezier(.12,.9,.18,1)`;
+            centerText.style.transition = `transform ${duration}ms cubic-bezier(.12,.9,.18,1)`;
+
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            centerText.style.transform = `translate(-50%, -50%) rotate(${centerRotation}deg)`;
+
+            animateCenterCounter(targetMultiplier, duration, isWin);
+
+            setTimeout(() => clearWheelLabels(), preStopDelay); // 🔥 2s avant
+
+            setTimeout(done, duration + 100);
+        }
+
+        function clearWheelLabels() {
+            document.querySelectorAll(".label").forEach(l => {
+                l.style.opacity = "0"; l.style.transform += " scale(0.5)";
+                setTimeout(() => l.remove(), 500);
+            });
+        }
+
+        function showCenterResult(win, multiplier) {
+            clearWheelLabels();
+            centerText.classList.remove("win", "lose");
+            setTimeout(() => {
+                if (win > 0) {
+                    centerText.classList.add("win");
+                    centerMain.textContent = "+" + win.toFixed(2) + "$";
+                    centerSub.textContent = "x" + multiplier;
+                    winSound.currentTime = 0; winSound.play();
+                } else {
+                    centerText.classList.add("lose");
+                    centerMain.textContent = "PERDU";
+                    centerSub.textContent = "x" + multiplier;
+                    loseSound.currentTime = 0; loseSound.play();
+                }
+            }, 300);
+        }
 
         function pickMultiplier() {
-            const pool = [{ m: 1.2, w: 50 }, { m: 1.5, w: 30 }, { m: 2, w: 20 }];
-            let t = pool.reduce((s, o) => s + o.w, 0);
-            let r = Math.random() * t;
+            const pool = [
+                { m: 1.1, w: 15 }, { m: 1.2, w: 15 }, { m: 1.3, w: 12 }, { m: 1.4, w: 12 }, { m: 1.5, w: 10 }, { m: 1.6, w: 8 },
+                { m: 1.7, w: 7 }, { m: 1.8, w: 6 }, { m: 1.9, w: 4 }, { m: 2.0, w: 3 }
+            ];
+            let t = pool.reduce((s, o) => s + o.w, 0); let r = Math.random() * t;
             for (let o of pool) if ((r -= o.w) <= 0) return o.m;
-            return 1.2;
-        }
-
-        function spawnParticles(x, y) {
-            for (let i = 0; i < 15; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: -Math.random() * 4 - 1,
-                    alpha: 1,
-                    size: Math.random() * 3 + 2
-                });
-            }
-        }
-
-        function drawParticles() {
-            particles.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255,215,0,${p.alpha})`;
-                ctx.fill();
-                p.x += p.vx;
-                p.y += p.vy;
-                p.alpha -= 0.02;
-            });
-            particles = particles.filter(p => p.alpha > 0);
-        }
-
-        function drawCurve(currentMultiplier) {
-            ctx.clearRect(0, 0, width, height);
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#FFD700";
-            ctx.beginPath();
-            ctx.moveTo(0, height);
-
-            for (let x = 0; x <= width; x++) {
-                let t = x / width;
-                let yMult = 1 + (targetMultiplier - 1) * Math.pow(t, 1.8);
-                let y = height - (yMult / 3) * height;
-                ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-
-            let planeX = Math.min(Math.floor(progress * width), width - 1);
-            let planeY = height - (currentMultiplier / 3) * height;
-            ctx.beginPath();
-            ctx.arc(planeX, planeY, 10, 0, Math.PI * 2);
-            ctx.fillStyle = "red";
-            ctx.fill();
-
-            plane.style.left = planeX - 14 + "px";
-            plane.style.top = planeY - 14 + "px";
-            trail.style.left = planeX - 14 + "px";
-            trail.style.top = planeY - 14 + "px";
-
-            drawParticles();
-            document.getElementById('multiplierDisplay').textContent = 'x' + currentMultiplier.toFixed(2);
-        }
-
-        function animate() {
-            if (!animationRunning) return;
-            progress += 0.005;
-            let easedProgress = Math.pow(progress, 1.8);
-            let currentMultiplier = 1 + (targetMultiplier - 1) * easedProgress;
-            if (currentMultiplier > targetMultiplier) currentMultiplier = targetMultiplier;
-
-            drawCurve(currentMultiplier);
-
-            if (currentMultiplier < targetMultiplier) {
-                if (progress % 0.05 < 0.01) audioTick.play();
-                requestAnimationFrame(animate);
-            } else {
-                animationRunning = false;
-                if (targetMultiplier > 1) {
-                    audioGain.play();
-                    spawnParticles(width / 2, height * (1 - currentMultiplier / 3));
-                    document.getElementById('iconResult').textContent = '🏆';
-                } else {
-                    audioLoss.play();
-                    document.getElementById('iconResult').textContent = '💥';
-                }
-                showResult((targetMultiplier - 1) * bet);
-            }
-        }
-
-        function showResult(win) {
-            document.getElementById('status').textContent = win > 0 ? "FELICITATIONS" : "ESSAYEZ ENCORE";
-            document.getElementById('amount').textContent = win > 0 ? `+${win.toFixed(2)}$` : "Aucune récompense";
+            return 1.1;
         }
 
         auth.onAuthStateChanged(user => {
-            if (!user) location.href = 'login.html';
+            if (!user) location.href = "login.html";
             else startGame(user.uid);
         });
 
         function startGame(uid) {
-            bet = Number(localStorage.getItem("bet")) || 0;
-            if (bet <= 0) return location.href = 'selectmise.html';
-
+            const bet = Number(localStorage.getItem("bet")) || 0;
+            if (bet <= 0) return location.href = "selectmise.html";
             const ref = db.ref("utilisateurs/" + uid);
             ref.once("value").then(snap => {
                 let u = snap.val() || {};
-                u.ACCOUNTPRINCIPAL ??= 0;
-                u.ACCOUNTGAMES ??= 0;
-                u.gameSpendCounter ??= 0;
-                u.isVIP ??= false;
+                u.ACCOUNTPRINCIPAL ??= 0; u.ACCOUNTGAMES ??= 0; u.gameSpendCounter ??= 0; u.isVIP ??= false;
+                if (u.ACCOUNTPRINCIPAL < bet) { alert("Solde insuffisant"); return location.href = "selectmise.html"; }
+                u.ACCOUNTPRINCIPAL -= bet; u.gameSpendCounter += bet;
 
-                if (u.ACCOUNTPRINCIPAL < bet) { alert("Solde insuffisant"); return location.href = 'selectmise.html'; }
-
-                u.ACCOUNTPRINCIPAL -= bet;
-                u.gameSpendCounter += bet;
-
+                let win = 0;
                 const required = bet * (u.isVIP ? 3 : 4);
                 const chance = Math.min(0.1 + (u.gameSpendCounter / required) * 0.6, 0.85);
 
-                let win = 0;
+                let multiplier = 1.0;
+                let isWin = false;
                 if (Math.random() < chance) {
-                    targetMultiplier = pickMultiplier();
-                    win = bet * targetMultiplier;
-                    u.gameSpendCounter = 0;
-                } else {
-                    targetMultiplier = 1;
+                    multiplier = pickMultiplier(); win = bet * multiplier; u.gameSpendCounter = 0; isWin = true;
                 }
 
-                ref.update({
-                    ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL,
-                    ACCOUNTGAMES: u.ACCOUNTGAMES + win,
-                    gameSpendCounter: u.gameSpendCounter
-                });
+                ref.update({ ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL, ACCOUNTGAMES: u.ACCOUNTGAMES + win, gameSpendCounter: u.gameSpendCounter });
 
-                progress = 0;
-                animationRunning = true;
-                animate();
+                createWheelLabels(multipliers);
+                spinWheel(multiplier, multipliers, () => { showCenterResult(win, multiplier); }, isWin);
             });
         }
     </script>
