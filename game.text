@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wheel Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Inter;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #090909, #000);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .game {
+            text-align: center;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: auto;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid red;
+            /* Pointe vers le bas */
+
+            z-index: 10;
+        }
+
+
+        .outer-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffb400, #ff7b00);
+            padding: 14px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 4.5s cubic-bezier(.12, .9, .18, 1);
+            position: relative;
+        }
+
+        .center {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffb400, #ff7b00);
+            border: 4px solid #222;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-weight: 700;
+            font-size: 16px;
+            color: #000;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 50px;
+            border-radius: 50px;
+            border: none;
+            background: gold;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="game">
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <div class="outer-ring">
+                <div class="wheel" id="wheel">
+                    <div class="center"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result">
+            <h2 id="status"></h2>
+            <p id="amount"></p>
+            <button onclick="location.href='selectmise.html'">JOUER ENCORE</button>
+        </div>
+    </div>
+
+    <script>
+        // 🔥 Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        });
+
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const wheel = document.getElementById("wheel");
+
+        let currentRotation = 0;
+
+        // 🔹 Fonction pour créer les labels dynamiquement
+        function createWheelLabels(labels) {
+            wheel.innerHTML = '<div class="center"></div>'; // reset
+            const segmentAngle = 360 / labels.length;
+            labels.forEach((label, i) => {
+                const div = document.createElement('div');
+                div.className = 'label';
+                div.textContent = label;
+                div.style.transform = `rotate(${segmentAngle * i + segmentAngle / 2}deg) translate(110px)`;
+                wheel.appendChild(div);
+            });
+        }
+
+        // 🔹 Fonction de rotation précise
+        function spinWheel(targetLabel, segments, done) {
+            const index = segments.indexOf(targetLabel);
+            if (index === -1) return;
+
+            const segmentAngle = 360 / segments.length;
+            const segmentCenter = index * segmentAngle + segmentAngle / 2;
+
+            const spins = 6 + Math.floor(Math.random() * 4);
+            const finalRotation = spins * 360 + (360 - segmentCenter);
+
+            wheel.style.transition = "none";
+            wheel.style.transform = `rotate(${currentRotation % 360}deg)`;
+            wheel.offsetHeight; // force reflow
+
+            currentRotation += finalRotation;
+            wheel.style.transition = "transform 4.5s cubic-bezier(.12,.9,.18,1)";
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(done, 4600);
+        }
+
+        // 🔹 Affichage résultat
+        function showResult(win) {
+            document.querySelector(".result").style.display = "block";
+            document.getElementById("status").textContent = win > 0 ? "VOUS AVEZ GAGNE" : "ESSAYEZ ENCORE";
+            document.getElementById("amount").textContent = win > 0 ? `+${win.toFixed(2)}$` : "Aucune récompense";
+        }
+
+        // 🔹 Génération d'un multiplicateur aléatoire
+        function pickMultiplier() {
+            const pool = [{ m: 1.2, w: 50 }, { m: 1.5, w: 30 }, { m: 2, w: 20 }];
+            let t = pool.reduce((s, o) => s + o.w, 0);
+            let r = Math.random() * t;
+            for (let o of pool) if ((r -= o.w) <= 0) return o.m;
+            return 1.2;
+        }
+
+        // 🔹 Démarrage du jeu
+        auth.onAuthStateChanged(user => {
+            if (!user) location.href = "login.html";
+            else startGame(user.uid);
+        });
+
+        function startGame(uid) {
+            const bet = Number(localStorage.getItem("bet")) || 0;
+            if (bet <= 0) return location.href = "selectmise.html";
+
+            const ref = db.ref("utilisateurs/" + uid);
+
+            ref.once("value").then(snap => {
+                let u = snap.val() || {};
+                u.ACCOUNTPRINCIPAL ??= 0;
+                u.ACCOUNTGAMES ??= 0;
+                u.gameSpendCounter ??= 0;
+                u.isVIP ??= false;
+
+                if (u.ACCOUNTPRINCIPAL < bet) { alert("Solde insuffisant"); return location.href = "selectmise.html"; }
+
+                u.ACCOUNTPRINCIPAL -= bet;
+                u.gameSpendCounter += bet;
+
+                let win = 0;
+                const required = bet * (u.isVIP ? 3 : 4);
+                const chance = Math.min(0.1 + (u.gameSpendCounter / required) * 0.6, 0.85);
+
+                if (Math.random() < chance) {
+                    win = bet * pickMultiplier();
+                    u.gameSpendCounter = 0;
+                }
+
+                ref.update({
+                    ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL,
+                    ACCOUNTGAMES: u.ACCOUNTGAMES + win,
+                    gameSpendCounter: u.gameSpendCounter
+                });
+
+                // 🔹 Déterminer le segment exact pour le gain
+                let segmentLabels = ["LOSE", "50", "100", "200", "300", "500", "JACK"];
+                let targetSegment = "LOSE";
+                if (win > 0) {
+                    if (win >= bet * 4) targetSegment = "JACK";
+                    else if (win >= bet * 2) targetSegment = "500";
+                    else if (win >= bet * 1.5) targetSegment = "300";
+                    else if (win >= bet * 1.2) targetSegment = "200";
+                    else targetSegment = "100";
+                }
+
+                // 🔹 Créer les labels dynamiquement (le gain sur le segment)
+                createWheelLabels(segmentLabels);
+
+                // 🔹 Lancer la rotation
+                spinWheel(targetSegment, segmentLabels, () => showResult(win));
+            });
+        }
+    </script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Crash Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Inter;
+            background: radial-gradient(circle at top, #090909, #000);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        canvas {
+            background: #111;
+            border: 2px solid gold;
+            border-radius: 12px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: none;
+            background: gold;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="crashCanvas" width="600" height="300"></canvas>
+
+    <div class="result-box">
+        <h2 id="status"></h2>
+        <p id="amount"></p>
+        <button onclick="location.reload()">JOUER ENCORE</button>
+    </div>
+
+    <script>
+        // 🔥 Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+        });
+
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const canvas = document.getElementById("crashCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let width = canvas.width;
+        let height = canvas.height;
+
+        // 🔹 Probabilité et gain
+        let targetMultiplier = 1;
+        let bet = 0;
+
+        // 🔹 Animation
+        let progress = 0;
+        let animationRunning = false;
+
+        function pickMultiplier() {
+            const pool = [{ m: 1.2, w: 50 }, { m: 1.5, w: 30 }, { m: 2, w: 20 }];
+            let t = pool.reduce((s, o) => s + o.w, 0);
+            let r = Math.random() * t;
+            for (let o of pool) if ((r -= o.w) <= 0) return o.m;
+            return 1.2;
+        }
+
+        // 🔹 Dessiner la courbe
+        function drawCurve(multiplier) {
+            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            let maxMultiplier = Math.max(multiplier, 1);
+            for (let x = 0; x <= width; x++) {
+                let t = x / width;
+                // ease-in-out
+                let yMult = 1 + (maxMultiplier - 1) * (1 - Math.cos(t * Math.PI / 2));
+                let y = height - (yMult / 3) * height; // diviser pour adapter hauteur
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = "gold";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // 🔹 Avion
+            let planeX = Math.min(Math.floor(progress * width), width - 1);
+            let planeY = height - (multiplier / 3) * height;
+            ctx.beginPath();
+            ctx.arc(planeX, planeY, 8, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+        }
+
+        // 🔹 Animation
+        function animate() {
+            if (!animationRunning) return;
+            progress += 0.005; // vitesse montée (ajuster)
+            let easedProgress = 1 - Math.cos(progress * Math.PI / 2);
+            let currentMultiplier = 1 + (targetMultiplier - 1) * easedProgress;
+            if (currentMultiplier > targetMultiplier) currentMultiplier = targetMultiplier;
+
+            drawCurve(currentMultiplier);
+
+            if (currentMultiplier < targetMultiplier) requestAnimationFrame(animate);
+            else {
+                animationRunning = false;
+                showResult(currentMultiplier * bet - bet);
+            }
+        }
+
+        // 🔹 Afficher résultat
+        function showResult(win) {
+            document.getElementById("status").textContent = win > 0 ? "VOUS AVEZ GAGNE" : "ESSAYEZ ENCORE";
+            document.getElementById("amount").textContent = win > 0 ? `+${win.toFixed(2)}$` : "Aucune récompense";
+        }
+
+        // 🔹 Lancer le jeu
+        auth.onAuthStateChanged(user => {
+            if (!user) location.href = "login.html";
+            else startGame(user.uid);
+        });
+
+        function startGame(uid) {
+            bet = Number(localStorage.getItem("bet")) || 0;
+            if (bet <= 0) return location.href = "selectmise.html";
+
+            const ref = db.ref("utilisateurs/" + uid);
+            ref.once("value").then(snap => {
+                let u = snap.val() || {};
+                u.ACCOUNTPRINCIPAL ??= 0;
+                u.ACCOUNTGAMES ??= 0;
+                u.gameSpendCounter ??= 0;
+                u.isVIP ??= false;
+
+                if (u.ACCOUNTPRINCIPAL < bet) { alert("Solde insuffisant"); return location.href = "selectmise.html"; }
+
+                u.ACCOUNTPRINCIPAL -= bet;
+                u.gameSpendCounter += bet;
+
+                const required = bet * (u.isVIP ? 3 : 4);
+                const chance = Math.min(0.1 + (u.gameSpendCounter / required) * 0.6, 0.85);
+
+                let win = 0;
+                if (Math.random() < chance) {
+                    targetMultiplier = pickMultiplier();
+                    win = bet * targetMultiplier;
+                    u.gameSpendCounter = 0;
+                } else {
+                    targetMultiplier = 1; // perte
+                }
+
+                ref.update({
+                    ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL,
+                    ACCOUNTGAMES: u.ACCOUNTGAMES + win,
+                    gameSpendCounter: u.gameSpendCounter
+                });
+
+                // 🔹 Début animation
+                progress = 0;
+                animationRunning = true;
+                animate();
+            });
+        }
+    </script>
+
+</body>
+
+</html>
