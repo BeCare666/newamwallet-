@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Wheel Game Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -68,7 +67,18 @@
             height: 100%;
             border-radius: 50%;
             position: relative;
-            background: conic-gradient(#1e1e1e 0%, #2a2a2a 9%, #1e1e1e 18%, #2a2a2a 27%, #1e1e1e 36%, #2a2a2a 45%, #1e1e1e 54%, #2a2a2a 63%, #1e1e1e 72%, #2a2a2a 81%, #1e1e1e 90%, #2a2a2a 100%);
+            background: conic-gradient(#1e1e1e 0%,
+                    #2a2a2a 9%,
+                    #1e1e1e 18%,
+                    #2a2a2a 27%,
+                    #1e1e1e 36%,
+                    #2a2a2a 45%,
+                    #1e1e1e 54%,
+                    #2a2a2a 63%,
+                    #1e1e1e 72%,
+                    #2a2a2a 81%,
+                    #1e1e1e 90%,
+                    #2a2a2a 100%);
         }
 
         .center {
@@ -159,23 +169,27 @@
 </head>
 
 <body>
+
     <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.wav"></audio>
-    <span onclick="location.href='selectmise.html'" style=" position: fixed; top: 5px; right: 5px; font-weight:
-        bold;">X</span>
+
     <div class="game">
         <div class="wheel-wrapper">
             <div class="pointer"></div>
             <div class="outer-ring">
                 <div class="wheel" id="wheel">
                     <div class="center" id="centerText">
-                        <div id="centerMain">1.0x</div>
-                        <small id="centerSub" style="display:none;">Bonne chance</small>
+                        <div id="centerMain" class="win">1.0x</div>
+                        <small id="centerSub" style="display: none;">Bonne chance</small>
                     </div>
                 </div>
             </div>
         </div>
-        <button onclick="location.href='game.html'">JOUER ENCORE</button>
+        <div style="display: flex;">
+            <button onclick="location.href='game.html'" style="margin-right: 3px;">JOUER</button>
+            <button onclick="location.href='selectmise.html'">AUTRE BET</button>
+        </div>
+
     </div>
 
     <script>
@@ -186,7 +200,7 @@
             projectId: "am-wallet",
             storageBucket: "am-wallet.appspot.com",
             messagingSenderId: "877693231070",
-            appId: "1:877693231070:web:47c59ac6220ed09af9c74f"
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
         });
 
         const auth = firebase.auth();
@@ -207,12 +221,25 @@
 
         function createWheelLabels(labels) {
             wheel.innerHTML = "";
+
             const center = document.createElement("div");
-            center.className = "center"; center.id = "centerText";
-            const main = document.createElement("div"); main.id = "centerMain"; main.textContent = "1.0x";
-            const sub = document.createElement("small"); sub.id = "centerSub";
-            center.appendChild(main); center.appendChild(sub); wheel.appendChild(center);
-            centerText = center; centerMain = main; centerSub = sub;
+            center.className = "center";
+            center.id = "centerText";
+
+            const main = document.createElement("div");
+            main.id = "centerMain";
+            main.textContent = "1.0x";
+
+            const sub = document.createElement("small");
+            sub.id = "centerSub";
+
+            center.appendChild(main);
+            center.appendChild(sub);
+            wheel.appendChild(center);
+
+            centerText = center;
+            centerMain = main;
+            centerSub = sub;
 
             const segmentAngle = 360 / labels.length;
             labels.forEach((label, i) => {
@@ -227,7 +254,9 @@
         let counterInterval = null;
         function animateCenterCounter(finalMultiplier, duration, isWin) {
             if (counterInterval) clearInterval(counterInterval);
-            let start = 1.0, current = start;
+
+            let start = 1.0;
+            let current = start;
             const startTime = performance.now();
             const pattern = Math.floor(Math.random() * 2);
 
@@ -238,19 +267,29 @@
                 if (isWin) {
                     if (pattern === 0) {
                         if (progress < 0.4) current = start - 0.4 * (progress / 0.4);
-                        else { const t = (progress - 0.4) / 0.6; current = (start - 0.4) + (finalMultiplier - (start - 0.4)) * t; }
+                        else {
+                            const t = (progress - 0.4) / 0.6;
+                            current = (start - 0.4) + (finalMultiplier - (start - 0.4)) * t;
+                        }
                     } else {
                         if (progress < 0.3) current = start + 0.6 * (progress / 0.3);
                         else if (progress < 0.6) current = (start + 0.6) - 0.8 * ((progress - 0.3) / 0.3);
-                        else { const t = (progress - 0.6) / 0.4; current = (start - 0.2) + (finalMultiplier - (start - 0.2)) * t; }
+                        else {
+                            const t = (progress - 0.6) / 0.4;
+                            current = (start - 0.2) + (finalMultiplier - (start - 0.2)) * t;
+                        }
                     }
                 } else {
                     if (progress < 0.5) current = start + 0.5 * (progress * 2);
                     else current = (start + 0.5) - 0.5 * ((progress - 0.5) * 2);
                 }
+
                 centerMain.textContent = current.toFixed(2) + "x";
 
-                if (progress >= 1) { clearInterval(counterInterval); centerMain.textContent = finalMultiplier.toFixed(2) + "x"; }
+                if (progress >= 1) {
+                    clearInterval(counterInterval);
+                    centerMain.textContent = finalMultiplier.toFixed(2) + "x";
+                }
             }, 50);
         }
 
@@ -260,17 +299,21 @@
 
             const segmentAngle = 360 / segments.length;
             const segmentCenter = index * segmentAngle + segmentAngle / 2;
-            const spins = (6 + Math.floor(Math.random() * 4)) * 5; // 5x plus
+
+            const spins = (6 + Math.floor(Math.random() * 4)) * 5;
             const finalRotation = spins * 360 + (360 - segmentCenter);
             const duration = 6500;
-            const preStopDelay = duration - 2000; // 🔥 2s avant l'arrêt labels disparaissent
+            const preStopDelay = duration - 950; // <-- 2 secondes avant la fin
 
-            wheel.style.transition = "none"; wheel.style.transform = `rotate(${currentRotation % 360}deg)`;
-            centerText.style.transition = "none"; centerText.style.transform = `translate(-50%, -50%) rotate(${centerRotation % 360}deg)`;
+            wheel.style.transition = "none";
+            wheel.style.transform = `rotate(${currentRotation % 360}deg)`;
+            centerText.style.transition = "none";
+            centerText.style.transform = `translate(-50%, -50%) rotate(${centerRotation % 360}deg)`;
 
             wheel.offsetHeight;
 
-            currentRotation += finalRotation; centerRotation -= finalRotation;
+            currentRotation += finalRotation;
+            centerRotation -= finalRotation;
 
             wheel.style.transition = `transform ${duration}ms cubic-bezier(.12,.9,.18,1)`;
             centerText.style.transition = `transform ${duration}ms cubic-bezier(.12,.9,.18,1)`;
@@ -280,14 +323,15 @@
 
             animateCenterCounter(targetMultiplier, duration, isWin);
 
-            setTimeout(() => clearWheelLabels(), preStopDelay); // 🔥 2s avant
+            setTimeout(() => clearWheelLabels(), preStopDelay);
 
             setTimeout(done, duration + 100);
         }
 
         function clearWheelLabels() {
             document.querySelectorAll(".label").forEach(l => {
-                l.style.opacity = "0"; l.style.transform += " scale(0.5)";
+                l.style.opacity = "0";
+                l.style.transform += " scale(0.5)";
                 setTimeout(() => l.remove(), 500);
             });
         }
@@ -295,27 +339,41 @@
         function showCenterResult(win, multiplier) {
             clearWheelLabels();
             centerText.classList.remove("win", "lose");
+
             setTimeout(() => {
                 if (win > 0) {
                     centerText.classList.add("win");
                     centerMain.textContent = "+" + win.toFixed(2) + "$";
                     centerSub.textContent = "x" + multiplier;
-                    winSound.currentTime = 0; winSound.play();
+                    winSound.currentTime = 0;
+                    winSound.play().catch(e => console.log("Win sound blocked", e));
                 } else {
                     centerText.classList.add("lose");
                     centerMain.textContent = "PERDU";
                     centerSub.textContent = "x" + multiplier;
-                    loseSound.currentTime = 0; loseSound.play();
+                    loseSound.currentTime = 0;
+                    loseSound.play().catch(e => console.log("Lose sound blocked", e));
                 }
+                centerSub.style.display = "block";
             }, 300);
         }
 
         function pickMultiplier() {
             const pool = [
-                { m: 1.1, w: 15 }, { m: 1.2, w: 15 }, { m: 1.3, w: 12 }, { m: 1.4, w: 12 }, { m: 1.5, w: 10 }, { m: 1.6, w: 8 },
-                { m: 1.7, w: 7 }, { m: 1.8, w: 6 }, { m: 1.9, w: 4 }, { m: 2.0, w: 3 }
+                { m: 1.1, w: 15 },
+                { m: 1.2, w: 15 },
+                { m: 1.3, w: 12 },
+                { m: 1.4, w: 12 },
+                { m: 1.5, w: 10 },
+                { m: 1.6, w: 8 },
+                { m: 1.7, w: 7 },
+                { m: 1.8, w: 6 },
+                { m: 1.9, w: 4 },
+                { m: 2.0, w: 3 }
             ];
-            let t = pool.reduce((s, o) => s + o.w, 0); let r = Math.random() * t;
+
+            let t = pool.reduce((s, o) => s + o.w, 0);
+            let r = Math.random() * t;
             for (let o of pool) if ((r -= o.w) <= 0) return o.m;
             return 1.1;
         }
@@ -328,30 +386,50 @@
         function startGame(uid) {
             const bet = Number(localStorage.getItem("bet")) || 0;
             if (bet <= 0) return location.href = "selectmise.html";
+
             const ref = db.ref("utilisateurs/" + uid);
+
             ref.once("value").then(snap => {
                 let u = snap.val() || {};
-                u.ACCOUNTPRINCIPAL ??= 0; u.ACCOUNTGAMES ??= 0; u.gameSpendCounter ??= 0; u.isVIP ??= false;
-                if (u.ACCOUNTPRINCIPAL < bet) { alert("Solde insuffisant"); return location.href = "selectmise.html"; }
-                u.ACCOUNTPRINCIPAL -= bet; u.gameSpendCounter += bet;
+                u.ACCOUNTPRINCIPAL ??= 0;
+                u.ACCOUNTGAMES ??= 0;
+                u.gameSpendCounter ??= 0;
+                u.isVIP ??= false;
+
+                if (u.ACCOUNTPRINCIPAL < bet) {
+                    alert("Solde insuffisant");
+                    return location.href = "selectmise.html";
+                }
+
+                u.ACCOUNTPRINCIPAL -= bet;
+                u.gameSpendCounter += bet;
 
                 let win = 0;
                 const required = bet * (u.isVIP ? 3 : 4);
                 const chance = Math.min(0.1 + (u.gameSpendCounter / required) * 0.6, 0.85);
 
-                let multiplier = 1.0;
-                let isWin = false;
+                let multiplier = 1.1;
                 if (Math.random() < chance) {
-                    multiplier = pickMultiplier(); win = bet * multiplier; u.gameSpendCounter = 0; isWin = true;
+                    multiplier = pickMultiplier();
+                    win = bet * multiplier;
+                    u.gameSpendCounter = 0;
                 }
 
-                ref.update({ ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL, ACCOUNTGAMES: u.ACCOUNTGAMES + win, gameSpendCounter: u.gameSpendCounter });
+                ref.update({
+                    ACCOUNTPRINCIPAL: u.ACCOUNTPRINCIPAL,
+                    ACCOUNTGAMES: u.ACCOUNTGAMES + win,
+                    gameSpendCounter: u.gameSpendCounter
+                });
 
                 createWheelLabels(multipliers);
-                spinWheel(multiplier, multipliers, () => { showCenterResult(win, multiplier); }, isWin);
+
+                spinWheel(multiplier, multipliers, () => {
+                    showCenterResult(win, multiplier);
+                }, win > 0);
             });
         }
     </script>
+
 </body>
 
 </html>
