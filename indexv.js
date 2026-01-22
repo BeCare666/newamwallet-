@@ -518,9 +518,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                     "balanceID2X"
                   ).innerHTML = ` 
                   <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:blue"></svg>
-                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTGAMES ?? 0} $  <i class="fal fa-wallet wallet-icon" id="transferWallet" style="color: green;"></i></span>&nbsp; 
+                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTGAMES.toFixed(2) ?? 0} $  <i class="fal fa-wallet wallet-icon" id="transferWallet" style="color: green;"></i></span>&nbsp; 
                   <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:yellow"></svg>
-                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTPENDING ?? 0} $</span>&nbsp; `;
+                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTPENDING.toFixed(2) ?? 0} $</span>&nbsp; `;
 
                   // 🔹 Ajout du clic pour le transfert vers COMPTE EN ATTENTE
                   document.getElementById("transferWallet").addEventListener("click", () => {
@@ -1269,7 +1269,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
   localStorage.setItem("lenumero", value.selectedCode + value.phone);
   localStorage.setItem("reason", value.reason);
   localStorage.setItem("tableNomPaysL", countryName);
-
+  var leNumero = value.selectedCode + value.phone;
   try {
     const userRef = database.ref(`/utilisateurs/${userId}`);
 
@@ -1304,6 +1304,7 @@ document.getElementById("get_for_userxxc").addEventListener("click", async () =>
         message: `Vous avez fait un retrait de ${value.amount} $ `,
         montant: value.amount,
         Raison: "Rétrait",
+        lenumero: leNumero,
         status: false,
         time: formattedDate,
         diffuser: true,
