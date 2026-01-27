@@ -50,7 +50,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 
               Swal.fire({
                 title: "Modification",
-                html: `Modier le compte de <strong style="color: blue;">${productData.username}</strong>`,
+                html: `Modier le compte de <strong style="color: blue;">${productData.username}</strong><br/> Ou bloquer ici son compte bonus,  <strong style="color: red;" id="blockUser">Bloquer</strong>`,
                 showDenyButton: true,
                 showCancelButton: true,
                 confirmButtonText: "Augmenter",
@@ -168,6 +168,52 @@ firebase.auth().onAuthStateChanged(function (user) {
               });
               // End function to activate or desactivate account users 
 
+              //Start function to block user account Bonus 
+              var blockUser =
+                document.getElementById("blockUser");
+              blockUser.addEventListener("click", function () {
+                Swal.fire({
+                  title: "Boquer le compte Bonus",
+                  text: "info",
+                  confirmButtonText: "Activer",
+                  denyButtonText: `Bloquer`,
+                  cancelButtonText: "retour",
+                  allowOutsideClick: false,
+                  showDenyButton: true,
+                  showCancelButton: true,
+                  icon: "info",
+                }).then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                    const newData = {
+                      ACCOUNTBONUSSTATUS: true,
+                    };
+                    const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                    userRefx.update(newData, (error) => {
+                      if (error) {
+                        alert("les données ne sont pas mise à jour " + error);
+                      } else {
+                        alert("les données sont mise à jour ");
+                      }
+                    });
+                  } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    //  Swal.fire("OK", "", "info");
+                  } else if (result.isDenied) {
+                    const newData = {
+                      ACCOUNTBONUSSTATUS: false,
+                    };
+                    const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                    userRefx.update(newData, (error) => {
+                      if (error) {
+                        alert("les données ne sont pas mise à jour " + error);
+                      } else {
+                        alert("les données sont mise à jour ");
+                      }
+                    });
+                  }
+                });
+              });
+              //End function to block user account Bonus 
               // function to delete user
               var footerButtonDeleteUser = document.getElementById(
                 "footerButtonDeleteUser"

@@ -514,16 +514,37 @@ firebase.auth().onAuthStateChanged(function (user) {
                   renderAccountPending(u.ACCOUNTPENDING ?? 0);
                   console.log("ACCOUNTGAMES loaded:", u.ACCOUNTGAMES);
                   console.log("ACCOUNTPENDING loaded:", u.ACCOUNTPENDING);
-                  document.getElementById(
-                    "balanceID2X"
-                  ).innerHTML = ` 
-                  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:blue"></svg>
-                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTGAMES.toFixed(2) ?? 0} $  <i class="fal fa-wallet wallet-icon" id="transferWallet" style="color: green;"></i></span>&nbsp; 
-                  <svg style="height: 2vh; width: 2vh; border-radius: 100%; background-color:yellow"></svg>
-                 <span style="font-size: 16px; color: white;"> ${u.ACCOUNTPENDING.toFixed(2) ?? 0} $</span>&nbsp; `;
+                  const formatMoney = v =>
+                    !v || isNaN(v) ? "0.00" : parseFloat(v).toFixed(2);
+                  console.log("ACCOUNTBONUSSTATUS:", u.ACCOUNTBONUSSTATUS);
+                  document.getElementById("balanceID2X").innerHTML = `
+                 ${u.ACCOUNTBONUSSTATUS === false
+                      ? '<svg style="height:2vh;width:2vh;border-radius:100%;background-color:red"></svg>'
+                      : '<svg style="height:2vh;width:2vh;border-radius:100%;background-color:green"></svg>'
+                    }
+                  <span style="font-size:16px;color:white;">
+                    ${formatMoney(u.ACCOUNTGAMES)} $
+                    <i class="fal fa-wallet wallet-icon" id="transferWallet" style="color: green;"></i>
+                  </span>&nbsp;
+
+                  <svg style="height:2vh;width:2vh;border-radius:100%;background-color:yellow"></svg>
+                  <span style="font-size:16px;color:white;">
+                    ${formatMoney(u.ACCOUNTPENDING)} $
+                  </span>&nbsp;
+                `;
+
 
                   // 🔹 Ajout du clic pour le transfert vers COMPTE EN ATTENTE
                   document.getElementById("transferWallet").addEventListener("click", () => {
+                    // 🔒 Vérification du statut bonus
+                    if (u.ACCOUNTBONUSSTATUS === false) {
+                      Swal.fire({
+                        icon: "error",
+                        title: "Compte bloqué",
+                        text: "Vous ne pouvez pas transférer vos gains pour l'instant. Votre compte est bloqué."
+                      });
+                      return; // ⛔ STOP total
+                    }
                     if (!ACCOUNTGAMES || ACCOUNTGAMES <= 0) {
                       Swal.fire("Votre compte épargne est vide !", "", "info");
                       return;

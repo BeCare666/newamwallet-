@@ -266,7 +266,7 @@
                 </div>
 
                 <div class="balance-box">
-                    <span>Compte Jeux</span>
+                    <span>Compte épargne</span>
                     <strong>$${games.toFixed(2)}</strong>
                 </div>
                 <div class="balance-box">
@@ -277,7 +277,7 @@
                 <div class="actions">
                     <input type="number" min="0" placeholder="Montant à ajouter" class="amount-input" id="amount-${uid}">
                     <button class="btn-add" onclick="addGames('${uid}')">
-                        <i class="fas fa-plus"></i> Ajouter au compte jeux
+                        <i class="fas fa-plus"></i> Ajouter au Compte épargne
                     </button>
                 </div>
             `;
@@ -303,7 +303,7 @@
                 userRef.update({
                     ACCOUNTGAMES: currentGames + amount
                 }).then(() => {
-                    Swal.fire("Succès", `$${amount.toFixed(2)} ajouté au compte jeux`, "success");
+                    Swal.fire("Succès", `$${amount.toFixed(2)} ajouté au Compte épargne`, "success");
                     loadUsers(searchInput.value);
                 }).catch(err => {
                     console.error(err);
