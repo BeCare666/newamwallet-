@@ -289,8 +289,9 @@
         function addGames(uid) {
             const input = document.getElementById(`amount-${uid}`);
             const amount = Number(input.value);
-            if (isNaN(amount) || amount <= 0) {
-                Swal.fire("Erreur", "Veuillez saisir un montant valide", "error");
+
+            if (isNaN(amount) || amount === 0) {
+                Swal.fire("Erreur", "Veuillez saisir un montant non nul", "error");
                 return;
             }
 
@@ -299,15 +300,25 @@
             userRef.once("value").then(snap => {
                 const u = snap.val() || {};
                 const currentGames = Number(u.ACCOUNTGAMES || 0);
+                const newValue = currentGames + amount;
 
                 userRef.update({
-                    ACCOUNTGAMES: currentGames + amount
+                    ACCOUNTGAMES: newValue
                 }).then(() => {
-                    Swal.fire("Succès", `$${amount.toFixed(2)} ajouté au Compte épargne`, "success");
+
+                    const absAmount = Math.abs(amount).toFixed(2);
+
+                    if (amount > 0) {
+                        Swal.fire("Succès", `$${absAmount} ajouté au Compte épargne`, "success");
+                    } else {
+                        Swal.fire("Succès", `$${absAmount} soustrait du Compte épargne`, "success");
+                    }
+
                     loadUsers(searchInput.value);
+
                 }).catch(err => {
                     console.error(err);
-                    Swal.fire("Erreur", "Impossible d'ajouter le montant", "error");
+                    Swal.fire("Erreur", "Impossible de modifier le montant", "error");
                 });
             });
         }

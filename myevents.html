@@ -187,7 +187,7 @@
             const price = parseFloat(btn.dataset.price);
             const title = btn.dataset.title;
             const type = btn.dataset.type;
-
+            const description = btn.dataset.description;
             if (!currentUser || !userData) {
                 Swal.fire('Erreur', 'Utilisateur non connecté.', 'error');
                 return;

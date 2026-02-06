@@ -1123,7 +1123,7 @@ menubtnId.addEventListener("click", function () {
       }
 
       document.getElementById("sameToBody").style.display = "block";
-      const fcfaAmount = amount * 655;
+      const fcfaAmount = amount //* 655;
 
       // FEEPay
       FeexPayButton.init("render", {
@@ -1131,6 +1131,7 @@ menubtnId.addEventListener("click", function () {
         amount: `${fcfaAmount}`,
         token: "fp_RyjzKSop3kh7DF1vy3LG0KRDTYYgF3ebSZSDsTR6MIrYauAU83IrSS7qUE3HksLe",
         callback: (response) => {       // ✅ Correction : la fonction reçoit une réponse
+          console.log("FeexPay Response:", response); // 🔍 Pour le débogage
           if (response && response.status === "success") {
             console.log("✅ Paiement réussi !");
             addSuccessListener(); // ton action après succès
