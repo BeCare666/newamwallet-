@@ -1123,30 +1123,29 @@ menubtnId.addEventListener("click", function () {
       }
 
       document.getElementById("sameToBody").style.display = "block";
-      const fcfaAmount = amount //* 655;
+      const fcfaAmount = amount * 655;
 
-      // FEEPay
       FeexPayButton.init("render", {
         id: "65c89373ac34723190f5087e",
-        amount: `${fcfaAmount}`,
+        amount: Number(fcfaAmount),
         token: "fp_RyjzKSop3kh7DF1vy3LG0KRDTYYgF3ebSZSDsTR6MIrYauAU83IrSS7qUE3HksLe",
-        callback: (response) => {       // ✅ Correction : la fonction reçoit une réponse
-          console.log("FeexPay Response:", response); // 🔍 Pour le débogage
-          if (response && response.status === "success") {
-            console.log("✅ Paiement réussi !");
-            addSuccessListener(); // ton action après succès
-          } else if (response && response.status === "failed") {
-            console.log("❌ Paiement échoué !");
-          } else {
-            console.log("ℹ️ Paiement annulé ou indéfini :", response);
+
+        callback: (response) => {
+          console.log("FeexPay Response:", response);
+
+          if (response?.status === "success") {
+            alert("✅ Paiement effectué avec succès !");
+            addSuccessListener();
+          }
+
+          if (response?.status === "failed") {
+            alert("❌ Paiement échoué !");
           }
         },
-        callback_url: "your_callback_url",
-        mode: "LIVE",
+
+        callback_url: "https://amowa.online/",
+        mode: "LIVE", // ⚠️ Passe à LIVE seulement après test
         custom_button: false,
-        id_custom_button: "my-custom-button-id",
-        custom_id: "random_string_for_reference",
-        case: "",
       });
 
       setTimeout(() => {
