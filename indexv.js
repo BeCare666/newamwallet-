@@ -1163,27 +1163,58 @@ menubtnId.addEventListener("click", function () {
         }, 1000);
       }, 500);
 
-      function addSuccessListener() {
+      // ===== Helpers montants sûrs =====
+      function toCents(value) {
+        if (value === null || value === undefined) return 0;
+        return Math.round(parseFloat(value.toString().replace(',', '.')) * 100);
+      }
+
+      function fromCents(cents) {
+        return (cents / 100).toFixed(2);
+      }
+
+
+      // ===== Fonction principale =====
+      function addSuccessListener(amount) {
         const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
         const balanceIDAWWW = localStorage.getItem("balanceIDAWWW");
-        var myComptaConvertis = parseFloat(balanceIDAWWW);
-        var addCommissionConvertis = parseFloat(amount);
-        var myCommissionAdd = myComptaConvertis + addCommissionConvertis;
+
+        // Sécurité valeurs
+        if (!unserconnectuserIdE) {
+          Swal.fire("Erreur", "Utilisateur introuvable.", "error");
+          return;
+        }
+
+        // Conversion sûre en centimes
+        const balanceCents = toCents(balanceIDAWWW);
+        const amountCents = toCents(amount);
+
+        // Addition exacte
+        const totalCents = balanceCents + amountCents;
+        const totalFinal = fromCents(totalCents);
 
         const newData = {
-          ACCOUNTPRINCIPAL: myCommissionAdd,
+          ACCOUNTPRINCIPAL: totalFinal,
         };
-        const userRefx = database.ref(`/ utilisateurs / ${unserconnectuserIdE}`);
+
+        // ⚠️ chemin sans espaces
+        const userRefx = database.ref(`/utilisateurs/${unserconnectuserIdE}`);
+
         userRefx.update(newData, (error) => {
           if (error) {
             Swal.fire("Ooops", "Votre recharge a échoué.", "error");
           } else {
-            Swal.fire("Succès", "Votre recharge a été effectuée avec succès.", "success").then(() => {
+            Swal.fire(
+              "Succès",
+              "Votre recharge a été effectuée avec succès.",
+              "success"
+            ).then(() => {
               window.location.reload();
             });
           }
         });
       }
+
     }
   });
 

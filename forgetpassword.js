@@ -19,72 +19,56 @@ firebase.auth().onAuthStateChanged(function (user) {
       if (snapshot.exists()) {
         document.getElementById("sameToBody").style.display = "none";
         var userData = snapshot.val();
-        var securemyaccountQ = userData.securemyaccountQ;
-        var securemyaccountR = userData.securemyaccountR;
-        document.getElementById("showquestion").innerText = securemyaccountQ;
-        console.log(securemyaccountQ);
-        if (securemyaccountQ) {
-          $("#secureMyAccountId").modal({
-            show: true,
-            backdrop: "static",
-            keyboard: false,
-          });
-        }
-        document.getElementById("validerTheRespons").addEventListener("click", function () {
-          var securityRespond = document.getElementById("securityRespond").value
-          if (securityRespond == securemyaccountR) {
-            $("#secureMyAccountIdSendEmail").modal({
-              show: true,
-              backdrop: "static",
-              keyboard: false,
-            });
-            document.getElementById("validerTheResponsEmail").addEventListener("click", function () {
-              var securityRespondEmail = document.getElementById("securityRespondEmail").value
-              if (securityRespondEmail == "") {
-                Swal.fire("Vous devez fournir une réponse", "", "info");
-              } else {
-                // Envoi de l'e-mail de réinitialisation du mot de passe 
-                firebase.auth().sendPasswordResetEmail(securityRespondEmail)
-                  .then(function () {
-                    //document.getElementById('sameToBodyx').style.display = "none"
-                    Swal.fire({
-                      icon: 'success',
-                      allowOutsideClick: false,
-                      text: "L'e-mail de réinitialisation du mot de passe a été envoyé avec succès !",
-                      //footer: '<a href="login.html">Connectez-vous</a>',
-                      confirmButtonText: "D'accord",
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        window.location.href = "login.html"
-                      }
-                    })
-                    // L'e-mail de réinitialisation du mot de passe a été envoyé avec succès
-                  })
-                  .catch(function (error) {
-                    // Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation du mot de passe
-                    //document.getElementById('sameToBodyx').style.display = "none"
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    console.log(errorMessage)
-                    Swal.fire({
-                      icon: 'error',
-                      allowOutsideClick: false,
-                      text: "Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation du mot de passe",
-                      //footer: '<a href="login.html">Connectez-vous</a>',
-                      confirmButtonText: "D'accord",
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        window.location.href = "forgetpassword.html"
-                      }
-                    });
-                  });
-              }
-
-            })
+        var securityRespond = document.getElementById("securityRespond").value
+        $("#secureMyAccountIdSendEmail").modal({
+          show: true,
+          backdrop: "static",
+          keyboard: false,
+        });
+        document.getElementById("validerTheResponsEmail").addEventListener("click", function () {
+          var securityRespondEmail = document.getElementById("securityRespondEmail").value
+          if (securityRespondEmail == "") {
+            Swal.fire("Vous devez fournir une réponse", "", "info");
           } else {
-            Swal.fire("Oooops, la réponse est incorrecte", "", "error");
+            // Envoi de l'e-mail de réinitialisation du mot de passe 
+            firebase.auth().sendPasswordResetEmail(securityRespondEmail)
+              .then(function () {
+                //document.getElementById('sameToBodyx').style.display = "none"
+                Swal.fire({
+                  icon: 'success',
+                  allowOutsideClick: false,
+                  text: "L'e-mail de réinitialisation du mot de passe a été envoyé avec succès !",
+                  //footer: '<a href="login.html">Connectez-vous</a>',
+                  confirmButtonText: "D'accord",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "login.html"
+                  }
+                })
+                // L'e-mail de réinitialisation du mot de passe a été envoyé avec succès
+              })
+              .catch(function (error) {
+                // Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation du mot de passe
+                //document.getElementById('sameToBodyx').style.display = "none"
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorMessage)
+                Swal.fire({
+                  icon: 'error',
+                  allowOutsideClick: false,
+                  text: "Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation du mot de passe",
+                  //footer: '<a href="login.html">Connectez-vous</a>',
+                  confirmButtonText: "D'accord",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "forgetpassword.html"
+                  }
+                });
+              });
           }
+
         })
+
       }
     });
   } else {
