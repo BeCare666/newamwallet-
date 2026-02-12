@@ -39,8 +39,8 @@ firebase.auth().onAuthStateChanged(function (user) {
         return;
       }
 
-      const soldeToSend = parseFloat(soldeInput);
-      const senderBalance = parseFloat(senderBalanceStr);
+      const soldeToSend = parseFloat(soldeInput.replace(',', '.'));
+      const senderBalance = parseFloat(senderBalanceStr.replace(',', '.'));
 
       if (isNaN(soldeToSend) || soldeToSend <= 0) {
         Swal.fire("Erreur", "Montant invalide", "error");
