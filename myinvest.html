@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Achat Ticket & Investissement - Reçu PDF</title>
     <link href="img/logo_of_wallet.jpg" rel="icon">
+
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -38,12 +40,7 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgb(0 0 0 / 0.1);
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
             padding-bottom: 1rem;
-        }
-
-        .card:hover {
-            box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
         }
 
         .card img {
@@ -79,17 +76,15 @@
             margin: 0 1rem;
             padding: 12px 0;
             font-weight: 700;
-            font-size: 1rem;
             border: none;
             border-radius: 8px;
-            background-color: #4f46e5;
+            background: #4f46e5;
             color: white;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         .btn-buy:disabled {
-            background-color: #a1a1aa;
+            background: #a1a1aa;
             cursor: not-allowed;
         }
     </style>
@@ -98,11 +93,10 @@
 <body>
 
     <h1>💰 Investissements</h1>
-
     <div class="container" id="container"></div>
 
     <script>
-        // Firebase config
+
         const firebaseConfig = {
             apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
             authDomain: "am-wallet.firebaseapp.com",
@@ -118,134 +112,156 @@
         const db = firebase.database();
 
         const container = document.getElementById('container');
+
         let currentUser = null;
         let userData = null;
+        let publicationsCache = null;
 
         auth.onAuthStateChanged(async (user) => {
+
+            container.innerHTML = "<p style='text-align:center'>Chargement des investissements...</p>";
+
             if (!user) {
-                container.innerHTML = '<p style="text-align:center;color:red;">Veuillez vous connecter pour voir les événements et investissements.</p>';
+                container.innerHTML = '<p style="color:red;text-align:center;">Veuillez vous connecter.</p>';
                 return;
             }
+
             currentUser = user;
 
-            // Récupérer données utilisateur (balance + flags achats)
-            const userSnapshot = await db.ref('utilisateurs/' + currentUser.uid).once('value');
-            userData = userSnapshot.val() || {};
+            try {
 
-            loadServices();
+                console.time("load-investissements");
+
+                const [userSnap, pubSnap] = await Promise.all([
+                    db.ref('utilisateurs/' + user.uid).once('value'),
+                    db.ref('publications')
+                        .orderByChild('type')
+                        .equalTo('Investissement')
+                        .once('value')
+                ]);
+
+                console.timeEnd("load-investissements");
+
+                userData = userSnap.val() || {};
+                publicationsCache = pubSnap.val() || {};
+
+                loadServices();
+
+            } catch (e) {
+                Swal.fire('Erreur', e.message, 'error');
+            }
         });
 
-        async function loadServices() {
-            const snapshot = await db.ref('publications').once('value');
-            const data = snapshot.val();
+        function loadServices() {
+
             container.innerHTML = '';
 
-            if (!data) {
-                container.innerHTML = '<p style="text-align:center;color:#666;">Aucun événement ou investissement disponible.</p>';
+            if (!publicationsCache) {
+                container.innerHTML = '<p style="text-align:center;color:#666;">Aucun investissement disponible.</p>';
                 return;
             }
 
-            for (const key in data) {
-                const item = data[key];
-                if (item.type === 'Investissement') {
-                    // Vérifie si user a déjà acheté/investi
-                    const boughtKey = `bought_${key}`; // flag personnalisé par service
-                    const bought = userData[boughtKey] || false;
-                    console.log(item.type)
+            const fragment = document.createDocumentFragment();
 
-                    const card = document.createElement('div');
-                    card.className = 'card';
+            for (const key in publicationsCache) {
 
-                    card.innerHTML = `
-                    <img src="${item.image}" alt="${item.title}">
-                    <div class="card-content">
-                    <h2>${item.title}</h2>
-                    <p>${item.description}</p>
-                    <p class="price">${item.prix.toLocaleString()} $</p>
-                    <button class="btn-buy" ${bought ? 'disabled' : ''} data-id="${key}" data-price="${item.prix}" data-title="${item.title}" data-type="${item.type}"
+                const item = publicationsCache[key];
+                const boughtKey = `bought_${key}`;
+                const bought = userData[boughtKey] || false;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                card.innerHTML = `
+            <img loading="lazy" decoding="async" src="${item.image}" alt="${item.title}">
+            <div class="card-content">
+                <h2>${item.title}</h2>
+                <p>${item.description}</p>
+                <p class="price">${Number(item.prix).toLocaleString()} $</p>
+                <button class="btn-buy" ${bought ? 'disabled' : ''}
+                    data-id="${key}"
+                    data-price="${item.prix}"
+                    data-title="${item.title}"
+                    data-type="${item.type}"
                     data-description="${item.description}">
-                        ${bought ? 'Déjà acheté' : (item.type === 'Événement' ? 'Acheter un ticket' : 'Investir maintenant')}
-                    </button>
-                    </div>
-                `;
+                    ${bought ? 'Déjà acheté' : 'Investir maintenant'}
+                </button>
+            </div>
+        `;
 
-                    container.appendChild(card);
-                }
+                fragment.appendChild(card);
             }
 
-            // Ajout event listener sur les boutons
-            container.querySelectorAll('.btn-buy').forEach(btn => {
-                btn.addEventListener('click', handleBuy);
-            });
+            container.appendChild(fragment);
+
+            container.querySelectorAll('.btn-buy')
+                .forEach(btn => btn.addEventListener('click', handleBuy));
         }
 
         async function handleBuy(e) {
+
             const btn = e.currentTarget;
             const serviceId = btn.dataset.id;
             const price = parseFloat(btn.dataset.price);
             const title = btn.dataset.title;
             const type = btn.dataset.type;
+            const description = btn.dataset.description;
 
             if (!currentUser || !userData) {
                 Swal.fire('Erreur', 'Utilisateur non connecté.', 'error');
                 return;
             }
 
-            // Vérifie le solde
             const balance = userData.ACCOUNTPRINCIPAL || 0;
-            const username = userData.username
-            localStorage.setItem('usernameL', username)
+            const username = userData.username;
+            localStorage.setItem('usernameL', username);
 
             if (balance < price) {
-                Swal.fire('Solde insuffisant', 'Votre solde est insuffisant pour effectuer cet achat.', 'warning');
+                Swal.fire('Solde insuffisant', 'Votre solde est insuffisant.', 'warning');
                 return;
             }
 
-            // Vérifie si déjà acheté (au cas où)
             const boughtKey = `bought_${serviceId}`;
             if (userData[boughtKey]) {
-                Swal.fire('Info', 'Vous avez déjà acheté ce service.', 'info');
+                Swal.fire('Info', 'Déjà acheté.', 'info');
                 return;
             }
 
-            // Confirmer l'achat
             const result = await Swal.fire({
-                title: `Confirmer ${type === 'Événement' ? 'l\'achat du ticket' : "l'investissement"}`,
-                text: `Vous allez déduire ${price.toLocaleString()} $ de votre solde.`,
+                title: "Confirmer l'investissement",
+                text: `Déduire ${price.toLocaleString()} $ ?`,
                 icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Confirmer',
-                cancelButtonText: 'Annuler'
+                showCancelButton: true
             });
 
             if (!result.isConfirmed) return;
 
-            // Débite le compte, marque achat, et génère reçu
             const updates = {};
             updates[`utilisateurs/${currentUser.uid}/ACCOUNTPRINCIPAL`] = balance - price;
             updates[`utilisateurs/${currentUser.uid}/${boughtKey}`] = true;
 
             try {
+
                 await db.ref().update(updates);
+
                 userData.ACCOUNTPRINCIPAL -= price;
                 userData[boughtKey] = true;
 
-                Swal.fire('Succès', `Votre ${type === 'Événement' ? 'ticket a été acheté' : "investissement a été réalisé"} avec succès.`, 'success');
+                Swal.fire('Succès', 'Investissement réalisé.', 'success');
 
-                generateReceipt(title, price, type);
+                generateReceipt(title, price, type, description);
 
-                // Met à jour le bouton disabled et texte
                 btn.disabled = true;
                 btn.textContent = 'Déjà acheté';
+
             } catch (err) {
-                Swal.fire('Erreur', 'Une erreur est survenue : ' + err.message, 'error');
+                Swal.fire('Erreur', err.message, 'error');
             }
         }
 
         function generateReceipt(title, price, type, description) {
-            var usernameLocal = localStorage.getItem('usernameL')
-            var titltjobx = localStorage.getItem('titltjobx');
-            var destjobx = localStorage.getItem('destjobx');
+
+            const usernameLocal = localStorage.getItem('usernameL');
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
@@ -253,31 +269,21 @@
 
             doc.setFontSize(22);
             doc.setTextColor('#4f46e5');
-            doc.text(type === 'Événement' ? 'Reçu de Ticket' : 'Reçu d’Investissement', 20, 20);
+            doc.text('Reçu d’Investissement', 20, 20);
 
-            // Ligne de séparation
-            doc.setDrawColor('#4f46e5');
-            doc.setLineWidth(0.5);
             doc.line(20, 25, 190, 25);
 
-            // Texte principal
-            let y = 35; // position de départ pour les lignes suivantes
+            let y = 35;
             doc.setFontSize(14);
-            doc.setTextColor('#333');
             doc.text(`Utilisateur : ${usernameLocal}`, 20, y); y += 10;
-           // doc.text(`Titre du job : ${titltjobx}`, 20, y); y += 10;
             doc.text(`Description : ${description}`, 20, y); y += 10;
             doc.text(`Titre : ${title}`, 20, y); y += 10;
             doc.text(`Montant : ${price.toLocaleString()} $`, 20, y); y += 10;
-            doc.text(`Date : ${dateStr}`, 20, y); y += 15;
+            doc.text(`Date : ${dateStr}`, 20, y);
 
-            // Message de remerciement
-            doc.setFontSize(10);
-            doc.text('Merci pour votre confiance !', 20, y);
-
-
-            doc.save(`reçu-${title.replace(/\s/g, '-')}-${Date.now()}.pdf`);
+            doc.save(`reçu-${title}-${Date.now()}.pdf`);
         }
+
     </script>
 
 </body>
