@@ -438,37 +438,37 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                   if (!lastPack.invest_istransfert) {
                     // 🔹 Appel à NestJS pour récupérer le pack
-                    const url = https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastPack.pack_firebase_id}`;
-                      fetch(url)
-                        .then(async res => {
-                          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-                          const text = await res.text();
-                          if (!text) throw new Error("Empty response from server");
-                          return JSON.parse(text);
-                        })
-                        .then(data => {
-                          if (!data) return;
-                          console.log("Pack balance from API:", data);
-                          const packBalance = Number(data.balance ?? 0);
-                          console.log("Pack balance from API:", packBalance);
-                          if (packBalance <= 0) return;
-                          console.log("Pack balance from API:", packBalance);
-                          const tenPercent = packBalance * 0.10;
-                          const ninetyPercent = packBalance - tenPercent;
+                    const url = `https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastPack.pack_firebase_id}`;
+                    fetch(url)
+                      .then(async res => {
+                        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+                        const text = await res.text();
+                        if (!text) throw new Error("Empty response from server");
+                        return JSON.parse(text);
+                      })
+                      .then(data => {
+                        if (!data) return;
+                        console.log("Pack balance from API:", data);
+                        const packBalance = Number(data.balance ?? 0);
+                        console.log("Pack balance from API:", packBalance);
+                        if (packBalance <= 0) return;
+                        console.log("Pack balance from API:", packBalance);
+                        const tenPercent = packBalance * 0.10;
+                        const ninetyPercent = packBalance - tenPercent;
 
-                          const currentPrincipal = Number(snapshot.val().ACCOUNTPRINCIPAL ?? 0);
-                          const currentEpargne = Number(snapshot.val().EPARGNE ?? 0);
+                        const currentPrincipal = Number(snapshot.val().ACCOUNTPRINCIPAL ?? 0);
+                        const currentEpargne = Number(snapshot.val().EPARGNE ?? 0);
 
-                          const updates = {};
-                          updates[`/utilisateurs/${userId}/ACCOUNTPRINCIPAL`] = currentPrincipal + ninetyPercent;
-                          updates[`/utilisateurs/${userId}/EPARGNE`] = currentEpargne + tenPercent;
-                          updates[`/utilisateurs/${userId}/THEPACKS/${lastPackId}/invest_istransfert`] = true;
+                        const updates = {};
+                        updates[`/utilisateurs/${userId}/ACCOUNTPRINCIPAL`] = currentPrincipal + ninetyPercent;
+                        updates[`/utilisateurs/${userId}/EPARGNE`] = currentEpargne + tenPercent;
+                        updates[`/utilisateurs/${userId}/THEPACKS/${lastPackId}/invest_istransfert`] = true;
 
-                          return database.ref().update(updates);
-                        })
-                        .then(() => console.log("✅ Pack transféré via API NestJS")//, window.location.reload()
-                        )
-                        .catch(err => console.error("❌ Erreur fetch pack-info", err));
+                        return database.ref().update(updates);
+                      })
+                      .then(() => console.log("✅ Pack transféré via API NestJS")//, window.location.reload()
+                      )
+                      .catch(err => console.error("❌ Erreur fetch pack-info", err));
                   }
                 }
                 //start function to show loto result
