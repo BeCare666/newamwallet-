@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz - amwallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --panel: #111;
+            --primary: #FFD700;
+            --text: #fff;
+            --muted: #aaa;
+            --glass: rgba(255, 255, 255, 0.06);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        header h1 {
+            color: var(--primary);
+        }
+
+        .pack-info {
+            max-width: 900px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-card {
+            flex: 1;
+            background: linear-gradient(145deg, #111, #1a1a1a);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .info-card span {
+            font-size: 22px;
+        }
+
+        .info-card small {
+            display: block;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .info-card strong {
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: var(--panel);
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .question {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .choices button {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            background: var(--glass);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .choices button:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .result {
+            margin-top: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* PREMIUM BOX */
+        .premium-box {
+            display: none;
+            max-width: 600px;
+            margin: 2rem auto;
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.15);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .countdown {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+        }
+
+        .stat {
+            background: var(--glass);
+            padding: 1rem;
+            border-radius: 12px;
+            width: 30%;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+                /* ================= PROGRESS PREMIUM ================= */
+
+        .pack-progress {
+            max-width: 900px;
+            margin: 15px auto 30px auto;
+            background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FFD700, #ffb700);
+            transition: width 1s ease;
+        }
+
+        .daily-reward {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .countdown {
+            text-align: center;
+            font-weight: 700;
+            color: #FFD700;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Quiz du Amwallet</h1>
+        <p>Répondez aux questions du jour</p>
+
+        <!-- PACK INFO -->
+        <div class="pack-info" id="packInfo">
+            <div class="info-card">
+                <span>💰</span>
+                <div><small>Investi</small><strong id="investedAmount">0</strong></div>
+            </div>
+            <div class="info-card">
+                <span>📈</span>
+                <div><small>Intérêt</small><strong id="interestPercent">0%</strong></div>
+            </div>
+            <div class="info-card">
+                <span>🎯</span>
+                <div><small>Gain</small><strong id="totalProfit">0</strong></div>
+            </div>
+            <div class="info-card" style="display:none;">
+                <span>💵</span>
+                <div><small>Solde</small><strong id="currentBalance">0</strong></div>
+            </div>
+        </div>
+                <div class="pack-progress" id="packProgress" style="display:none;">
+            <div class="progress-header">
+                <span>⏳ Progression du pack</span>
+                <span id="daysLeft">-- jours restants</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="daily-reward">
+                🎁 Récompense quotidienne :
+                <strong id="dailyReward">0</strong>
+            </div>
+
+            <!---
+            <div class="countdown" id="countdownTimer"></div>-->
+        </div>
+    </header>
+
+    <!-- QUIZ -->
+    <div class="quiz-container" id="quizContainer" style="display:none;">
+        <div class="question" id="questionText"></div>
+        <div class="choices" id="choicesContainer"></div>
+        <div class="result" id="resultText"></div>
+    </div>
+
+    <!-- PREMIUM STATS -->
+    <div class="premium-box" id="premiumBox">
+        <h2>🎉 Quiz terminé pour aujourd'hui</h2>
+        <div>Prochain quiz dans :</div>
+        <div class="countdown" id="countdown">--:--:--</div>
+
+        <div class="stats">
+            <div class="stat">
+                <div>Répondues</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat">
+                <div>Bonnes</div>
+                <div class="stat-value" id="statCorrect">0</div>
+            </div>
+            <div class="stat">
+                <div>Fausses</div>
+                <div class="stat-value" id="statWrong">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const quizContainer = document.getElementById("quizContainer");
+        const questionText = document.getElementById("questionText");
+        const choicesContainer = document.getElementById("choicesContainer");
+        const resultText = document.getElementById("resultText");
+
+        const premiumBox = document.getElementById("premiumBox");
+        const countdownEl = document.getElementById("countdown");
+        const statTotal = document.getElementById("statTotal");
+        const statCorrect = document.getElementById("statCorrect");
+        const statWrong = document.getElementById("statWrong");
+
+        const investedAmountEl = document.getElementById("investedAmount");
+        const interestPercentEl = document.getElementById("interestPercent");
+        const totalProfitEl = document.getElementById("totalProfit");
+        const currentBalanceEl = document.getElementById("currentBalance");
+
+        let currentQuestion = null;
+
+        const userId = localStorage.getItem("unserconnectuserId");
+        const packId = "-Om9B0GuL5uScNAXYGja";
+
+        if (!packId) throw new Error("PACK_MISSING");
+        if (!userId) throw new Error("USER_MISSING");
+
+        function startCountdown() {
+            function update() {
+                const now = new Date();
+                const midnight = new Date();
+                midnight.setHours(24, 0, 0, 0);
+                const diff = midnight - now;
+                const h = Math.floor(diff / 1000 / 60 / 60);
+                const m = Math.floor((diff / 1000 / 60) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+                countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        function showPremium(stats = {}, pack_info = {}) {
+            quizContainer.style.display = "none";
+            premiumBox.style.display = "block";
+
+            // stats aujourd'hui
+            statTotal.textContent = stats.today?.total ?? 0;
+            statCorrect.textContent = stats.today?.correct ?? 0;
+            statWrong.textContent = stats.today?.wrong ?? 0;
+
+            // pack info
+            const invested = Number(pack_info.invested_amount ?? 0);
+            const percent = Number(pack_info.interest_percent ?? 0);
+            const totalProfit = invested * percent / 100;
+            const correctTotal = stats.global?.correct ?? 0;
+            const totalAnswered = stats.global?.total ?? 1;
+            const balance = invested + (correctTotal * totalProfit / totalAnswered);
+
+            investedAmountEl.textContent = invested.toLocaleString() + " $";
+            interestPercentEl.textContent = percent + "%";
+            totalProfitEl.textContent = totalProfit.toLocaleString() + " $";
+            currentBalanceEl.textContent = balance.toFixed(2) + " $";
+
+            startCountdown();
+        }
+
+        async function loadPackInfo() {
+            try {
+                const res = await fetch(https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const data = await res.json();
+                if (!data) return;
+
+                investedAmountEl.textContent = Number(data.invested_amount).toLocaleString() + " $";
+                interestPercentEl.textContent = Number(data.interest_percent) + "%";
+                totalProfitEl.textContent = ((Number(data.invested_amount) * Number(data.interest_percent)) / 100).toLocaleString() + " $";
+                currentBalanceEl.textContent = Number(data.balance ?? 0).toLocaleString() + " $";
+                                // ===============================
+                // 📊 PROGRESSION PACK
+                // ===============================
+                const start = new Date(data.start_date);
+                const end = new Date(data.end_date);
+                const now = new Date();
+
+                const totalDuration = end - start;
+                const elapsed = now - start;
+                const progress = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+
+                document.getElementById("progressFill").style.width =
+                    progress + "%";
+
+                const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                document.getElementById("daysLeft").textContent =
+                    daysLeft + " jours restants";
+
+                // ===============================
+                // ⏳ COUNTDOWN TEMPS RÉEL
+                // ===============================
+                { /***                function updateCountdown() {
+                    const nowTime = new Date();
+                    const diff = end - nowTime;
+
+                    if (diff <= 0) {
+                        document.getElementById("countdownTimer").textContent =
+                            "Pack terminé";
+                        return;
+                    }
+
+                    const h = Math.floor(diff / 1000 / 60 / 60);
+                    const m = Math.floor((diff / 1000 / 60) % 60);
+                    const s = Math.floor((diff / 1000) % 60);
+
+                    document.getElementById("countdownTimer").textContent =
+                        `⏳ Fin dans ${h}h ${m}m ${s}s`;
+                }
+                                        updateCountdown();
+                setInterval(updateCountdown, 1000);
+***/ }
+
+
+                document.getElementById("packInfo").style.display = "flex";
+                document.getElementById("packProgress").style.display = "block";
+            } catch (err) { console.error("Erreur pack info", err); }
+        }
+
+        async function loadQuizQuestion() {
+            try {
+                const res = await fetch(https://amwalletapi.onrender.com/api/quiz/daily?user_id=${userId}&pack_id=${packId}`);
+                const data = await res.json();
+
+                showPremium(data?.stats ?? {}, data?.pack_info ?? {});
+
+                if (!data.questions || !data.questions.length) return;
+
+                const q = data.questions[0];
+                currentQuestion = q;
+
+                quizContainer.style.display = "block";
+                premiumBox.style.display = "none";
+
+                questionText.textContent = q.question;
+                choicesContainer.innerHTML = "";
+                resultText.textContent = "";
+
+                q.choices.forEach(choice => {
+                    const btn = document.createElement("button");
+                    btn.textContent = choice.choice_text;
+                    btn.onclick = () => submitAnswer(choice.choice_text);
+                    choicesContainer.appendChild(btn);
+                });
+
+            } catch (err) { console.error("Erreur récupération question :", err); }
+        }
+
+        async function submitAnswer(answer) {
+            if (!currentQuestion) return;
+            try {
+                const res = await fetch(https://amwalletapi.onrender.com/api/quiz/play`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id,
+                        user_pack_firebase_id: packId,
+                        question_id: currentQuestion.id,
+                        answer
+                    })
+                });
+                const data = await res.json();
+                if (data.correct) resultText.textContent = "✅ Correct !";
+                else resultText.textContent = `❌ Incorrect ! Bonne réponse : ${data.correct_answer}`;
+
+                setTimeout(loadQuizQuestion, 1200);
+
+            } catch (err) { console.error("Erreur soumission réponse :", err); }
+        }
+
+        loadPackInfo();
+        loadQuizQuestion();
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz - amwallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --panel: #111;
+            --primary: #FFD700;
+            --text: #fff;
+            --muted: #aaa;
+            --glass: rgba(255, 255, 255, 0.06);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        header h1 {
+            color: var(--primary);
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: var(--panel);
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .question {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .choices button {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            background: var(--glass);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .choices button:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .result {
+            margin-top: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* 🔥 PREMIUM PANEL */
+        .premium-box {
+            display: none;
+            max-width: 600px;
+            margin: 2rem auto;
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.15);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .countdown {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+        }
+
+        .stat {
+            background: var(--glass);
+            padding: 1rem;
+            border-radius: 12px;
+            width: 30%;
+        }
+
+        .pack-info {
+            max-width: 900px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .info-card {
+            flex: 1;
+            background: linear-gradient(145deg, #111, #1a1a1a);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .info-card span {
+            font-size: 22px;
+        }
+
+        .info-card small {
+            display: block;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .info-card strong {
+            font-size: 16px;
+            color: #FFD700;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ================= PROGRESS PREMIUM ================= */
+
+        .pack-progress {
+            max-width: 900px;
+            margin: 15px auto 30px auto;
+            background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FFD700, #ffb700);
+            transition: width 1s ease;
+        }
+
+        .daily-reward {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .countdown {
+            text-align: center;
+            font-weight: 700;
+            color: #FFD700;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Quiz du Amwallet</h1>
+        <p>Répondez aux questions du jour</p>
+        <div class="pack-info" id="packInfo" style="display:none;">
+            <div class="info-card">
+                <span>💰</span>
+                <div>
+                    <small>Investi</small>
+                    <strong id="investedAmount">0</strong>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <span>📈</span>
+                <div>
+                    <small>Intérêt</small>
+                    <strong id="interestPercent">0%</strong>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <span>🎯</span>
+                <div>
+                    <small>Gain</small>
+                    <strong id="totalProfit">0</strong>
+                </div>
+            </div>
+
+            <div class="info-card" style="display:none;" id="balanceInfo">
+                <span>💵</span>
+                <div>
+                    <small>Solde</small>
+                    <strong id="currentBalance">0</strong>
+                </div>
+            </div>
+        </div>
+        <div class="pack-progress" id="packProgress" style="display:none;">
+            <div class="progress-header">
+                <span>⏳ Progression du pack</span>
+                <span id="daysLeft">-- jours restants</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="daily-reward">
+                🎁 Récompense quotidienne :
+                <strong id="dailyReward">0</strong>
+            </div>
+
+            <!---
+            <div class="countdown" id="countdownTimer"></div>-->
+        </div>
+    </header>
+
+    <div class="quiz-container" id="quizContainer" style="display:none;">
+        <div class="question" id="questionText"></div>
+        <div class="choices" id="choicesContainer"></div>
+        <div class="result" id="resultText"></div>
+    </div>
+
+    <!-- 🔥 PREMIUM -->
+    <div class="premium-box" id="premiumBox">
+        <h2>🎉 Quiz terminé pour aujourd'hui</h2>
+        <div>Prochain quiz dans :</div>
+        <div class="countdown" id="countdown">--:--:--</div>
+
+        <div class="stats">
+            <div class="stat">
+                <div>Répondues</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat">
+                <div>Bonnes</div>
+                <div class="stat-value" id="statCorrect">0</div>
+            </div>
+            <div class="stat">
+                <div>Fausses</div>
+                <div class="stat-value" id="statWrong">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const quizContainer = document.getElementById("quizContainer");
+        const questionText = document.getElementById("questionText");
+        const choicesContainer = document.getElementById("choicesContainer");
+        const resultText = document.getElementById("resultText");
+
+        const premiumBox = document.getElementById("premiumBox");
+        const countdownEl = document.getElementById("countdown");
+        const statTotal = document.getElementById("statTotal");
+        const statCorrect = document.getElementById("statCorrect");
+        const statWrong = document.getElementById("statWrong");
+
+        let currentQuestion = null;
+
+        const userId = localStorage.getItem("unserconnectuserId");
+        const packId = "-Om9B0GuL5uScNAXYGja";
+
+        if (!packId) throw new Error("PACK_MISSING");
+        if (!userId) throw new Error("USER_MISSING");
+
+        function startCountdown() {
+            function update() {
+                const now = new Date();
+                const midnight = new Date();
+                midnight.setHours(24, 0, 0, 0);
+
+                const diff = midnight - now;
+
+                const h = Math.floor(diff / 1000 / 60 / 60);
+                const m = Math.floor((diff / 1000 / 60) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+
+                countdownEl.textContent =
+                    `${String(h).padStart(2, '0')}:` +
+                    `${String(m).padStart(2, '0')}:` +
+                    `${String(s).padStart(2, '0')}`;
+            }
+
+            update();
+            setInterval(update, 1000);
+        }
+
+        function showPremium(stats = {}) {
+            quizContainer.style.display = "none";
+            premiumBox.style.display = "block";
+
+            statTotal.textContent = stats.total ?? 0;
+            statCorrect.textContent = stats.correct ?? 0;
+            statWrong.textContent = stats.wrong ?? 0;
+
+            startCountdown();
+        }
+        function animateValue(el, start, end, duration = 800) {
+            let startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                el.textContent = value.toLocaleString() + " FCFA";
+                if (progress < 1) requestAnimationFrame(step);
+            }
+
+            requestAnimationFrame(step);
+        }
+        async function loadPackInfo() {
+            try {
+                const res = await fetch(
+                    https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`
+                );
+
+                const data = await res.json();
+                if (!data) return;
+
+                const invested = Number(data.invested_amount);
+                const percent = Number(data.interest_percent);
+                const totalProfit = (invested * percent) / 100;
+                const dailyReward = Number(data.daily_reward);
+
+                // ✅ compteurs animés
+                animateValue(
+                    document.getElementById("investedAmount"),
+                    0,
+                    invested
+                );
+
+                document.getElementById("interestPercent").textContent =
+                    percent + "%";
+
+                animateValue(
+                    document.getElementById("totalProfit"),
+                    0,
+                    totalProfit
+                );
+
+                document.getElementById("dailyReward").textContent =
+                    dailyReward.toLocaleString() + " FCFA";
+
+                // ===============================
+                // 📊 PROGRESSION PACK
+                // ===============================
+                const start = new Date(data.start_date);
+                const end = new Date(data.end_date);
+                const now = new Date();
+
+                const totalDuration = end - start;
+                const elapsed = now - start;
+                const progress = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+
+                document.getElementById("progressFill").style.width =
+                    progress + "%";
+
+                const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                document.getElementById("daysLeft").textContent =
+                    daysLeft + " jours restants";
+
+                // ===============================
+                // ⏳ COUNTDOWN TEMPS RÉEL
+                // ===============================
+                { /***                function updateCountdown() {
+                    const nowTime = new Date();
+                    const diff = end - nowTime;
+
+                    if (diff <= 0) {
+                        document.getElementById("countdownTimer").textContent =
+                            "Pack terminé";
+                        return;
+                    }
+
+                    const h = Math.floor(diff / 1000 / 60 / 60);
+                    const m = Math.floor((diff / 1000 / 60) % 60);
+                    const s = Math.floor((diff / 1000) % 60);
+
+                    document.getElementById("countdownTimer").textContent =
+                        `⏳ Fin dans ${h}h ${m}m ${s}s`;
+                }
+                                        updateCountdown();
+                setInterval(updateCountdown, 1000);
+***/ }
+
+
+                document.getElementById("packInfo").style.display = "flex";
+                document.getElementById("packProgress").style.display = "block";
+
+            } catch (err) {
+                console.error("Erreur pack info", err);
+            }
+        }
+
+
+        async function loadQuizQuestion() {
+            try {
+                const res = await fetch(
+                    https://amwalletapi.onrender.com/api/quiz/daily?user_id=${userId}&pack_id=${packId}`
+                );
+
+                const data = await res.json();
+
+                if (!data || !data.length) {
+                    showPremium(data?.stats || {});
+                    return;
+                }
+
+                const q = data[0];
+                currentQuestion = q;
+
+                quizContainer.style.display = "block";
+                premiumBox.style.display = "none";
+
+                questionText.textContent = q.question;
+                choicesContainer.innerHTML = "";
+                resultText.textContent = "";
+
+                q.choices.forEach(choice => {
+                    const btn = document.createElement("button");
+                    btn.textContent = choice.choice_text;
+                    btn.onclick = () => submitAnswer(choice.choice_text);
+                    choicesContainer.appendChild(btn);
+                });
+
+            } catch (err) {
+                console.error("Erreur récupération question :", err);
+            }
+        }
+
+        async function submitAnswer(answer) {
+            if (!currentQuestion) return;
+
+            try {
+                const res = await fetch(https://amwalletapi.onrender.com/api/quiz/play`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        user_pack_firebase_id: packId,
+                        question_id: currentQuestion.id,
+                        answer: answer
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.correct) {
+                    resultText.textContent = "✅ Correct !";
+                } else {
+                    resultText.textContent =
+                        `❌ Incorrect ! Bonne réponse : ${data.correct_answer}`;
+                }
+
+                setTimeout(loadQuizQuestion, 1200);
+
+            } catch (err) {
+                console.error("Erreur soumission réponse :", err);
+            }
+        }
+
+        loadQuizQuestion();
+        loadPackInfo();
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+            let imageURL = "";
+
+            // Upload image Cloudinary
+            if (file) {
+                const fd = new FormData();
+                fd.append("file", file);
+                fd.append("upload_preset", "hobefsjn");
+
+                try {
+                    const res = await fetch(
+                        "https://api.cloudinary.com/v1_1/djxmuazeb/image/upload",
+                        { method: "POST", body: fd }
+                    );
+
+                    const data = await res.json();
+                    imageURL = data.secure_url || "";
+                } catch (err) {
+                    console.error("❌ Erreur upload image :", err);
+                }
+            }
+
+            await sendSimpleData(text, imageURL);

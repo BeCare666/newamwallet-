@@ -377,6 +377,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 var useremail = snapshot.val().email;
                 var username = snapshot.val().username;
                 var balanceIDAW = snapshot.val().ACCOUNTPRINCIPAL;
+                var EPARGNE = snapshot.val().EPARGNE;
                 var MESSAGESAMWALLET = snapshot.val().MESSAGESAMWALLET;
                 var points = snapshot.val().points;
                 localStorage.setItem("usernameT", username);
@@ -392,7 +393,84 @@ firebase.auth().onAuthStateChanged(function (user) {
                 var marqueeId = document.getElementById("marqueeId");
                 var balanceIDA = document.getElementById("balanceIDA");
                 var balanceIDB = document.getElementById("balanceIDB");
+                // function to show star 
+                function renderStarNote(starNote) {
+                  const starContainer = document.getElementById("starContainer"); // div où on affiche les étoiles
+                  if (!starContainer) return;
 
+                  starContainer.innerHTML = ""; // reset
+
+                  const totalStars = 5;
+                  const filledStars = Math.round(starNote); // nombre d'étoiles pleines
+
+                  for (let i = 1; i <= totalStars; i++) {
+                    const star = document.createElement("span");
+                    star.textContent = "★"; // ✅ même caractère
+
+                    if (i <= filledStars) {
+                      star.style.color = "#facc15"; // jaune (remplie)
+                    } else {
+                      star.style.color = "#e5e7eb"; // gris (vide)
+                    }
+
+                    star.style.fontSize = "20px";
+                    star.style.marginRight = "2px";
+                    star.style.display = "inline-block";
+                    star.style.lineHeight = "1";
+
+                    starContainer.appendChild(star);
+                  }
+                }
+                var STARNOTEA = snapshot.val().STARNOTE;
+                console.log("STARNOTEA:", STARNOTEA);
+                if (STARNOTEA && STARNOTEA != null) {
+                  renderStarNote(STARNOTEA);
+                } else if (STARNOTEA === undefined || STARNOTEA === null) {
+                  renderStarNote(0); // pas de note
+                }
+                // function to get invest
+                var THEPACKS = snapshot.val().THEPACKS;
+                if (THEPACKS) {
+                  const lastPackId = Object.keys(THEPACKS)
+                    .sort((a, b) => new Date(THEPACKS[a].purchased_at) - new Date(THEPACKS[b].purchased_at))
+                    .pop();
+                  const lastPack = THEPACKS[lastPackId];
+
+                  if (!lastPack.invest_istransfert) {
+                    // 🔹 Appel à NestJS pour récupérer le pack
+                    const url = https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastPack.pack_firebase_id}`;
+                      fetch(url)
+                        .then(async res => {
+                          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+                          const text = await res.text();
+                          if (!text) throw new Error("Empty response from server");
+                          return JSON.parse(text);
+                        })
+                        .then(data => {
+                          if (!data) return;
+                          console.log("Pack balance from API:", data);
+                          const packBalance = Number(data.balance ?? 0);
+                          console.log("Pack balance from API:", packBalance);
+                          if (packBalance <= 0) return;
+                          console.log("Pack balance from API:", packBalance);
+                          const tenPercent = packBalance * 0.10;
+                          const ninetyPercent = packBalance - tenPercent;
+
+                          const currentPrincipal = Number(snapshot.val().ACCOUNTPRINCIPAL ?? 0);
+                          const currentEpargne = Number(snapshot.val().EPARGNE ?? 0);
+
+                          const updates = {};
+                          updates[`/utilisateurs/${userId}/ACCOUNTPRINCIPAL`] = currentPrincipal + ninetyPercent;
+                          updates[`/utilisateurs/${userId}/EPARGNE`] = currentEpargne + tenPercent;
+                          updates[`/utilisateurs/${userId}/THEPACKS/${lastPackId}/invest_istransfert`] = true;
+
+                          return database.ref().update(updates);
+                        })
+                        .then(() => console.log("✅ Pack transféré via API NestJS")//, window.location.reload()
+                        )
+                        .catch(err => console.error("❌ Erreur fetch pack-info", err));
+                  }
+                }
                 //start function to show loto result
                 var RESPLOTO = snapshot.val().RESPLOTO;
                 console.log("voici le loto number", RESPLOTO)
@@ -449,7 +527,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                   });
                 });
                 balanceID.innerHTML = ` <p style="font-size: 17px !important;">
-                 Solde P: ${parseFloat(balanceIDAW).toFixed(2)} &dollar;
+                 Solde P: ${parseFloat(balanceIDAW).toFixed(2)} &dollar; ||
+                 E: ${parseFloat(EPARGNE || 0).toFixed(2)} &dollar;
                 </p> `;
                 if (ACCOUNTLOTO) {
                   usernameID.innerHTML = `${username}   `;
@@ -531,6 +610,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   <span style="font-size:16px;color:white;">
                     ${formatMoney(u.ACCOUNTPENDING)} $
                   </span>&nbsp;
+                  
                 `;
 
 

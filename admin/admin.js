@@ -70,7 +70,7 @@ firebase.auth().onAuthStateChanged(function (user) {
               <button id="footerButtonwallet" style="color: white; background-color: blue; border: none; padding: 12px; cursor: pointer; border-radius: 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
               <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/>
             </svg></button>&nbsp;&nbsp;
-              <button id="footerButtonstatus" style="color: white; background-color: blue; border: none; padding: 12px; cursor: pointer; border-radius: 5px;">status</button>&nbsp;&nbsp;
+              <button id="footerButtonstatus" style="color: white; background-color: blue; border: none; padding: 12px; cursor: pointer; border-radius: 5px;">st</button>&nbsp;&nbsp;
               <button id="footerButtonDeleteUser" style="color: white; background-color: #FFB6C1; border: none; padding: 12px; cursor: pointer; border-radius: 5px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                 <path d="M5.5 0a.5.5 0 0 1 .5.5V1h5V.5a.5.5 0 0 1 1 0V1h2a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5H14v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2H1a.5.5 0 0 1-.5-.5V1a.5.5 0 0 1 .5-.5h2V.5a.5.5 0 0 1 .5-.5h3zM4 2v11h8V2H4z"/>
@@ -83,7 +83,8 @@ firebase.auth().onAuthStateChanged(function (user) {
               <path
                 d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0V7H5a.5.5 0 0 0 0 1h2.5v2.5a.5.5 0 0 0 1 0V8H11a.5.5 0 0 0 0-1H8.5V4.5z" />
             </svg>
-          </button>
+          </button>&nbsp;&nbsp;
+          <button id="footerButtonstar" style="color: white; background-color: blue; border: none; padding: 12px; cursor: pointer; border-radius: 5px;">⭐</button>&nbsp;&nbsp;
 
               `,
               }).then((result) => {
@@ -342,7 +343,75 @@ firebase.auth().onAuthStateChanged(function (user) {
                 });
               });
 
+              // function to send star note
+              const footerButtonstar = document.getElementById("footerButtonstar");
+              footerButtonstar.addEventListener("click", function () {
+                const userRefxv = database.ref(`/utilisateurs/${usermxid}`);
+                userRefxv
+                  .once("value")
+                  .then((snapshot) => {
+                    const userData = snapshot.val();
 
+                    if (!userData) {
+                      alert("Utilisateur introuvable");
+                      return;
+                    }
+
+                    const currentStarNote = parseFloat(userData.STARNOTE ?? 0);
+                    console.log("currentStarNote", currentStarNote);
+
+                    // SweetAlert input pour la note
+                    Swal.fire({
+                      title: 'Donnez votre note ⭐',
+                      text: 'Entrez un nombre entre 1 et 5',
+                      input: 'number',
+                      inputAttributes: {
+                        min: 1,
+                        max: 5,
+                        step: 1,
+                        autocapitalize: 'off',
+                        autocorrect: 'off'
+                      },
+                      customClass: {
+                        input: 'swal-input-center'
+                      },
+                      inputValidator: (value) => {
+                        if (!value) {
+                          return 'Vous devez entrer un nombre !';
+                        }
+                        const num = Number(value);
+                        if (num < 1 || num > 5) {
+                          return 'La note doit être entre 1 et 5';
+                        }
+                      },
+                      showCancelButton: true,
+                      confirmButtonText: 'Envoyer',
+                      cancelButtonText: 'Annuler'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        const parsedValue = parseFloat(result.value);
+                        const newStarNote = parseFloat(parsedValue.toFixed(2));
+
+                        console.log("currentStarNote:", currentStarNote, "inputValue:", parsedValue, "newStarNote:", newStarNote);
+
+                        // Mise à jour dans Firebase
+                        const userRefx = database.ref(`/utilisateurs/${usermxid}`);
+                        userRefx.update({ STARNOTE: newStarNote }, (error) => {
+                          if (error) {
+                            alert("Les données n'ont pas été mises à jour : " + error);
+                          } else {
+                            alert("Votre note a bien été enregistrée !");
+                            window.location.reload();
+                          }
+                        });
+                      }
+                    });
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    alert("Une erreur est survenue lors de la récupération des données");
+                  });
+              });
               // function to send points 
               const footerButtonAddpoints =
                 document.getElementById("footerButtonAddpoints");

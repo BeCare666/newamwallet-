@@ -163,8 +163,8 @@ body {
 .header {
   height: 30%;
   background-color: #d47fa0;
-  border-bottom-right-radius: 40px;
-  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
   display: flex;
   justify-content: space-around;
   align-items: center;

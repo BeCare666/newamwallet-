@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin - Gestion Événements </title>
+    <title>Admin - Gestion Investissements</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
@@ -279,12 +279,12 @@
 
 <body>
 
-    <h1>Admin - Gestion Événements </h1>
+    <h1>Admin - Gestion Investissements</h1>
 
     <form id="form" autocomplete="off" spellcheck="false" novalidate>
         <label for="type">Type</label>
         <select id="type" required>
-            <option value="Événement">🎉 Événement</option>
+            <option value="Investissement">💼 Investissement</option>
         </select>
 
         <label for="title">Titre</label>
@@ -295,11 +295,17 @@
 
         <label for="prix">Prix / Montant $</label>
         <input type="number" id="prix" min="0" placeholder="Ex: 5000" required />
+
         <label for="interest">Intérêt (%)</label>
         <input type="number" id="interest" min="0" step="0.01" placeholder="Ex: 30" />
+        <label for="bonus_amount">Bonus Montant $</label>
+        <input type="number" id="bonus_amount" min="0" placeholder="Ex: 500" />
+        <label for="bonus_percent">Bonus Pourcentage (%)</label>
+        <input type="number" id="bonus_percent" min="0" step="0.01" placeholder="Ex: 5" />
 
         <label for="duration">Durée (jours)</label>
         <input type="number" id="duration" min="1" placeholder="Ex: 30" />
+
         <label for="imageFile">Image </label>
         <input type="file" id="imageFile" />
 
@@ -388,7 +394,7 @@
                     });
                 }
 
-                form.addEventListener('submit', e => {
+                form.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
                     const type = form.type.value;
@@ -398,40 +404,80 @@
                     const file = form.imageFile.files[0];
                     const interest_percent = Number(form.interest?.value || 0);
                     const duration_days = Number(form.duration?.value || 0);
+                    const bonus_amount = Number(form.bonus_amount?.value || 0);
+                    const bonus_percent = Number(form.bonus_percent?.value || 0);
                     const questions_per_day = Number(form.questionsPerDay?.value || 5);
 
-                    if (!title || !description || !prix || !interest_percent || !duration_days) {
+                    if (!title || !description || !prix || !interest_percent || !duration_days || !bonus_amount || !bonus_percent) {
                         Swal.fire('Erreur', 'Veuillez remplir tous les champs requis', 'error');
                         return;
                     }
 
-                    if (editId) {
-                        if (file) {
-                            fileToBase64(file).then(base64 => {
-                                updateItem(editId, { type, title, description, prix, interest_percent, duration_days, image: base64 });
-                            });
-                        } else {
-                            updateItem(editId, { type, title, description, prix });
+                    let imageURL = "";
+
+                    // 🔥 Upload image vers Cloudinary si fichier sélectionné
+                    if (file) {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        fd.append("upload_preset", "hobefsjn");
+
+                        try {
+                            const res = await fetch(
+                                "https://api.cloudinary.com/v1_1/djxmuazeb/image/upload",
+                                {
+                                    method: "POST",
+                                    body: fd
+                                }
+                            );
+
+                            const data = await res.json();
+
+                            if (!data.secure_url) {
+                                Swal.fire('Erreur', "Erreur lors de l'upload de l'image", 'error');
+                                return;
+                            }
+
+                            imageURL = data.secure_url;
+
+                        } catch (err) {
+                            console.error("Erreur upload image :", err);
+                            Swal.fire('Erreur', "Erreur upload image", 'error');
+                            return;
                         }
+                    }
+
+                    const dataToSave = {
+                        type,
+                        title,
+                        description,
+                        prix,
+                        interest_percent,
+                        duration_days,
+                        bonus_amount,
+                        bonus_percent
+                    };
+
+                    if (imageURL) {
+                        dataToSave.image = imageURL;
+                    }
+
+                    if (editId) {
+                        await db.ref(`publications/${editId}`).update(dataToSave);
+                        Swal.fire('Succès', 'Mise à jour réussie', 'success');
+                        submitBtn.textContent = 'Ajouter';
+                        editId = null;
                     } else {
-                        if (!file) {
+                        if (!imageURL) {
                             Swal.fire('Erreur', 'Merci de choisir une image', 'error');
                             return;
                         }
-                        fileToBase64(file).then(base64 => {
-                            addItem({ type, title, description, prix, interest_percent, duration_days, image: base64 });
-                        });
-                    }
-                });
 
-                function fileToBase64(file) {
-                    return new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = error => reject(error);
-                        reader.readAsDataURL(file);
-                    });
-                }
+                        await db.ref('publications').push(dataToSave);
+                        Swal.fire('Succès', 'Ajout réussi', 'success');
+                    }
+
+                    form.reset();
+                });
 
                 function addItem(data) {
                     db.ref('publications').push(data, error => {
