@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin - Gestion Investissements</title>
+    <title>Admin - Gestion des packs</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
@@ -279,12 +279,12 @@
 
 <body>
 
-    <h1>Admin - Gestion Investissements</h1>
+    <h1>Admin - Gestion des Tâches</h1>
 
     <form id="form" autocomplete="off" spellcheck="false" novalidate>
         <label for="type">Type</label>
         <select id="type" required>
-            <option value="investment">💼 Investissement</option>
+            <option value="task">💼 Tâches</option>
         </select>
 
         <label for="title">Titre</label>
@@ -298,9 +298,11 @@
 
         <label for="interest">Intérêt (%)</label>
         <input type="number" id="interest" min="0" step="0.01" placeholder="Ex: 30" />
-        <label for="bonus_amount">Bonus Montant $</label>
-        <input type="number" id="bonus_amount" min="0" placeholder="Ex: 500" />
-        <label for="bonus_percent">Bonus Pourcentage (%)</label>
+        <!--- -->
+        <label for="questions_per_day">Nombre de tâche à faire</label>
+        <input type="number" id="questions_per_day" min="0" placeholder="Ex: 500" />
+
+        <label for="bonus_percent"> Pourcentage à atteindre (%)</label>
         <input type="number" id="bonus_percent" min="0" step="0.01" placeholder="Ex: 5" />
 
         <label for="duration">Durée (jours)</label>
@@ -347,6 +349,7 @@
                         }
                         Object.entries(data).forEach(([key, item]) => {
                             const card = document.createElement('div');
+                            if (item.type !== "task") return; // Filtrer pour n'afficher que les tâches
                             card.className = 'card';
 
                             card.innerHTML = `
@@ -406,9 +409,20 @@
                     const duration_days = Number(form.duration?.value || 0);
                     const bonus_amount = Number(form.bonus_amount?.value || 0);
                     const bonus_percent = Number(form.bonus_percent?.value || 0);
-                    const questions_per_day = Number(form.questionsPerDay?.value || 5);
-
-                    if (!title || !description || !prix || !interest_percent || !duration_days || !bonus_amount || !bonus_percent) {
+                    const questions_per_day = Number(form.questions_per_day?.value || 5);
+                    console.log("Données du formulaire :", {
+                        type,
+                        title,
+                        description,
+                        prix,
+                        interest_percent,
+                        duration_days,
+                        bonus_amount,
+                        bonus_percent,
+                        questions_per_day,
+                        hasFile: !!file
+                    });
+                    if (!title || !description || !prix || !interest_percent || !duration_days || !bonus_percent || !questions_per_day) {
                         Swal.fire('Erreur', 'Veuillez remplir tous les champs requis', 'error');
                         return;
                     }
@@ -454,6 +468,7 @@
                         interest_percent,
                         duration_days,
                         bonus_amount,
+                        questions_per_day,
                         bonus_percent
                     };
 

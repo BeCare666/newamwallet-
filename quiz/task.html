@@ -265,8 +265,8 @@
 
 <body>
     <header>
-        <h1>L'investissement du Amwallet</h1>
-        <p>Suiver la progression de votre investissement</p>
+        <h1>Quiz du Amwallet</h1>
+        <p>Répondez aux questions du jour</p>
 
         <!-- PACK INFO -->
         <div class="pack-info" id="packInfo">
@@ -316,11 +316,11 @@
 
     <!-- PREMIUM STATS -->
     <div class="premium-box" id="premiumBox">
-        <h2>🎉 Votre investissement prends fin dans :</h2>
-
+        <h2>🎉 Quiz terminé pour aujourd'hui</h2>
+        <div>Prochain quiz dans :</div>
         <div class="countdown" id="countdown">--:--:--</div>
 
-        <div class="stats" style="display:none;">
+        <div class="stats" style="display:none">
             <div class="stat">
                 <div>Répondues</div>
                 <div class="stat-value" id="statTotal">0</div>
@@ -343,7 +343,7 @@
         </div>
     </div>
     <script type="module">
-        //const quizContainer = document.getElementById("quizContainer");
+        const quizContainer = document.getElementById("quizContainer");
         const questionText = document.getElementById("questionText");
         const choicesContainer = document.getElementById("choicesContainer");
         const resultText = document.getElementById("resultText");
@@ -368,43 +368,23 @@
         if (!packId) throw new Error("PACK_MISSING");
         if (!userId) throw new Error("USER_MISSING");
 
-        function startCountdown(startDate, endDate) {
+        function startCountdown() {
             function update() {
                 const now = new Date();
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-
-                // ⛔ Si pas encore commencé
-                if (now < start) {
-                    countdownEl.textContent = "00j 00:00:00";
-                    return;
-                }
-
-                // ⛔ Si terminé
-                if (now >= end) {
-                    countdownEl.textContent = "00j 00:00:00";
-                    return;
-                }
-
-                const diff = end - now;
-
-                // 🔹 Calcul jours, heures, minutes, secondes
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff / 1000 / 60 / 60) % 24);
+                const midnight = new Date();
+                midnight.setHours(24, 0, 0, 0);
+                const diff = midnight - now;
+                const h = Math.floor(diff / 1000 / 60 / 60);
                 const m = Math.floor((diff / 1000 / 60) % 60);
                 const s = Math.floor((diff / 1000) % 60);
-
-                countdownEl.textContent =
-                    `${String(days).padStart(2, '0')}j ` +
-                    `${String(h).padStart(2, '0')}:` +
-                    `${String(m).padStart(2, '0')}:` +
-                    `${String(s).padStart(2, '0')}`;
+                countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             }
-
             update();
             setInterval(update, 1000);
-        } function showPremium(stats = {}, pack_info = {}) {
-            //quizContainer.style.display = "none";
+        }
+
+        function showPremium(stats = {}, pack_info = {}) {
+            quizContainer.style.display = "none";
             premiumBox.style.display = "block";
 
             // stats aujourd'hui
@@ -419,18 +399,14 @@
             const correctTotal = stats.global?.correct ?? 0;
             const totalAnswered = stats.global?.total ?? 1;
             const balance = invested + (correctTotal * totalProfit / totalAnswered);
-            const start_date = pack_info.start_date;
-            const end_date = pack_info.end_date;
+
             investedAmountEl.textContent = invested.toLocaleString() + " $";
             interestPercentEl.textContent = percent + "%";
             totalProfitEl.textContent = totalProfit.toLocaleString() + " $";
             currentBalanceEl.textContent = balance.toFixed(2) + " $";
 
-            startCountdown(start_date, end_date);
+            startCountdown();
         }
-
-
-
         function animateValue(el, start, end, duration = 800) {
             let startTime = null;
 
@@ -457,12 +433,9 @@
                 const invested = Number(data.invested_amount);
                 const percent = Number(data.interest_percent);
                 const totalProfit = (invested * percent) / 100;
-                const dailyRewardx = (invested * percent) / 100;
-
-                const dailyReward = dailyRewardx / (data.duration_days)
-                console.log({ dailyRewardx, dailyReward });
+                const dailyReward = Number(data.daily_reward);
                 premiumpreloader.style.display = "none";
-                // ✅ compteurs animés
+                // ✅ compteurs animés duration_days
                 animateValue(
                     document.getElementById("investedAmount"),
                     0,
@@ -499,9 +472,9 @@
                     daysLeft + " jours restants";
                 //alert("Days left: " + daysLeft);
                 if (daysLeft <= 0) {
-                    document.getElementById("daysLeft").textContent = "Investissement terminé";
+                    document.getElementById("daysLeft").textContent = "Pack terminé";
                     document.getElementById("progressFill").style.width = "100%";
-                    //document.getElementById("quizContainer").style.display = "none";
+                    document.getElementById("quizContainer").style.display = "none";
 
                 }
                 // ===============================
@@ -539,15 +512,15 @@
                 const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/daily?user_id=${userId}&pack_id=${packId}`);
                 const data = await res.json();
 
-                showPremium(data?.stats ?? {}, data?.pack_info ?? {});
-
-                if (!data.questions || !data.questions.length) return;
-
+                if (!data.questions || !data.questions.length) {
+                    showPremium(data?.stats ?? {}, data?.pack_info ?? {});
+                    return;
+                }
                 const q = data.questions[0];
                 currentQuestion = q;
 
-                //quizContainer.style.display = "block";
-                //premiumBox.style.display = "none";
+                quizContainer.style.display = "block";
+                premiumBox.style.display = "none";
 
 
                 questionText.textContent = q.question;

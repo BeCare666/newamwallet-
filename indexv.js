@@ -430,46 +430,162 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
                 // function to get invest
                 var THEPACKS = snapshot.val().THEPACKS;
-                if (THEPACKS) {
-                  const lastPackId = Object.keys(THEPACKS)
-                    .sort((a, b) => new Date(THEPACKS[a].purchased_at) - new Date(THEPACKS[b].purchased_at))
-                    .pop();
-                  const lastPack = THEPACKS[lastPackId];
 
-                  if (!lastPack.invest_istransfert) {
-                    // 🔹 Appel à NestJS pour récupérer le pack
-                    const url = `https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastPack.pack_firebase_id}`;
+                if (THEPACKS) {
+                  const packEntries = Object.entries(THEPACKS);
+
+                  // ================================
+                  // 🔹 DERNIER INVESTISSEMENT
+                  // ================================
+                  const lastInvestEntry = packEntries
+                    .filter(([_, p]) => p.type === "Investissement")
+                    .sort(
+                      (a, b) =>
+                        new Date(a[1].purchased_at) -
+                        new Date(b[1].purchased_at)
+                    )
+                    .pop();
+
+                  const lastInvestPackId = lastInvestEntry?.[0];
+                  const lastInvestPack = lastInvestEntry?.[1];
+
+                  // ================================
+                  // 🔹 DERNIER TASK
+                  // ================================
+                  const lastTaskEntry = packEntries
+                    .filter(([_, p]) => p.type === "task")
+                    .sort(
+                      (a, b) =>
+                        new Date(a[1].purchased_at) -
+                        new Date(b[1].purchased_at)
+                    )
+                    .pop();
+
+                  const lastTaskPackId = lastTaskEntry?.[0];
+                  const lastTaskPack = lastTaskEntry?.[1];
+
+                  console.log("📦 Last Invest:", lastInvestPack);
+                  console.log("📦 Last Task:", lastTaskPack);
+
+                  // ================================
+                  // 🔹 BOUTON INVEST
+                  // ================================
+                  document
+                    .getElementById("investinprojetsId")
+                    .addEventListener("click", function () {
+                      Swal.fire({
+                        title: "Info",
+                        text: "Voulez-vous visitez les investissements ou investir ?",
+                        icon: "info",
+                        showCancelButton: true,
+                        confirmButtonText: "visitez",
+                        cancelButtonText: "Investir",
+                      }).then((res) => {
+                        if (res.isConfirmed) {
+                          if (lastInvestPack?.user_pack_id) {
+                            window.location.href =
+                              `quiz/quiz.html?user_pack=${lastInvestPack.user_pack_id}`;
+                          } else {
+                            Swal.fire(
+                              "Aucun investissement trouvé",
+                              "Vous n'avez pas encore investi"
+                            );
+                          }
+                        } else {
+                          window.location.href = "myinvest.html";
+                        }
+                      });
+                    });
+
+                  // ================================
+                  // 🔹 BOUTON TASKS
+                  // ================================
+                  document
+                    .getElementById("mytasks")
+                    .addEventListener("click", function () {
+                      Swal.fire({
+                        title: "Info",
+                        text: "Voulez-vous visitez vos tâches ou acheter ?",
+                        icon: "info",
+                        showCancelButton: true,
+                        confirmButtonText: "visitez",
+                        cancelButtonText: "Acheter",
+                      }).then((res) => {
+                        if (res.isConfirmed) {
+                          if (lastTaskPack?.user_pack_id) {
+                            window.location.href =
+                              `quiz/task.html?user_pack=${lastTaskPack.user_pack_id}`;
+                          } else {
+                            Swal.fire(
+                              "Aucun pack trouvé",
+                              "Vous n'avez pas encore acheté de task"
+                            );
+                          }
+                        } else {
+                          window.location.href = "mytask.html";
+                        }
+                      });
+                    });
+
+                  // ================================
+                  // 🔥 TRANSFERT AUTO (SEULEMENT INVESTISSEMENT)
+                  // ================================
+                  if (
+                    lastInvestPack &&
+                    !lastInvestPack.invest_istransfert &&
+                    lastInvestPack.user_pack_id
+                  ) {
+                    console.log("🚀 Tentative transfert INVEST...");
+
+                    const url = `https://amwalletapi.onrender.com /api/quiz/pack-info?user_id=${userId}&pack_id=${lastInvestPack.pack_firebase_id}`;
+
                     fetch(url)
-                      .then(async res => {
+                      .then(async (res) => {
                         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
                         const text = await res.text();
                         if (!text) throw new Error("Empty response from server");
                         return JSON.parse(text);
                       })
-                      .then(data => {
+                      .then((data) => {
                         if (!data) return;
-                        console.log("Pack balance from API:", data);
+
                         const packBalance = Number(data.balance ?? 0);
-                        console.log("Pack balance from API:", packBalance);
-                        if (packBalance <= 0) return;
-                        console.log("Pack balance from API:", packBalance);
-                        const tenPercent = packBalance * 0.10;
+                        if (isNaN(packBalance) || packBalance <= 0) return;
+
+                        const tenPercent = packBalance * 0.1;
                         const ninetyPercent = packBalance - tenPercent;
 
-                        const currentPrincipal = Number(snapshot.val().ACCOUNTPRINCIPAL ?? 0);
+                        const currentPrincipal = Number(
+                          snapshot.val().ACCOUNTPRINCIPAL ?? 0
+                        );
                         const currentEpargne = Number(snapshot.val().EPARGNE ?? 0);
 
                         const updates = {};
-                        updates[`/utilisateurs/${userId}/ACCOUNTPRINCIPAL`] = currentPrincipal + ninetyPercent;
-                        updates[`/utilisateurs/${userId}/EPARGNE`] = currentEpargne + tenPercent;
-                        updates[`/utilisateurs/${userId}/THEPACKS/${lastPackId}/invest_istransfert`] = true;
+                        updates[
+                          `/utilisateurs/${userId}/ACCOUNTPRINCIPAL`
+                        ] = currentPrincipal + ninetyPercent;
+                        updates[
+                          `/utilisateurs/${userId}/EPARGNE`
+                        ] = currentEpargne + tenPercent;
+                        updates[
+                          `/utilisateurs/${userId}/THEPACKS/${lastInvestPackId}/invest_istransfert`
+                        ] = true;
 
                         return database.ref().update(updates);
                       })
-                      .then(() => console.log("✅ Pack transféré via API NestJS")//, window.location.reload()
-                      )
-                      .catch(err => console.error("❌ Erreur fetch pack-info", err));
+                      .then(() => console.log("✅ Pack INVEST transféré"))
+                      .catch((err) =>
+                        console.error("❌ Erreur fetch pack-info", err)
+                      );
                   }
+                } else {
+                  document
+                    .getElementById("mytasks")
+                    .addEventListener("click", () => (window.location.href = "mytask.html"));
+
+                  document
+                    .getElementById("investinprojetsId")
+                    .addEventListener("click", () => (window.location.href = "myinvest.html"));
                 }
                 //start function to show loto result
                 var RESPLOTO = snapshot.val().RESPLOTO;

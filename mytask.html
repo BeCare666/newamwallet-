@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Achat Investissement</title>
+    <title>Achat de Packs</title>
     <link href="img/logo_of_wallet.jpg" rel="icon">
 
     <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
@@ -87,12 +87,70 @@
             background: #a1a1aa;
             cursor: not-allowed;
         }
+
+        #premium-preloader {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0f172a, #111827);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-wrapper {
+            display: flex;
+            gap: 14px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #6366f1, #8b5cf6);
+            animation: premiumBounce 1.4s infinite ease-in-out;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes premiumBounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* Hide animation */
+        #premium-preloader.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
     </style>
 </head>
 
 <body>
 
-    <h1>💰 Investissements</h1>
+    <h1>💰 packs</h1>
     <div class="container" id="container"></div>
 
     <script>
@@ -119,7 +177,7 @@
 
         auth.onAuthStateChanged(async (user) => {
 
-            container.innerHTML = "<p style='text-align:center'>Chargement des investissements...</p>";
+            container.innerHTML = "<p style='text-align:center'>Chargement des packs...</p>";
 
             if (!user) {
                 container.innerHTML = '<p style="color:red;text-align:center;">Veuillez vous connecter.</p>';
@@ -130,17 +188,17 @@
 
             try {
 
-                console.time("load-investissements");
+                console.time("load-tasks");
 
                 const [userSnap, pubSnap] = await Promise.all([
                     db.ref('utilisateurs/' + user.uid).once('value'),
                     db.ref('publications')
                         .orderByChild('type')
-                        .equalTo('investment')
+                        .equalTo('task')
                         .once('value')
                 ]);
 
-                console.timeEnd("load-investissements");
+                console.timeEnd("load-tasks");
 
                 userData = userSnap.val() || {};
                 publicationsCache = pubSnap.val() || {};
@@ -157,7 +215,7 @@
             container.innerHTML = '';
 
             if (!publicationsCache) {
-                container.innerHTML = '<p style="text-align:center;color:#666;">Aucun investissement disponible.</p>';
+                container.innerHTML = '<p style="text-align:center;color:#666;">Aucun pack disponible.</p>';
                 return;
             }
 
@@ -178,7 +236,7 @@
                 <h2>${item.title}</h2>
                 <p>${item.description}</p>
                 <p class="price">${Number(item.prix).toLocaleString()} $</p>
-                <button class="btn-buy" ${!bought ? 'disabled' : ''}
+                <button class="btn-buy" ${bought ? 'disabled' : ''}
                     data-id="${key}"
                     data-price="${item.prix}"
                     data-title="${item.title}"
@@ -187,8 +245,9 @@
                     data-duration="${item.duration_days || 0}"
                     data-bonus-amount="${item.bonus_amount || 0}"
                     data-bonus-percent="${item.bonus_percent || 0}"
+                    data-questions-per-day="${item.questions_per_day || 0}"
                     data-description="${item.description}">
-                    ${!bought ? 'Déjà acheté' : 'Investir maintenant'}
+                    ${bought ? 'Déjà acheté' : 'Payer maintenant'}
                 </button>
             </div>
         `;
@@ -211,9 +270,11 @@
             const interest = parseFloat(btn.dataset.interest || '0');
             const bonus_amount = parseFloat(btn.dataset.bonusAmount || '0');
             const bonus_percent = parseFloat(btn.dataset.bonusPercent || '0');
+            const questions_per_day = parseFloat(btn.dataset.questionsPerDay || '0');
             const duration = parseInt(btn.dataset.duration || '0');
             const qpd = parseInt(btn.dataset.qpd || '5');
             btn.innerText = 'En cours...';
+            console.log({ serviceId, price, title, type, description, interest, bonus_amount, bonus_percent, questions_per_day, duration });
             if (!currentUser || !userData) {
                 Swal.fire('Erreur', 'Utilisateur non connecté.', 'error');
                 return;
@@ -235,7 +296,7 @@
             //}
 
             const result = await Swal.fire({
-                title: "Confirmer l'investissement",
+                title: "Confirmer le pack",
                 text: `Déduire ${price.toLocaleString()} $ ?`,
                 icon: 'question',
                 showCancelButton: true
@@ -270,7 +331,7 @@
                         duration_days: Number(duration),
                         bonus_amount: Number(bonus_amount),
                         pack_type: type,
-                        questions_per_day: Number(5),
+                        questions_per_day: Number(questions_per_day),
                         bonus_percent: Number(bonus_percent),
                     })
                 });
@@ -300,8 +361,8 @@
                 }
 
                 // ✅ 3. Succès UI
-                await Swal.fire('Succès', 'Investissement réalisé.', 'success');
-                btn.innerText = '✅ réalisé ';
+                await Swal.fire('Succès', 'pack réalisé.', 'success');
+                btn.innerText = '✅ Activé ';
                 generateReceipt(title, price, type, description);
 
                 btn.disabled = false;
@@ -309,7 +370,7 @@
 
                 // ✅ 4. REDIRECTION CORRECTE (UTILISATEUR → SON PACK RÉEL)
                 window.location.href =
-                    `quiz/quiz.html?user_pack=${apiData.user_pack_id}`;
+                    `quiz/task.html?user_pack=${apiData.user_pack_id}`;
 
             } catch (err) {
                 console.error(err);
@@ -326,7 +387,7 @@
 
             doc.setFontSize(22);
             doc.setTextColor('#4f46e5');
-            doc.text('Reçu d’Investissement', 20, 20);
+            doc.text('Reçu d’pack', 20, 20);
 
             doc.line(20, 25, 190, 25);
 
