@@ -363,8 +363,9 @@
         let currentQuestion = null;
 
         const userId = localStorage.getItem("unserconnectuserId");
-        const packId = localStorage.getItem("pack_firebase_invest_id");
-
+        const packId = localStorage.getItem("pack_firebase_id");
+        console.log("📦 packId:", packId);
+        console.log("📦 userId:", userId);
         if (!packId) throw new Error("PACK_MISSING");
         if (!userId) throw new Error("USER_MISSING");
 
@@ -446,7 +447,7 @@
         }
         async function loadPackInfo() {
             try {
-                const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
                 const data = await res.json();
                 if (!data) return;
 
@@ -535,8 +536,9 @@
         }
 
         async function loadQuizQuestion() {
+            console.log("📦 Loading quiz question for packId:", packId, "and userId:", userId);
             try {
-                const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/daily?user_id=${userId}&pack_id=${packId}`);
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/daily?user_id=${userId}&pack_id=${packId}`);
                 const data = await res.json();
 
                 showPremium(data?.stats ?? {}, data?.pack_info ?? {});
@@ -567,7 +569,7 @@
         async function submitAnswer(answer) {
             if (!currentQuestion) return;
             try {
-                const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/play`, {
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/play`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

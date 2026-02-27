@@ -448,9 +448,8 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                   const lastInvestPackId = lastInvestEntry?.[0];
                   const lastInvestPack = lastInvestEntry?.[1];
-
-                  localStorage.setItem("pack_firebase_invest_id", lastInvestPackId);
-                  console.log("🚀 lastInvestPack:", lastInvestPack);
+                  console.log("📦 Last Invest Pack:", lastInvestPack.pack_firebase_id);
+                  localStorage.setItem("pack_firebase_invest_id", lastInvestPack.pack_firebase_id);
                   // ================================
                   // 🔹 DERNIER TASK
                   // ================================
@@ -466,10 +465,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                   const lastTaskPackId = lastTaskEntry?.[0];
                   const lastTaskPack = lastTaskEntry?.[1];
 
-                  console.log("📦 Last lastTaskPackId:", lastTaskPackId);
-                  localStorage.setItem("pack_firebase_task_id", lastTaskPackId);
-                  console.log("📦 Last Task:", lastTaskPack);
 
+                  localStorage.setItem("pack_firebase_task_id", lastTaskPack.pack_firebase_id);
+                  console.log("📦 Last Task Pack ID:", lastTaskPack.pack_firebase_id);
                   // ================================
                   // 🔹 BOUTON INVEST
                   // ================================
@@ -540,7 +538,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   ) {
                     console.log("🚀 Tentative transfert INVEST...");
 
-                    const url = `https://amwalletapi.onrender.com /api/quiz/pack-info?user_id=${userId}&pack_id=${lastInvestPack.pack_firebase_id}`;
+                    const url = `http://127.0.0.1:5000/api/quiz/pack-info?user_id=${userId}&pack_id=${lastInvestPack.pack_firebase_id}`;
 
                     fetch(url)
                       .then(async (res) => {
@@ -646,8 +644,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                   });
                 });
                 balanceID.innerHTML = ` <p style="font-size: 17px !important;">
-                 Solde P: ${parseFloat(balanceIDAW).toFixed(2)} &dollar; ||
-                 E: ${parseFloat(EPARGNE || 0).toFixed(2)} &dollar;
+                <strong>Solde P :</strong> ${parseFloat(balanceIDAW).toFixed(2)} &dollar; <br>
+                <strong>Solde E :</strong> ${parseFloat(EPARGNE || 0).toFixed(2)} &dollar;
                 </p> `;
                 if (ACCOUNTLOTO) {
                   usernameID.innerHTML = `${username}   `;

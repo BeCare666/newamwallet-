@@ -422,7 +422,7 @@
         }
         async function loadPackInfo() {
             try {
-                const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
                 const data = await res.json();
                 if (!data) return;
 
@@ -509,7 +509,7 @@
 
         async function loadQuizQuestion() {
             try {
-                const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/daily?user_id=${userId}&pack_id=${packId}`);
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/daily?user_id=${userId}&pack_id=${packId}`);
                 const data = await res.json();
 
                 if (!data.questions || !data.questions.length) {
@@ -540,7 +540,7 @@
         async function submitAnswer(answer) {
             if (!currentQuestion) return;
             try {
-                const res = await fetch(`https://amwalletapi.onrender.com /api/quiz/play`, {
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/play`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

@@ -259,7 +259,7 @@
                 localStorage.setItem('pack_firebase_id', serviceId);
 
                 // ✅ 2. Appel NestJS (CRÉATION PACK UTILISATEUR)
-                const apiRes = await fetch('https://amwalletapi.onrender.com /api/quiz/activate-pack', {
+                const apiRes = await fetch('https://amwalletapi.onrender.com/api/quiz/activate-pack', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
