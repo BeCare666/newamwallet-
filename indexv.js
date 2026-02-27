@@ -449,6 +449,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                   const lastInvestPackId = lastInvestEntry?.[0];
                   const lastInvestPack = lastInvestEntry?.[1];
 
+                  localStorage.setItem("pack_firebase_invest_id", lastInvestPackId);
+                  console.log("🚀 lastInvestPack:", lastInvestPack);
                   // ================================
                   // 🔹 DERNIER TASK
                   // ================================
@@ -464,7 +466,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                   const lastTaskPackId = lastTaskEntry?.[0];
                   const lastTaskPack = lastTaskEntry?.[1];
 
-                  console.log("📦 Last Invest:", lastInvestPack);
+                  console.log("📦 Last lastTaskPackId:", lastTaskPackId);
+                  localStorage.setItem("pack_firebase_task_id", lastTaskPackId);
                   console.log("📦 Last Task:", lastTaskPack);
 
                   // ================================
