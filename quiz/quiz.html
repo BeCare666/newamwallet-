@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Quiz - amwallet</title>
+    <title>Invest - amwallet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
@@ -363,9 +363,8 @@
         let currentQuestion = null;
 
         const userId = localStorage.getItem("unserconnectuserId");
-        const packId = localStorage.getItem("pack_firebase_id");
-        console.log("📦 packId:", packId);
-        console.log("📦 userId:", userId);
+        const packId = localStorage.getItem("pack_firebase_invest_id");
+
         if (!packId) throw new Error("PACK_MISSING");
         if (!userId) throw new Error("USER_MISSING");
 
