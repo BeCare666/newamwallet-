@@ -178,7 +178,7 @@
                 <h2>${item.title}</h2>
                 <p>${item.description}</p>
                 <p class="price">${Number(item.prix).toLocaleString()} $</p>
-                <button class="btn-buy" ${!bought ? 'disabled' : ''}
+                <button class="btn-buy" ${bought ? 'disabled' : ''}
                     data-id="${key}"
                     data-price="${item.prix}"
                     data-title="${item.title}"
@@ -188,7 +188,7 @@
                     data-bonus-amount="${item.bonus_amount || 0}"
                     data-bonus-percent="${item.bonus_percent || 0}"
                     data-description="${item.description}">
-                    ${!bought ? 'Déjà acheté' : 'Investir maintenant'}
+                    ${bought ? 'Déjà acheté' : 'Investir maintenant'}
                 </button>
             </div>
         `;
@@ -304,7 +304,7 @@
                 btn.innerText = '✅ réalisé ';
                 generateReceipt(title, price, type, description);
 
-                btn.disabled = false;
+                btn.disabled = true;
                 btn.textContent = 'Déjà acheté';
 
                 // ✅ 4. REDIRECTION CORRECTE (UTILISATEUR → SON PACK RÉEL)
