@@ -448,8 +448,10 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                   const lastInvestPackId = lastInvestEntry?.[0];
                   const lastInvestPack = lastInvestEntry?.[1];
-                  console.log("📦 Last Invest Pack:", lastInvestPack.pack_firebase_id);
-                  localStorage.setItem("pack_firebase_invest_id", lastInvestPack.pack_firebase_id);
+                  if (lastInvestPack) {
+                    console.log("📦 Last Invest Pack:", lastInvestPack.pack_firebase_id);
+                    localStorage.setItem("pack_firebase_invest_id", lastInvestPack.pack_firebase_id);
+                  }
                   // ================================
                   // 🔹 DERNIER TASK
                   // ================================
@@ -464,10 +466,12 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                   const lastTaskPackId = lastTaskEntry?.[0];
                   const lastTaskPack = lastTaskEntry?.[1];
+                  if (lastTaskPack) {
+                    localStorage.setItem("pack_firebase_task_id", lastTaskPack.pack_firebase_id);
+                    console.log("📦 Last Task Pack ID:", lastTaskPack.pack_firebase_id);
+                  }
 
 
-                  localStorage.setItem("pack_firebase_task_id", lastTaskPack.pack_firebase_id);
-                  console.log("📦 Last Task Pack ID:", lastTaskPack.pack_firebase_id);
                   // ================================
                   // 🔹 BOUTON INVEST
                   // ================================
