@@ -316,8 +316,8 @@
 
     <!-- PREMIUM STATS -->
     <div class="premium-box" id="premiumBox">
-        <h2>🎉 Votre investissement prends fin dans :</h2>
-
+        <h2 id="investisnotend">🎉 Votre investissement prends fin dans :</h2>
+        <h2 id="investisend">🎉 Votre investissement est terminé. Merci pour votre confiance !</h2>
         <div class="countdown" id="countdown">--:--:--</div>
 
         <div class="stats" style="display:none;">
@@ -501,7 +501,9 @@
                 if (daysLeft <= 0) {
                     document.getElementById("daysLeft").textContent = "Investissement terminé";
                     document.getElementById("progressFill").style.width = "100%";
-                    //document.getElementById("quizContainer").style.display = "none";
+                    document.getElementById("countdown").style.display = "none";
+                    document.getElementById("investisnotend").style.display = "none";
+                    document.getElementById("investisend").style.display = "block";
 
                 }
                 // ===============================

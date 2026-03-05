@@ -478,28 +478,12 @@ firebase.auth().onAuthStateChanged(function (user) {
                   document
                     .getElementById("investinprojetsId")
                     .addEventListener("click", function () {
-                      Swal.fire({
-                        title: "Info",
-                        text: "Voulez-vous visitez les investissements ou investir ?",
-                        icon: "info",
-                        showCancelButton: true,
-                        confirmButtonText: "visitez",
-                        cancelButtonText: "Investir",
-                      }).then((res) => {
-                        if (res.isConfirmed) {
-                          if (lastInvestPack?.user_pack_id) {
-                            window.location.href =
-                              `quiz/quiz.html?user_pack=${lastInvestPack.user_pack_id}`;
-                          } else {
-                            Swal.fire(
-                              "Aucun investissement trouvé",
-                              "Vous n'avez pas encore investi"
-                            );
-                          }
-                        } else {
-                          window.location.href = "myinvest.html";
-                        }
-                      });
+                      if (lastInvestPack?.user_pack_id) {
+                        window.location.href =
+                          `quiz/quiz.html?user_pack=${lastInvestPack.user_pack_id}`;
+                      } else {
+                        window.location.href = "myinvest.html";
+                      }
                     });
 
                   // ================================
@@ -508,28 +492,12 @@ firebase.auth().onAuthStateChanged(function (user) {
                   document
                     .getElementById("mytasks")
                     .addEventListener("click", function () {
-                      Swal.fire({
-                        title: "Info",
-                        text: "Voulez-vous visitez vos tâches ou acheter ?",
-                        icon: "info",
-                        showCancelButton: true,
-                        confirmButtonText: "visitez",
-                        cancelButtonText: "Acheter",
-                      }).then((res) => {
-                        if (res.isConfirmed) {
-                          if (lastTaskPack?.user_pack_id) {
-                            window.location.href =
-                              `quiz/task.html?user_pack=${lastTaskPack.user_pack_id}`;
-                          } else {
-                            Swal.fire(
-                              "Aucun pack trouvé",
-                              "Vous n'avez pas encore acheté de task"
-                            );
-                          }
-                        } else {
-                          window.location.href = "mytask.html";
-                        }
-                      });
+                      if (lastTaskPack?.user_pack_id) {
+                        window.location.href =
+                          `quiz/task.html?user_pack=${lastTaskPack.user_pack_id}`;
+                      } else {
+                        window.location.href = "mytask.html";
+                      }
                     });
 
                   // ================================
