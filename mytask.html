@@ -261,121 +261,139 @@
                 .forEach(btn => btn.addEventListener('click', handleBuy));
         }
         async function handleBuy(e) {
-            const btn = e.currentTarget;
-            const serviceId = btn.dataset.id;
-            const price = parseFloat(btn.dataset.price);
-            const title = btn.dataset.title;
-            const type = btn.dataset.type;
-            const description = btn.dataset.description;
-            const interest = parseFloat(btn.dataset.interest || '0');
-            const bonus_amount = parseFloat(btn.dataset.bonusAmount || '0');
-            const bonus_percent = parseFloat(btn.dataset.bonusPercent || '0');
-            const questions_per_day = parseFloat(btn.dataset.questionsPerDay || '0');
-            const duration = parseInt(btn.dataset.duration || '0');
-            const qpd = parseInt(btn.dataset.qpd || '5');
-            btn.innerText = 'En cours...';
-            console.log({ serviceId, price, title, type, description, interest, bonus_amount, bonus_percent, questions_per_day, duration });
-            if (!currentUser || !userData) {
-                Swal.fire('Erreur', 'Utilisateur non connecté.', 'error');
-                return;
-            }
-
-            const balance = userData.ACCOUNTPRINCIPAL || 0;
-            const username = userData.username;
-            localStorage.setItem('usernameL', username);
-
-            if (balance < price) {
-                Swal.fire('Solde insuffisant', 'Votre solde est insuffisant.', 'warning');
-                return;
-            }
-
-            const boughtKey = `bought_${serviceId}`;
-            // if (!userData[boughtKey]) {
-            //    Swal.fire('Info', 'Déjà acheté.', 'info');
-            //    return;
-            //}
-
-            const result = await Swal.fire({
-                title: "Confirmer le pack",
-                text: `Déduire ${price.toLocaleString()} $ ?`,
-                icon: 'question',
-                showCancelButton: true
-            });
-
-            if (!result.isConfirmed) return;
-
-            const updates = {};
-            updates[`utilisateurs/${currentUser.uid}/ACCOUNTPRINCIPAL`] = balance - price;
-            updates[`utilisateurs/${currentUser.uid}/${boughtKey}`] = true;
-
+            const packId = localStorage.getItem("pack_firebase_task_id");
+            const userId = localStorage.getItem("unserconnectuserId");
             try {
-                // ✅ 1. Update Firebase
-                await db.ref().update(updates);
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const data = await res.json();
+                console.log("Pack Info:", data);
+                if (!data) return;
+                const end_date = data.end_date
+                const endDate = new Date(data.end_date);
+                const now = new Date();
 
-                userData.ACCOUNTPRINCIPAL -= price;
-                userData[boughtKey] = true;
+                if (now >= endDate) {
+                    const btn = e.currentTarget;
+                    const serviceId = btn.dataset.id;
+                    const price = parseFloat(btn.dataset.price);
+                    const title = btn.dataset.title;
+                    const type = btn.dataset.type;
+                    const description = btn.dataset.description;
+                    const interest = parseFloat(btn.dataset.interest || '0');
+                    const bonus_amount = parseFloat(btn.dataset.bonusAmount || '0');
+                    const bonus_percent = parseFloat(btn.dataset.bonusPercent || '0');
+                    const questions_per_day = parseFloat(btn.dataset.questionsPerDay || '0');
+                    const duration = parseInt(btn.dataset.duration || '0');
+                    const qpd = parseInt(btn.dataset.qpd || '5');
+                    btn.innerText = 'En cours...';
+                    console.log({ serviceId, price, title, type, description, interest, bonus_amount, bonus_percent, questions_per_day, duration });
+                    if (!currentUser || !userData) {
+                        Swal.fire('Erreur', 'Utilisateur non connecté.', 'error');
+                        return;
+                    }
 
-                // on garde le firebase uid si nécessaire ailleurs
-                localStorage.setItem('firebase_uid', currentUser.uid);
-                localStorage.setItem('pack_firebase_id', serviceId);
+                    const balance = userData.ACCOUNTPRINCIPAL || 0;
+                    const username = userData.username;
+                    localStorage.setItem('usernameL', username);
 
-                // ✅ 2. Appel NestJS (CRÉATION PACK UTILISATEUR)
-                const apiRes = await fetch('https://amwalletapi.onrender.com/api/quiz/activate-pack', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        firebase_uid: currentUser.uid,
-                        pack_firebase_id: serviceId,
-                        invested_amount: Number(price),
-                        interest_percent: Number(interest),
-                        duration_days: Number(duration),
-                        bonus_amount: Number(bonus_amount),
-                        pack_type: type,
-                        questions_per_day: Number(questions_per_day),
-                        bonus_percent: Number(bonus_percent),
-                    })
-                });
+                    if (balance < price) {
+                        Swal.fire('Solde insuffisant', 'Votre solde est insuffisant.', 'warning');
+                        return;
+                    }
 
-                if (!apiRes.ok) {
-                    throw new Error('Erreur création pack côté serveur');
+                    const boughtKey = `bought_${serviceId}`;
+                    // if (!userData[boughtKey]) {
+                    //    Swal.fire('Info', 'Déjà acheté.', 'info');
+                    //    return;
+                    //}
+
+                    const result = await Swal.fire({
+                        title: "Confirmer le pack",
+                        text: `Déduire ${price.toLocaleString()} $ ?`,
+                        icon: 'question',
+                        showCancelButton: true
+                    });
+
+                    if (!result.isConfirmed) return;
+
+                    const updates = {};
+                    updates[`utilisateurs/${currentUser.uid}/ACCOUNTPRINCIPAL`] = balance - price;
+                    updates[`utilisateurs/${currentUser.uid}/${boughtKey}`] = true;
+
+                    try {
+                        // ✅ 1. Update Firebase
+                        await db.ref().update(updates);
+
+                        userData.ACCOUNTPRINCIPAL -= price;
+                        userData[boughtKey] = true;
+
+                        // on garde le firebase uid si nécessaire ailleurs
+                        localStorage.setItem('firebase_uid', currentUser.uid);
+                        localStorage.setItem('pack_firebase_id', serviceId);
+
+                        // ✅ 2. Appel NestJS (CRÉATION PACK UTILISATEUR)
+                        const apiRes = await fetch('https://amwalletapi.onrender.com/api/quiz/activate-pack', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                firebase_uid: currentUser.uid,
+                                pack_firebase_id: serviceId,
+                                invested_amount: Number(price),
+                                interest_percent: Number(interest),
+                                duration_days: Number(duration),
+                                bonus_amount: Number(bonus_amount),
+                                pack_type: type,
+                                questions_per_day: Number(questions_per_day),
+                                bonus_percent: Number(bonus_percent),
+                            })
+                        });
+
+                        if (!apiRes.ok) {
+                            throw new Error('Erreur création pack côté serveur');
+                        }
+
+                        // ✅ IMPORTANT : récupérer la réponse serveur
+                        const apiData = await apiRes.json();
+                        // ✅ 3. Push du pack dans Firebase
+                        const packData = {
+                            title: title,
+                            price: price,
+                            type: type,
+                            description: description,
+                            user_pack_id: apiData.user_pack_id,
+                            pack_firebase_id: serviceId,
+                            invest_istransfert: false,
+                            purchased_at: new Date().toISOString()
+                        };
+
+                        await db.ref(`utilisateurs/${currentUser.uid}/THEPACKS/${apiData.user_pack_id}`)
+                            .set(packData);
+                        if (!apiData.user_pack_id) {
+                            throw new Error('user_pack_id manquant');
+                        }
+
+                        // ✅ 3. Succès UI
+                        await Swal.fire('Succès', 'pack réalisé.', 'success');
+                        btn.innerText = '✅ Activé ';
+                        generateReceipt(title, price, type, description);
+
+                        btn.disabled = true;
+                        btn.textContent = 'Déjà acheté';
+
+                        // ✅ 4. REDIRECTION CORRECTE (UTILISATEUR → SON PACK RÉEL)
+                        window.location.href =
+                            `quiz/task.html?user_pack=${apiData.user_pack_id}`;
+
+                    } catch (err) {
+                        console.error(err);
+                        Swal.fire('Erreur', err.message || 'Erreur serveur', 'error');
+                    }
+                } else {
+                    alert("Impossible ❌ un  pack n'est pas encore expiré");
                 }
+            } catch (err) { console.error("Erreur pack info", err); }
 
-                // ✅ IMPORTANT : récupérer la réponse serveur
-                const apiData = await apiRes.json();
-                // ✅ 3. Push du pack dans Firebase
-                const packData = {
-                    title: title,
-                    price: price,
-                    type: type,
-                    description: description,
-                    user_pack_id: apiData.user_pack_id,
-                    pack_firebase_id: serviceId,
-                    invest_istransfert: false,
-                    purchased_at: new Date().toISOString()
-                };
 
-                await db.ref(`utilisateurs/${currentUser.uid}/THEPACKS/${apiData.user_pack_id}`)
-                    .set(packData);
-                if (!apiData.user_pack_id) {
-                    throw new Error('user_pack_id manquant');
-                }
-
-                // ✅ 3. Succès UI
-                await Swal.fire('Succès', 'pack réalisé.', 'success');
-                btn.innerText = '✅ Activé ';
-                generateReceipt(title, price, type, description);
-
-                btn.disabled = true;
-                btn.textContent = 'Déjà acheté';
-
-                // ✅ 4. REDIRECTION CORRECTE (UTILISATEUR → SON PACK RÉEL)
-                window.location.href =
-                    `quiz/task.html?user_pack=${apiData.user_pack_id}`;
-
-            } catch (err) {
-                console.error(err);
-                Swal.fire('Erreur', err.message || 'Erreur serveur', 'error');
-            }
         }
         function generateReceipt(title, price, type, description) {
 

@@ -272,7 +272,7 @@
         <div class="pack-info" id="packInfo">
             <div class="info-card">
                 <span>💰</span>
-                <div><small>Investi</small><strong id="investedAmount">0</strong></div>
+                <div><small>Prix du pack</small><strong id="investedAmount">0</strong></div>
             </div>
             <div class="info-card">
                 <span>📈</span>
@@ -300,6 +300,10 @@
             <div class="daily-reward">
                 🎁 Récompense quotidienne :
                 <strong id="dailyReward">0</strong>
+            </div>
+            <div class="daily-reward">
+                🎁 Tâche(s) par jour :
+                <strong id="dailyRewardx">0</strong>
             </div>
 
             <!---
@@ -335,6 +339,9 @@
             </div>
         </div>
     </div>
+    <p style="text-align: center; color: white !important; margin-bottom: 12px;">
+        <a href="../mytask.html" style="color: white !important;">Voir plus des packs disponibles</a>
+    </p>
     <div id="premium-preloader">
         <div class="loader-wrapper">
             <div class="dot"></div>
@@ -424,6 +431,7 @@
             try {
                 const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
                 const data = await res.json();
+                console.log("Pack Info:", data);
                 if (!data) return;
 
                 investedAmountEl.textContent = Number(data.invested_amount).toLocaleString() + " $";
@@ -434,6 +442,9 @@
                 const percent = Number(data.interest_percent);
                 const totalProfit = (invested * percent) / 100;
                 const dailyReward = Number(data.daily_reward);
+                //const dailyRewardx = Number(data.questions_per_day);
+                document.getElementById("dailyRewardx").innerHTML = `${data.questions_per_day} `
+
                 premiumpreloader.style.display = "none";
                 // ✅ compteurs animés duration_days
                 animateValue(
@@ -453,6 +464,7 @@
 
                 document.getElementById("dailyReward").textContent =
                     dailyReward.toLocaleString() + " $";
+
                 // ===============================
                 // 📊 PROGRESSION PACK
                 // ===============================

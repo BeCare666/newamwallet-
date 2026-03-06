@@ -433,7 +433,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                 if (THEPACKS) {
                   const packEntries = Object.entries(THEPACKS);
-
+                  console.log("Pack entries:", packEntries);
                   // ================================
                   // 🔹 DERNIER INVESTISSEMENT
                   // ================================
@@ -456,35 +456,48 @@ firebase.auth().onAuthStateChanged(function (user) {
                   // 🔹 DERNIER TASK
                   // ================================
                   const lastTaskEntry = packEntries
-                    .filter(([_, p]) => p.type === "task")
-                    .sort(
-                      (a, b) =>
-                        new Date(a[1].purchased_at) -
-                        new Date(b[1].purchased_at)
-                    )
-                    .pop();
-
-                  const lastTaskPackId = lastTaskEntry?.[0];
-                  const lastTaskPack = lastTaskEntry?.[1];
-                  if (lastTaskPack) {
-                    localStorage.setItem("pack_firebase_task_id", lastTaskPack.pack_firebase_id);
-                    console.log("📦 Last Task Pack ID:", lastTaskPack.pack_firebase_id);
-                  }
-
-
-                  // ================================
-                  // 🔹 BOUTON INVEST
-                  // ================================
                   document
                     .getElementById("investinprojetsId")
                     .addEventListener("click", function () {
-                      if (lastInvestPack?.user_pack_id) {
-                        window.location.href =
-                          `quiz/quiz.html?user_pack=${lastInvestPack.user_pack_id}`;
-                      } else {
-                        window.location.href = "myinvest.html";
-                      }
+
+                      const investPacks = packEntries.filter(([_, p]) => {
+                        const type = (p.type || "").toLowerCase();
+                        return type === "investissement" || type === "investment";
+                      });
+
+                      console.log("Invest packs:", investPacks);
+
+                      const packList = document.getElementById("packList");
+                      packList.innerHTML = "";
+
+                      investPacks.forEach(([id, pack]) => {
+
+                        const div = document.createElement("div");
+                        div.className = "pack-item";
+                        div.innerHTML = `
+        <strong>${pack.title}</strong><br>
+        Prix: ${pack.price}
+      `;
+
+                        div.addEventListener("click", () => {
+
+                          localStorage.setItem("pack_firebase_invest_id", pack.pack_firebase_id);
+                          localStorage.setItem("user_pack_id", pack.user_pack_id);
+
+                          window.location.href = `quiz/quiz.html?user_pack=${pack.user_pack_id}`;
+
+                        });
+
+                        packList.appendChild(div);
+
+                      });
+
+                      document.getElementById("packModal").style.display = "flex";
+
                     });
+
+
+
 
                   // ================================
                   // 🔹 BOUTON TASKS
