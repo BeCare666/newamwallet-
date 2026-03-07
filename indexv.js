@@ -456,6 +456,16 @@ firebase.auth().onAuthStateChanged(function (user) {
                   // 🔹 DERNIER TASK
                   // ================================
                   const lastTaskEntry = packEntries
+                    .filter(([_, p]) => p.type === "task")
+                    .sort(
+                      (a, b) =>
+                        new Date(a[1].purchased_at) -
+                        new Date(b[1].purchased_at)
+                    )
+                    .pop();
+
+                  const lastTaskPackId = lastTaskEntry?.[0];
+                  const lastTaskPack = lastTaskEntry?.[1];
                   document
                     .getElementById("investinprojetsId")
                     .addEventListener("click", function () {

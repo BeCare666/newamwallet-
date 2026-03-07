@@ -349,6 +349,78 @@
             <div class="dot"></div>
         </div>
     </div>
+    <div id="investment-expired-overlay" style="display: none;">
+
+        <div class="expired-content">
+
+            <div class="expired-icon">⚠️</div>
+
+            <h2>Cet pack s'est déjà expiré</h2>
+
+            <p class="expired-link">
+                <a href="../mytask.html">Voir plus les packs disponibles.</a>
+            </p>
+
+        </div>
+
+    </div>
+
+    <style>
+        #investment-expired-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #0f172a;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            text-align: center;
+        }
+
+        .expired-content {
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .expired-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .expired-content h2 {
+            color: white;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .expired-link a {
+            color: white;
+            text-decoration: underline;
+            font-size: 16px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
     <script type="module">
         const quizContainer = document.getElementById("quizContainer");
         const questionText = document.getElementById("questionText");
@@ -486,7 +558,7 @@
                 if (daysLeft <= 0) {
                     document.getElementById("daysLeft").textContent = "Pack terminé";
                     document.getElementById("progressFill").style.width = "100%";
-                    document.getElementById("quizContainer").style.display = "none";
+                    document.getElementById("investment-expired-overlay").style.display = "block";
 
                 }
                 // ===============================
