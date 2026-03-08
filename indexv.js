@@ -466,6 +466,10 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                   const lastTaskPackId = lastTaskEntry?.[0];
                   const lastTaskPack = lastTaskEntry?.[1];
+                  if (lastTaskPack) {
+                    console.log("📦 Last task Pack:", lastTaskPack.pack_firebase_id);
+                    localStorage.setItem("pack_firebase_task_id", lastTaskPack.pack_firebase_id);
+                  }
                   document
                     .getElementById("investinprojetsId")
                     .addEventListener("click", function () {
