@@ -210,33 +210,46 @@
             }
         });
 
-        function loadServices() {
+        async function loadServices() {
+            const packId = localStorage.getItem("pack_firebase_task_id");
+            const userId = localStorage.getItem("unserconnectuserId");
+            try {
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const data = await res.json();
+                console.log("Pack Info:", data);
+                if (!data) return;
+                const end_date = data.end_date
+                var endDate = new Date(data.end_date);
+                var now = new Date();
 
-            container.innerHTML = '';
+                container.innerHTML = '';
 
-            if (!publicationsCache) {
-                container.innerHTML = '<p style="text-align:center;color:#666;">Aucun pack disponible.</p>';
-                return;
-            }
+                if (!publicationsCache) {
+                    container.innerHTML = '<p style="text-align:center;color:#666;">Aucun pack disponible.</p>';
+                    return;
+                }
 
-            const fragment = document.createDocumentFragment();
+                const fragment = document.createDocumentFragment();
 
-            for (const key in publicationsCache) {
+                for (const key in publicationsCache) {
 
-                const item = publicationsCache[key];
-                const boughtKey = `bought_${key}`;
-                const bought = userData[boughtKey] || false;
+                    const item = publicationsCache[key];
+                    const boughtKey = `bought_${key}`;
+                    const bought = userData[boughtKey] || false;
+                    const isExpired = now >= endDate;
 
-                const card = document.createElement('div');
-                card.className = 'card';
+                    // bouton désactivé seulement si acheté ET pas expiré
+                    const disableButton = bought && !isExpired;
+                    const card = document.createElement('div');
+                    card.className = 'card';
 
-                card.innerHTML = `
+                    card.innerHTML = `
             <img loading="lazy" decoding="async" src="${item.image}" alt="${item.title}">
             <div class="card-content">
                 <h2>${item.title}</h2>
                 <p>${item.description}</p>
                 <p class="price">${Number(item.prix).toLocaleString()} $</p>
-                <button class="btn-buy" ${bought ? 'disabled' : ''}
+                <button class="btn-buy" ${disableButton ? 'disabled' : ''}
                     data-id="${key}"
                     data-price="${item.prix}"
                     data-title="${item.title}"
@@ -247,18 +260,19 @@
                     data-bonus-percent="${item.bonus_percent || 0}"
                     data-questions-per-day="${item.questions_per_day || 0}"
                     data-description="${item.description}">
-                    ${bought ? 'Déjà acheté' : 'Payer maintenant'}
+                    ${disableButton ? 'Déjà acheté' : 'Payer maintenant'}
                 </button>
             </div>
         `;
 
-                fragment.appendChild(card);
-            }
+                    fragment.appendChild(card);
+                }
 
-            container.appendChild(fragment);
+                container.appendChild(fragment);
 
-            container.querySelectorAll('.btn-buy')
-                .forEach(btn => btn.addEventListener('click', handleBuy));
+                container.querySelectorAll('.btn-buy')
+                    .forEach(btn => btn.addEventListener('click', handleBuy));
+            } catch (err) { console.error("Erreur pack info", err); }
         }
         async function handleBuy(e) {
             const packId = localStorage.getItem("pack_firebase_task_id");

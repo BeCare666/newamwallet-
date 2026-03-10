@@ -1329,9 +1329,9 @@ menubtnId.addEventListener("click", function () {
         callback: (response) => {
           console.log("FeexPay Response:", response);
 
-          if (response?.status === "success") {
+          if (response?.status === "SUCCESSFUL") {
             alert("✅ Paiement effectué avec succès !");
-            addSuccessListener();
+            addSuccessListener(amount);
           }
 
           if (response?.status === "failed") {
@@ -1339,7 +1339,7 @@ menubtnId.addEventListener("click", function () {
           }
         },
 
-        callback_url: "https://amowa.online/",
+        //callback_url: "https://amowa.online/",
         mode: "LIVE", // ⚠️ Passe à LIVE seulement après test
         custom_button: false,
       });
@@ -1374,7 +1374,7 @@ menubtnId.addEventListener("click", function () {
       function addSuccessListener(amount) {
         const unserconnectuserIdE = localStorage.getItem("unserconnectuserId");
         const balanceIDAWWW = localStorage.getItem("balanceIDAWWW");
-
+        //alert(amount)
         // Sécurité valeurs
         if (!unserconnectuserIdE) {
           Swal.fire("Erreur", "Utilisateur introuvable.", "error");
