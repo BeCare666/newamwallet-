@@ -223,65 +223,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 
 
               console.log("User data:", snapshot.val())
-              // function to secure my account
-              if (!snapshot.val().securemyaccountR) {
-                $("#secureMyAccountId").modal({
-                  show: true,
-                  backdrop: "static",
-                  keyboard: false,
-                });
-                document.getElementById("securityQuestion").addEventListener("change", function () {
-                  var selectedOption = this.value; // Récupérer la valeur de l'option sélectionnée
-                  var laReponse = document.getElementById('securityRespond').value
-                  if (selectedOption) {
-                    //alert("Vous avez sélectionné : " + selectedOption); // Afficher l'alerte avec la valeur sélectionnée
-                    document.getElementById("showIdForresponse").style.display = "block";
-                    document.getElementById("validerTheRespons").addEventListener('click', function () {
-                      var laReponse = document.getElementById('securityRespond').value
-                      if (laReponse == "") {
-                        Swal.fire("Vous devez fournir une réponse", "", "info");
-                      } else {
-                        const newData = {
-                          securemyaccountQ: selectedOption,
-                          securemyaccountR: laReponse,
-                        };
-                        const userRefx = database.ref(
-                          `/utilisateurs/${unserconnectId}`
-                        );
-                        userRefx.update(newData, (error) => {
-                          if (error) {
-                            Swal.fire({
-                              title: "Ooops",
-                              text: "error",
-                              confirmButtonText: "OK",
-                              allowOutsideClick: false,
-                              icon: "error",
-                            }).then((result) => {
-                              if (result.isConfirmed) {
-                                window.location.reload();
-                              }
-                            });
-                          } else {
-                            Swal.fire({
-                              title: "Félicitations",
-                              text: "Votre compte est bien sécurisé !",
-                              confirmButtonText: "OK",
-                              allowOutsideClick: false,
-                              icon: "success",
-                            }).then((result) => {
-                              if (result.isConfirmed) {
-                                window.location.reload();
-                              }
-                            });
-                          }
-                        });
-                      }
-                    })
-
-
-                  }
-                });
-              } else if (snapshot.val().USERSTATUS && snapshot.val().securemyaccountR) {
+              if (snapshot.val().USERSTATUS) {
                 getJobs();
                 // Événements d'activité
                 ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evt => {
@@ -1330,7 +1272,7 @@ menubtnId.addEventListener("click", function () {
           console.log("FeexPay Response:", response);
 
           if (response?.status === "SUCCESSFUL") {
-            alert("✅ Paiement effectué avec succès !");
+            //alert("✅ Paiement effectué avec succès !");
             addSuccessListener(amount);
           }
 
@@ -1400,6 +1342,7 @@ menubtnId.addEventListener("click", function () {
           if (error) {
             Swal.fire("Ooops", "Votre recharge a échoué.", "error");
           } else {
+            window.location.reload();
             Swal.fire(
               "Succès",
               "Votre recharge a été effectuée avec succès.",

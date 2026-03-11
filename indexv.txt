@@ -1,0 +1,59 @@
+  // function to secure my account
+              if (!snapshot.val().securemyaccountR) {
+                $("#secureMyAccountId").modal({
+                  show: true,
+                  backdrop: "static",
+                  keyboard: false,
+                });
+                document.getElementById("securityQuestion").addEventListener("change", function () {
+                  var selectedOption = this.value; // Récupérer la valeur de l'option sélectionnée
+                  var laReponse = document.getElementById('securityRespond').value
+                  if (selectedOption) {
+                    //alert("Vous avez sélectionné : " + selectedOption); // Afficher l'alerte avec la valeur sélectionnée
+                    document.getElementById("showIdForresponse").style.display = "block";
+                    document.getElementById("validerTheRespons").addEventListener('click', function () {
+                      var laReponse = document.getElementById('securityRespond').value
+                      if (laReponse == "") {
+                        Swal.fire("Vous devez fournir une réponse", "", "info");
+                      } else {
+                        const newData = {
+                          securemyaccountQ: selectedOption,
+                          securemyaccountR: laReponse,
+                        };
+                        const userRefx = database.ref(
+                          `/utilisateurs/${unserconnectId}`
+                        );
+                        userRefx.update(newData, (error) => {
+                          if (error) {
+                            Swal.fire({
+                              title: "Ooops",
+                              text: "error",
+                              confirmButtonText: "OK",
+                              allowOutsideClick: false,
+                              icon: "error",
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                window.location.reload();
+                              }
+                            });
+                          } else {
+                            Swal.fire({
+                              title: "Félicitations",
+                              text: "Votre compte est bien sécurisé !",
+                              confirmButtonText: "OK",
+                              allowOutsideClick: false,
+                              icon: "success",
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                window.location.reload();
+                              }
+                            });
+                          }
+                        });
+                      }
+                    })
+
+
+                  }
+                });
+              } else 
