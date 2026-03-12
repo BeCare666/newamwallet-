@@ -258,6 +258,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   });
                 }
                 // function to validate code of transfert
+
                 if (!snapshot.val().transfert_code_id) {
                   const unserconnectuserId = localStorage.getItem("unserconnectuserId");
                   // function to get 8 digit number from code
@@ -273,7 +274,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 
                     return digits.slice(0, 8).padEnd(8, '0');
                   }
-
+                  //console.log("voir code validate", snapshot.val().transfert_code_id);
                   // Utilisation
                   get8DigitNumberFromCode(`${unserconnectuserId}`).then(code => {
                     console.log("Code à 8 chiffres :", code); // ex: "03972642" 
@@ -312,6 +313,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                     }
                   });
 
+                } else {
+                  console.log("voir1 code validate", snapshot.val().transfert_code_id);
                 }
                 // end function to validate code of transfert
 
