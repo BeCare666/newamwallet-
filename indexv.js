@@ -366,6 +366,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                     starContainer.appendChild(star);
                   }
                 }
+
                 var STARNOTEA = snapshot.val().STARNOTE;
                 console.log("STARNOTEA:", STARNOTEA);
                 if (STARNOTEA && STARNOTEA != null) {
@@ -415,6 +416,61 @@ firebase.auth().onAuthStateChanged(function (user) {
                     console.log("📦 Last task Pack:", lastTaskPack.pack_firebase_id);
                     localStorage.setItem("pack_firebase_task_id", lastTaskPack.pack_firebase_id);
                   }
+                  // ================================
+                  // 🔥 TRANSFERT AUTO TASK (NOUVEAU)
+                  // ================================
+                  if (
+                    lastTaskPack &&
+                    !lastTaskPack.invest_istransfert && // ⚠️ nouveau champ
+                    lastTaskPack.user_pack_id
+                  ) {
+                    console.log("🚀 Tentative transfert TASK...");
+
+                    const url = `https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastTaskPack.pack_firebase_id}`;
+
+                    fetch(url)
+                      .then(async (res) => {
+                        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+                        const text = await res.text();
+                        if (!text) throw new Error("Empty response");
+                        return JSON.parse(text);
+                      })
+                      .then((data) => {
+                        if (!data) return;
+
+                        // ⚠️ condition backend simulée
+                        const totalQuestions = data.questions_per_day * data.duration_days;
+                        const answered = data.answered || 0;
+
+                        const responseRate =
+                          totalQuestions > 0 ? (answered / totalQuestions) * 100 : 0;
+
+                        if (responseRate < data.bonus_percent) {
+                          console.log("❌ Conditions TASK non remplies");
+                          return;
+                        }
+
+                        const packBalance = Number(data.balance ?? 0);
+                        if (isNaN(packBalance) || packBalance <= 0) return;
+
+                        const currentPrincipal = Number(snapshot.val().ACCOUNTPRINCIPAL ?? 0);
+
+                        const updates = {};
+                        updates[
+                          `/utilisateurs/${userId}/ACCOUNTPRINCIPAL`
+                        ] = currentPrincipal + packBalance;
+
+                        updates[
+                          `/utilisateurs/${userId}/THEPACKS/${lastTaskPackId}/invest_istransfert`
+                        ] = true;
+
+                        return database.ref().update(updates);
+                      })
+                      .then(() => console.log("✅ Pack TASK transféré"))
+                      .catch((err) =>
+                        console.error("❌ Erreur TASK transfer", err)
+                      );
+                  }
                   document
                     .getElementById("investinprojetsId")
                     .addEventListener("click", function () {
@@ -434,9 +490,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                         const div = document.createElement("div");
                         div.className = "pack-item";
                         div.innerHTML = `
-        <strong>${pack.title}</strong><br>
-        Prix: ${pack.price}
-      `;
+                        <strong>${pack.title}</strong><br>
+                        Prix: ${pack.price}
+                      `;
 
                         div.addEventListener("click", () => {
 
@@ -482,7 +538,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                   ) {
                     console.log("🚀 Tentative transfert INVEST...");
 
-                    const url = `http://127.0.0.1:5000/api/quiz/pack-info?user_id=${userId}&pack_id=${lastInvestPack.pack_firebase_id}`;
+                    const url = `https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastInvestPack.pack_firebase_id}`;
 
                     fetch(url)
                       .then(async (res) => {

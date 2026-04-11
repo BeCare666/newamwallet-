@@ -903,7 +903,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     alert("non non");
   }
 
-  var inputElement = document.getElementById("imageProduct");
+  {/**  var inputElement = document.getElementById("imageProduct");
   // Ajoutez un gestionnaire d'événements pour écouter le changement de fichier
   inputElement.addEventListener("change", handleFiles, false);
 
@@ -974,7 +974,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 
     // Commencez la lecture du fichier
     reader.readAsDataURL(file);
-  }
+  }**/}
 });
 
 function generateUUIDpub() {
@@ -988,11 +988,44 @@ function generateUUIDpub() {
 
 // Exemple d'utilisation
 var uniqueIdpub = generateUUIDpub();
+const CLOUD_NAME = "djxmuazeb";
+const UPLOAD_PRESET = "hobefsjn";
 document
   .getElementById("sendpublicitieId")
-  .addEventListener("click", function () {
+  .addEventListener("click", async function () {
+
     var urlInput = document.getElementById("Id_urls").value;
-    var lastImage = urlImage.slice(-1)[0];
+    var fileInput = document.getElementById("imageProduct"); // ton input file
+    var file = fileInput.files[0];
+
+    let lastImage = "";
+
+    // 🔥 Upload image vers Cloudinary
+    if (file) {
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", UPLOAD_PRESET);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
+          method: "POST",
+          body: fd
+        });
+
+        const data = await res.json();
+        lastImage = data.secure_url;
+        console.log("Image uploadée sur Cloudinary, URL:", lastImage);
+
+      } catch (error) {
+        alert("Erreur lors de l'upload de l'image");
+        return;
+      }
+    } else {
+      alert("Veuillez sélectionner une image");
+      return;
+    }
+
+    // 🔥 Ton code original (inchangé)
     if (lastImage) {
       firebase
         .database()
@@ -1002,7 +1035,6 @@ document
           URLPUB: urlInput,
         })
         .then(() => {
-          // Affichez la notification de succès une fois que toutes les notifications ont été envoyées
           Swal.fire({
             icon: "success",
             title: "Félicitations !",
