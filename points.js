@@ -175,9 +175,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                   percentage++;
                   textElement.textContent = percentage + "%";
                   let color = `hsl(${percentage * 3.6}, 50%, 50%)`;
-                  textElement.style.textShadow = `0px 0px ${
-                    percentage / 2
-                  }px ${color}`;
+                  textElement.style.textShadow = `0px 0px ${percentage / 2
+                    }px ${color}`;
                   backgroundElement.style.backgroundColor = color;
                 }
               }, 100);
@@ -202,7 +201,7 @@ firebase.auth().onAuthStateChanged(function (user) {
           console.log(randomImage.URLPUB);
 
           Swal.fire({
-            imageUrl: `data:image/png;base64,` + randomImage.IMAGEPUB,
+            imageUrl: randomImage.IMAGEPUB,
             imageWidth: 400,
             imageAlt: "Custom image",
             confirmButtonText: "Read more",
