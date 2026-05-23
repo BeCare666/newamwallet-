@@ -1310,8 +1310,8 @@ menubtnId.addEventListener("click", function () {
             <a href="https://wa.me/+2290164669774" target="_blank" rel="noopener noreferrer">
             <i class="fab fa-whatsapp"></i> +44 7418315534
             </a><hr>
-            <a href="mailto:info@amowa.online" target="_blank" rel="noopener noreferrer">
-              <i class="far fa-envelope"></i>info@amowa.online
+            <a href="mailto:amobilewallet.inter@gmail.com" target="_blank" rel="noopener noreferrer">
+              <i class="far fa-envelope"></i>amobilewallet.inter@gmail.com
             </a>
             </div>`,
           confirmButtonText: "OK",
