@@ -601,14 +601,14 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
                 //end function to show loto result
 
-                //f (snapshot.val().points) {
-                // var PointsId = document.getElementById("PointsId");
-                //PointsId.textContent = `${snapshot.val().points} pts`;
-                //
-                // } else {
-                //   var PointsId = document.getElementById("PointsId");
-                //    PointsId.textContent = `0 pts`;
-                //  }
+                if (snapshot.val().points) {
+                  var PointsId = document.getElementById("PointsId");
+                  PointsId.textContent = `${snapshot.val().points} pts`;
+
+                } else {
+                  var PointsId = document.getElementById("PointsId");
+                  PointsId.textContent = `0 pts`;
+                }
 
                 var iconitem = document.querySelectorAll(".icon-item");
                 iconitem.forEach((T) => {
