@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Quiz AI Generator</title>
+
+    <!-- ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left,
+                    rgba(34, 197, 94, 0.15),
+                    transparent 25%),
+                radial-gradient(circle at bottom right,
+                    rgba(59, 130, 246, 0.15),
+                    transparent 25%),
+                #020617;
+
+            font-family: 'Inter', sans-serif;
+            color: white;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 980px;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(18px);
+
+            border: 1px solid rgba(255, 255, 255, 0.06);
+
+            border-radius: 32px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 20px 80px rgba(0, 0, 0, 0.45);
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+
+            margin-bottom: 30px;
+        }
+
+        .title-area h1 {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .title-area p {
+            margin-top: 10px;
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        .logo {
+            width: 75px;
+            height: 75px;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(135deg,
+                    #22c55e,
+                    #3b82f6);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 32px;
+
+            box-shadow:
+                0 15px 35px rgba(34, 197, 94, 0.35);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .field {
+            position: relative;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field i {
+            position: absolute;
+            top: 19px;
+            left: 18px;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+
+            background: rgba(15, 23, 42, 0.8);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.07);
+
+            border-radius: 18px;
+
+            padding:
+                16px 18px 16px 50px;
+
+            color: white;
+
+            font-size: 15px;
+
+            transition: 0.25s ease;
+        }
+
+        .field textarea {
+            min-height: 360px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: none;
+
+            border-color: #22c55e;
+
+            box-shadow:
+                0 0 0 4px rgba(34, 197, 94, 0.15);
+        }
+
+        .field input::placeholder,
+        .field textarea::placeholder {
+            color: #64748b;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 18px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+
+            border-radius: 18px;
+
+            padding: 16px 24px;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+
+            transition: 0.25s ease;
+        }
+
+        .generate-btn {
+            flex: 1;
+
+            background:
+                linear-gradient(135deg,
+                    #22c55e,
+                    #16a34a);
+
+            color: white;
+
+            box-shadow:
+                0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .save-btn {
+            flex: 1;
+
+            background:
+                linear-gradient(135deg,
+                    #3b82f6,
+                    #2563eb);
+
+            color: white;
+
+            box-shadow:
+                0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        .status {
+            margin-top: 24px;
+
+            padding: 18px;
+
+            border-radius: 18px;
+
+            background:
+                rgba(15, 23, 42, 0.85);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.06);
+
+            color: #cbd5e1;
+
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-top: 18px;
+
+            background:
+                rgba(34, 197, 94, 0.12);
+
+            color: #22c55e;
+
+            border:
+                1px solid rgba(34, 197, 94, 0.15);
+
+            padding: 12px 18px;
+
+            border-radius: 999px;
+
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @media(max-width: 768px) {
+
+            .card {
+                padding: 24px;
+                border-radius: 24px;
+            }
+
+            .top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title-area h1 {
+                font-size: 28px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="top">
+
+                <div class="title-area">
+                    <h1>
+                        Générateur IA Quiz
+                    </h1>
+
+                    <p>
+                        Génération intelligente de quiz premium
+                        avec sauvegarde directe vers TiDB Cloud.
+                    </p>
+
+                    <div class="badge">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        AI Powered Quiz Generator
+                    </div>
+                </div>
+
+                <div class="logo">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+
+            </div>
+
+            <div class="grid">
+
+                <div class="field">
+                    <i class="fa-solid fa-layer-group"></i>
+
+                    <input type="text" id="category" placeholder="Catégorie du quiz">
+                </div>
+
+                <div class="field">
+                    <i class="fa-solid fa-signal"></i>
+
+                    <select id="difficulty">
+                        <option value="easy">
+                            Facile
+                        </option>
+
+                        <option value="medium">
+                            Moyen
+                        </option>
+
+                        <option value="hard">
+                            Difficile
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field full">
+                    <i class="fa-solid fa-list-ol"></i>
+
+                    <input type="number" id="amount" placeholder="Nombre de questions à générer">
+                </div>
+
+                <div class="field full">
+                    <i class="fa-solid fa-code"></i>
+
+                    <textarea id="output" placeholder="Les questions générées apparaîtront ici..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button class="generate-btn" onclick="generateQuestions()">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    Générer avec IA
+                </button>
+
+                <button class="save-btn" onclick="saveQuestions()">
+
+                    <i class="fa-solid fa-database"></i>
+
+                    Envoyer vers TiDB Cloud
+                </button>
+
+            </div>
+
+            <div class="status" id="status">
+                En attente d'action...
+            </div>
+
+        </div>
+
+    </div>
+    <script>
+        const OPENROUTER_API_KEY =
+            import.meta.env.VITE_OPENROUTER_API_KEY;
+
+        async function generateQuestions() {
+
+            const category =
+                document.getElementById('category').value.trim();
+
+            const difficulty =
+                document.getElementById('difficulty').value;
+
+            const amount =
+                Number(document.getElementById('amount').value);
+
+            const output =
+                document.getElementById('output');
+
+            if (!category) {
+
+                alert("Entrer une catégorie");
+
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+
+                alert("Nombre de questions invalide");
+
+                return;
+            }
+
+            output.value =
+                "⏳ Génération IA...";
+
+            const prompt = `
+Génère ${amount} questions de quiz en français.
+
+Catégorie: ${category}
+Difficulté: ${difficulty}
+
+IMPORTANT:
+Retourne UNIQUEMENT un tableau JSON valide.
+
+Structure EXACTE:
+[
+  {
+    "question":"",
+    "correct_answer":"",
+    "choices":[
+      "",
+      "",
+      "",
+      ""
+    ]
+  }
+]
+
+RÈGLES OBLIGATOIRES:
+- EXACTEMENT 4 choix
+- correct_answer DOIT être dans choices
+- choices doit contenir 1 bonne réponse et 3 mauvaises réponses réalistes
+- aucune question dupliquée
+- français uniquement
+- aucun markdown
+- aucun texte avant
+- aucun texte après
+- JSON uniquement
+`;
+
+            try {
+
+                const response = await fetch(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                `Bearer ${OPENROUTER_API_KEY}`,
+
+                            "Content-Type":
+                                "application/json",
+
+                            "HTTP-Referer":
+                                window.location.origin,
+
+                            "X-Title":
+                                "Quiz Generator"
+                        },
+
+                        body: JSON.stringify({
+
+                            model: "openrouter/free",
+
+                            messages: [
+                                {
+                                    role: "user",
+                                    content: prompt
+                                }
+                            ],
+
+                            temperature: 0.7
+
+                        })
+                    }
+                );
+
+                const raw =
+                    await response.text();
+
+                console.log("RAW RESPONSE:", raw);
+
+                const data =
+                    JSON.parse(raw);
+
+                // erreur API
+                if (data.error) {
+
+                    output.value =
+                        "❌ " +
+                        JSON.stringify(
+                            data.error,
+                            null,
+                            2
+                        );
+
+                    return;
+                }
+
+                // sécurité
+                if (!data.choices?.length) {
+
+                    output.value =
+                        "❌ Aucune réponse IA";
+
+                    return;
+                }
+
+                let text =
+                    data.choices[0]
+                        .message.content;
+
+                // nettoyage markdown
+                text = text
+                    .replace(/```json/g, '')
+                    .replace(/```/g, '')
+                    .trim();
+
+                // parse JSON
+                let parsed =
+                    JSON.parse(text);
+
+                // validation stricte
+                parsed = parsed.map((q, index) => {
+
+                    // question
+                    if (!q.question) {
+
+                        throw new Error(
+                            `Question manquante index ${index}`
+                        );
+                    }
+
+                    // réponse correcte
+                    if (!q.correct_answer) {
+
+                        throw new Error(
+                            `correct_answer manquant index ${index}`
+                        );
+                    }
+
+                    // tableau choices
+                    if (!Array.isArray(q.choices)) {
+
+                        throw new Error(
+                            `choices invalide index ${index}`
+                        );
+                    }
+
+                    // supprimer doublons
+                    q.choices =
+                        [...new Set(q.choices)];
+
+                    // ajouter correct_answer si absent
+                    if (
+                        !q.choices.includes(
+                            q.correct_answer
+                        )
+                    ) {
+
+                        q.choices.push(
+                            q.correct_answer
+                        );
+                    }
+
+                    // compléter jusqu'à 4 choix
+                    while (q.choices.length < 4) {
+
+                        q.choices.push(
+                            "Option " +
+                            (q.choices.length + 1)
+                        );
+                    }
+
+                    // limiter à 4
+                    q.choices =
+                        q.choices.slice(0, 4);
+
+                    // mélanger
+                    q.choices =
+                        q.choices.sort(
+                            () => Math.random() - 0.5
+                        );
+
+                    return {
+
+                        question:
+                            q.question.trim(),
+
+                        correct_answer:
+                            q.correct_answer.trim(),
+
+                        choices:
+                            q.choices.map(
+                                c => c.trim()
+                            )
+                    };
+                });
+
+                output.value =
+                    JSON.stringify(
+                        parsed,
+                        null,
+                        2
+                    );
+
+            } catch (err) {
+
+                console.log(err);
+
+                output.value =
+                    "❌ " + err.message;
+            }
+        }
+
+
+        async function saveQuestions() {
+
+            const status =
+                document.getElementById('status');
+
+            try {
+
+                const questions =
+                    JSON.parse(
+                        document.getElementById('output').value
+                    );
+
+                const category =
+                    document.getElementById('category').value;
+
+                const difficulty =
+                    document.getElementById('difficulty').value;
+
+                status.innerHTML =
+                    "⏳ Enregistrement...";
+
+                const response = await fetch(
+                    'https://amwalletapi.onrender.com/api/quiz/import',
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            category,
+                            difficulty,
+                            questions
+                        })
+                    }
+                );
+
+                // 🔥 récupérer texte brut
+                const raw =
+                    await response.text();
+
+                console.log("BACKEND RAW:", raw);
+
+                // 🔥 si vide
+                if (!raw) {
+
+                    throw new Error(
+                        "Réponse backend vide"
+                    );
+                }
+
+                // 🔥 parser
+                const data =
+                    JSON.parse(raw);
+
+                // 🔥 erreur backend
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Erreur backend"
+                    );
+                }
+
+                status.innerHTML =
+                    `✅ ${data.inserted} questions enregistrées`;
+
+            } catch (err) {
+
+                console.log(err);
+
+                status.innerHTML =
+                    "❌ " + err.message;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

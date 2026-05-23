@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>paiement</title>
+    <link href="../img/logo_of_wallet.jpg" rel="icon" />
+    <script src="https://api.feexpay.me/feexpay-javascript-sdk/index.js"></script>
+    <link rel="icon" href="../images/Traducto1-1.png" type="image/x-icon" />
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.min.css"
+    />
+  </head>
+  <body>
+    <button
+      id="render"
+      style="
+        border: none;
+        background-color: blue;
+        color: white;
+        width: 40vh !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      "
+      class="custom-btn btn-3"
+    >
+      relancer
+    </button>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+        authDomain: "am-wallet.firebaseapp.com",
+        databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+        projectId: "am-wallet",
+        storageBucket: "am-wallet.appspot.com",
+        messagingSenderId: "877693231070",
+        appId: "1:877693231070:web:47c59ac6220ed09af9c74f",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          var userId = user.uid;
+          const userRef = database.ref(`/utilisateurs/${userId}`);
+          userRef.once("value").then((snapshot) => {
+            if (snapshot.exists()) {
+              var ACCOUNTINVESTSATUS = snapshot.val().ACCOUNTINVESTSATUS;
+              var ACCOUNTINVEST = snapshot.val().ACCOUNTINVEST;
+              var SommesPricex = ACCOUNTINVEST * 550;
+              if (!ACCOUNTINVESTSATUS) {
+                //alert(UserConnectuser) `${variablenx}`
+
+                Swal.fire({
+                  icon: "info",
+                  title: "Paiement",
+                  text: `Vous êtes sur le point de faire un paiement de ${ACCOUNTINVEST} $, ce qui fait ${SommesPricex} XOF. Merci !`,
+                  showConfirmButton: true,
+                  allowOutsideClick: false,
+                  // footer: '<a href="">Why do I have this issue?</a>'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    // Initialisation de FEEPay
+                    FeexPayButton.init("render", {
+                      id: "65c89373ac34723190f5087e", // Remplacez par votre ID de boutique
+                      amount: `${SommesPricex}`, // Calcul du montant total (prix * quantité)
+                      token:
+                        "fp_RyjzKSop3kh7DF1vy3LG0KRDTYYgF3ebSZSDsTR6MIrYauAU83IrSS7qUE3HksLe", // Remplacez par votre token API de FEEPay
+                      callback: () => {
+                        console.log("Paiement réussi !");
+                        addSuccessListener(); // Appelez une fonction après le paiement (personnalisée ici)
+                      },
+                      callback_url: "your_callback_url", // Facultatif : URL de callback si vous en avez une
+                      mode: "LIVE", // Utilisez 'LIVE' pour un environnement de production
+                      custom_button: false, // Si vous souhaitez un bouton personnalisé
+                      id_custom_button: "my-custom-button-id", // Si vous avez un bouton personnalisé, utilisez cet ID
+                      custom_id: "random_string_for_reference", // Facultatif : pour faire référence à cette transaction
+                      case: "", // MOBILE,,  Facultatif : Si vous souhaitez cibler un mode de paiement spécifique
+                    });
+                    setTimeout(() => {
+                      // Sélectionner le bouton avec la classe 'feexpay_button' dans le div #render
+                      const button = document.querySelector(
+                        "#render .feexpay_button"
+                      );
+
+                      // Vérifier si le bouton existe et simuler un clic
+                      setTimeout(function () {
+                        const button = document.querySelector(
+                          "#render .feexpay_button"
+                        );
+                        if (button) {
+                          button.click();
+                        } else {
+                          console.log("Le bouton n'a pas été trouvé !");
+                        }
+                      }, 1000); // Délai de 1 seconde, ajuste selon le besoin
+                    }, 500);
+
+                    function addSuccessListener() {
+                      const userRef = database.ref(`/utilisateurs/${userId}`);
+                      const newData = {
+                        ACCOUNTINVESTSATUS: true,
+                      };
+                      userRef.update(newData, (error) => {
+                        if (error) {
+                          Swal.fire({
+                            title: "Ooops",
+                            text: "error",
+                            confirmButtonText: "OK",
+                            allowOutsideClick: false,
+                            icon: "error",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              window.location.reload();
+                            }
+                          });
+                        } else {
+                          Swal.fire({
+                            title: "Congratulation",
+                            text: `Your payment has been processed successfully `,
+                            confirmButtonText: "OK",
+                            allowOutsideClick: false,
+                            icon: "success",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              window.location.reload();
+                            }
+                          });
+                        }
+                      });
+                      // Après avoir envoyé le fichier, mettez à jour les données de l'utilisateur
+                    }
+
+                    addFailedListener((error) => {
+                      console.log(error);
+                    });
+                  }
+                });
+              } else {
+                Swal.fire({
+                  title: "info",
+                  text: `Vous avez déjà un investissement en cours `,
+                  confirmButtonText: "OK",
+                  allowOutsideClick: false,
+                  icon: "info",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "../index.html";
+                  }
+                });
+              }
+            }
+          });
+        } else {
+          window.location.href = "../login.html";
+        }
+      });
+      const renderDiv = document.getElementById("render");
+      renderDiv.addEventListener("click", function () {
+        renderDiv.style.position = "";
+        renderDiv.style.top = "";
+        renderDiv.style.left = "";
+        renderDiv.style.transform = "";
+        location.reload();
+      });
+    </script>
+    <!-- <script src="https://cdn.kkiapay.me/k.js"></script>-->
+    <script src="https://api.feexpay.me/feexpay-javascript-sdk/index.js"></script>
+  </body>
+</html>

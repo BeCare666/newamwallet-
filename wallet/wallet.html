@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title id="TITLEWALLETID"></title>
+	<link rel="stylesheet" href="E-wallet.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="wallet.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="../img/logo_of_wallet.jpg" type="image/x-icon">
+    <!-- Link to import alert personnal -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.min.css">
+ 
+    <style>
+        * {
+          font-family: 'Montserrat-bold', sans-serif;
+          /**font-size: 13.5px !important;***/
+        }
+      </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+	<div class="wallet-container text-center" id="wallet-containerId">
+		<p class="page-title" id="MYEWALLETID">My wallet</p>
+
+		<div class="amount-box text-center">
+			<img src="../img/logo_of_wallet.jpg" alt="wallet" style="height: 20vh; width: 20vh;">
+			<p id="MYEWALLETID1"></p>
+			<p class="amount" id="amount"></p>
+		</div>
+
+		<div class="btn-group text-center">
+            <button type="button" class="btn btn-outline-light" id="comeBackId">Retour</button>
+			<button type="button" class="btn btn-outline-light" id="idTogetwallet">Retirer</button>    	
+        </div>
+
+			<div class="txn-history"  id="historyId">
+				<p><b id="HISTORYISMY"></b></p>
+                <div id="imgNodata" style="display: none;">
+                    <!--  <img src="assets/img/no-data-concept.jpg" alt="" style="height: 100%; width: 100%; display: flex; align-items: center !important; margin-top: 8vh;">-->
+                   <h1 style="text-align: center !important;">Aucune donnée pour le moment</h1>
+                </div>
+                <div style="height: 40vh; overflow: auto; display: none;"  id="phistoryId">       
+                </div>	
+			</div>
+
+    </div>
+<div id="preloader"></div>
+<script src="wallet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.0.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.0.1/firebase-auth.js"></script>
+<!-- Ajoutez d'autres bibliothèques Firebase si nécessaire (auth, firestore, etc.) -->
+ 
+</body>
+</html>

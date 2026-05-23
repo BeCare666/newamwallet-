@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Achat de Packs</title>
+    <link href="img/logo_of_wallet.jpg" rel="icon">
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-database.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 20px;
+            color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+            padding-bottom: 1rem;
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1rem 1rem 0 1rem;
+        }
+
+        .card h2 {
+            margin: 0 0 .5rem 0;
+            color: #4f46e5;
+        }
+
+        .card p {
+            margin: 0 0 1rem 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .card .price {
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .btn-buy {
+            display: block;
+            width: calc(100% - 2rem);
+            margin: 0 1rem;
+            padding: 12px 0;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            background: #4f46e5;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-buy:disabled {
+            background: #a1a1aa;
+            cursor: not-allowed;
+        }
+
+        #premium-preloader {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0f172a, #111827);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-wrapper {
+            display: flex;
+            gap: 14px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #6366f1, #8b5cf6);
+            animation: premiumBounce 1.4s infinite ease-in-out;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes premiumBounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* Hide animation */
+        #premium-preloader.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>💰 packs</h1>
+    <div class="container" id="container"></div>
+
+    <script>
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbQjciXp0J_UGQBBcqmjlCAemYK-tsR6c",
+            authDomain: "am-wallet.firebaseapp.com",
+            databaseURL: "https://am-wallet-default-rtdb.firebaseio.com",
+            projectId: "am-wallet",
+            storageBucket: "am-wallet.appspot.com",
+            messagingSenderId: "877693231070",
+            appId: "1:877693231070:web:47c59ac6220ed09af9c74f"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        const container = document.getElementById('container');
+
+        let currentUser = null;
+        let userData = null;
+        let publicationsCache = null;
+
+        auth.onAuthStateChanged(async (user) => {
+
+            container.innerHTML = "<p style='text-align:center'>Chargement des packs...</p>";
+
+            if (!user) {
+                container.innerHTML = '<p style="color:red;text-align:center;">Veuillez vous connecter.</p>';
+                return;
+            }
+
+            currentUser = user;
+
+            try {
+
+                console.time("load-tasks");
+
+                const [userSnap, pubSnap] = await Promise.all([
+                    db.ref('utilisateurs/' + user.uid).once('value'),
+                    db.ref('publications')
+                        .orderByChild('type')
+                        .equalTo('task')
+                        .once('value')
+                ]);
+
+                console.timeEnd("load-tasks");
+
+                userData = userSnap.val() || {};
+                publicationsCache = pubSnap.val() || {};
+
+                loadServices();
+
+            } catch (e) {
+                Swal.fire('Erreur', e.message, 'error');
+            }
+        });
+
+        async function loadServices() {
+            const packId = localStorage.getItem("pack_firebase_task_id");
+            const userId = localStorage.getItem("unserconnectuserId");
+            try {
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const data = await res.json();
+                console.log("Pack Info:", data);
+                if (!data) return;
+                const end_date = data.end_date
+                var endDate = new Date(data.end_date);
+                var now = new Date();
+
+                container.innerHTML = '';
+
+                if (!publicationsCache) {
+                    container.innerHTML = '<p style="text-align:center;color:#666;">Aucun pack disponible.</p>';
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+
+                for (const key in publicationsCache) {
+
+                    const item = publicationsCache[key];
+                    const boughtKey = `bought_${key}`;
+                    const bought = userData[boughtKey] || false;
+                    const isExpired = now >= endDate;
+
+                    // bouton désactivé seulement si acheté ET pas expiré
+                    const disableButton = bought && !isExpired;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    card.innerHTML = `
+            <img loading="lazy" decoding="async" src="${item.image}" alt="${item.title}">
+            <div class="card-content">
+                <h2>${item.title}</h2>
+                <p>${item.description}</p>
+                <p class="price">${Number(item.prix).toLocaleString()} $</p>
+                <button class="btn-buy" ${disableButton ? 'disabled' : ''}
+                    data-id="${key}"
+                    data-price="${item.prix}"
+                    data-title="${item.title}"
+                    data-type="${item.type}"
+                    data-interest="${item.interest_percent || 0}"
+                    data-duration="${item.duration_days || 0}"
+                    data-bonus-amount="${item.bonus_amount || 0}"
+                    data-bonus-percent="${item.bonus_percent || 0}"
+                    data-questions-per-day="${item.questions_per_day || 0}"
+                    data-description="${item.description}">
+                    ${disableButton ? 'Déjà acheté' : 'Payer maintenant'}
+                </button>
+            </div>
+        `;
+
+                    fragment.appendChild(card);
+                }
+
+                container.appendChild(fragment);
+
+                container.querySelectorAll('.btn-buy')
+                    .forEach(btn => btn.addEventListener('click', handleBuy));
+            } catch (err) { console.error("Erreur pack info", err); }
+        }
+        async function handleBuy(e) {
+            const btn = e.currentTarget;
+            const packId = localStorage.getItem("pack_firebase_task_id");
+            const userId = localStorage.getItem("unserconnectuserId");
+            try {
+                const res = await fetch(`https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${packId}`);
+                const data = await res.json();
+                console.log("Pack Info:", data);
+                if (!data) return;
+                const end_date = data.end_date
+                const endDate = new Date(data.end_date);
+                const now = new Date();
+
+                if (now >= endDate) {
+
+                    const serviceId = btn.dataset.id;
+                    const price = parseFloat(btn.dataset.price);
+                    const title = btn.dataset.title;
+                    const type = btn.dataset.type;
+                    const description = btn.dataset.description;
+                    const interest = parseFloat(btn.dataset.interest || '0');
+                    const bonus_amount = parseFloat(btn.dataset.bonusAmount || '0');
+                    const bonus_percent = parseFloat(btn.dataset.bonusPercent || '0');
+                    const questions_per_day = parseFloat(btn.dataset.questionsPerDay || '0');
+                    const duration = parseInt(btn.dataset.duration || '0');
+                    const qpd = parseInt(btn.dataset.qpd || '5');
+                    btn.innerText = 'En cours...';
+                    console.log({ serviceId, price, title, type, description, interest, bonus_amount, bonus_percent, questions_per_day, duration });
+                    if (!currentUser || !userData) {
+                        Swal.fire('Erreur', 'Utilisateur non connecté.', 'error');
+                        return;
+                    }
+
+                    const balance = userData.ACCOUNTPRINCIPAL || 0;
+                    const username = userData.username;
+                    localStorage.setItem('usernameL', username);
+
+                    if (balance < price) {
+                        Swal.fire('Solde insuffisant', 'Votre solde est insuffisant.', 'warning');
+                        return;
+                    }
+
+                    const boughtKey = `bought_${serviceId}`;
+                    // if (!userData[boughtKey]) {
+                    //    Swal.fire('Info', 'Déjà acheté.', 'info');
+                    //    return;
+                    //}
+
+                    const result = await Swal.fire({
+                        title: "Confirmer le pack",
+                        text: `Déduire ${price.toLocaleString()} $ ?`,
+                        icon: 'question',
+                        showCancelButton: true
+                    });
+
+                    if (!result.isConfirmed) return;
+
+                    const updates = {};
+                    updates[`utilisateurs/${currentUser.uid}/ACCOUNTPRINCIPAL`] = balance - price;
+                    updates[`utilisateurs/${currentUser.uid}/${boughtKey}`] = true;
+
+                    try {
+                        // ✅ 1. Update Firebase
+                        await db.ref().update(updates);
+
+                        userData.ACCOUNTPRINCIPAL -= price;
+                        userData[boughtKey] = true;
+
+                        // on garde le firebase uid si nécessaire ailleurs
+                        localStorage.setItem('firebase_uid', currentUser.uid);
+                        localStorage.setItem('pack_firebase_id', serviceId);
+
+                        // ✅ 2. Appel NestJS (CRÉATION PACK UTILISATEUR)
+                        const apiRes = await fetch('https://amwalletapi.onrender.com/api/quiz/activate-pack', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                firebase_uid: currentUser.uid,
+                                pack_firebase_id: serviceId,
+                                invested_amount: Number(price),
+                                interest_percent: Number(interest),
+                                duration_days: Number(duration),
+                                bonus_amount: Number(bonus_amount),
+                                pack_type: type,
+                                questions_per_day: Number(questions_per_day),
+                                bonus_percent: Number(bonus_percent),
+                            })
+                        });
+
+                        if (!apiRes.ok) {
+                            throw new Error('Erreur création pack côté serveur');
+                        }
+
+                        // ✅ IMPORTANT : récupérer la réponse serveur
+                        const apiData = await apiRes.json();
+                        // ✅ 3. Push du pack dans Firebase
+                        const packData = {
+                            title: title,
+                            price: price,
+                            type: type,
+                            description: description,
+                            user_pack_id: apiData.user_pack_id,
+                            pack_firebase_id: serviceId,
+                            invest_istransfert: false,
+                            purchased_at: new Date().toISOString()
+                        };
+
+                        await db.ref(`utilisateurs/${currentUser.uid}/THEPACKS/${apiData.user_pack_id}`)
+                            .set(packData);
+                        if (!apiData.user_pack_id) {
+                            throw new Error('user_pack_id manquant');
+                        }
+
+                        // ✅ 3. Succès UI
+                        await Swal.fire('Succès', 'pack réalisé.', 'success');
+                        btn.innerText = '✅ Activé ';
+                        generateReceipt(title, price, type, description);
+
+                        btn.disabled = true;
+                        btn.textContent = 'Déjà acheté';
+
+                        // ✅ 4. REDIRECTION CORRECTE (UTILISATEUR → SON PACK RÉEL)
+                        window.location.href =
+                            `quiz/task.html?user_pack=${apiData.user_pack_id}`;
+
+                    } catch (err) {
+                        console.error(err);
+                        Swal.fire('Erreur', err.message || 'Erreur serveur', 'error');
+                    }
+                } else {
+                    alert("Impossible ❌ un  pack n'est pas encore expiré");
+                }
+            } catch (err) { console.error("Erreur pack info", err); }
+
+
+        }
+        function generateReceipt(title, price, type, description) {
+
+            const usernameLocal = localStorage.getItem('usernameL');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const dateStr = new Date().toLocaleString();
+
+            doc.setFontSize(22);
+            doc.setTextColor('#4f46e5');
+            doc.text('Reçu d’pack', 20, 20);
+
+            doc.line(20, 25, 190, 25);
+
+            let y = 35;
+            doc.setFontSize(14);
+            doc.text(`Utilisateur : ${usernameLocal}`, 20, y); y += 10;
+            doc.text(`Description : ${description}`, 20, y); y += 10;
+            doc.text(`Titre : ${title}`, 20, y); y += 10;
+            doc.text(`Montant : ${price.toLocaleString()} $`, 20, y); y += 10;
+            doc.text(`Date : ${dateStr}`, 20, y);
+
+            doc.save(`reçu-${title}-${Date.now()}.pdf`);
+        }
+
+    </script>
+
+</body>
+
+</html>

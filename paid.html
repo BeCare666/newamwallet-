@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paiement BeCare</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: #ffffff10;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+    .container img {
+      width: 80px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      margin-bottom: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+    button {
+      padding: 12px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: none;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+      }
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/card-in-use.png" alt="Paiement">
+    <h1>Entrez le montant à payer</h1>
+    <input type="text" id="amount" placeholder="Ex: 50000" maxlength="10">
+    <button id="submitBtn">Valider</button>
+  </div>
+
+  <script>
+    const amountInput = document.getElementById('amount');
+    const submitBtn = document.getElementById('submitBtn');
+
+    amountInput.addEventListener('input', function () {
+      // Retirer tout caractère non numérique
+      this.value = this.value.replace(/[^0-9]/g, '');
+      
+      if (this.value.length > 0) {
+        submitBtn.style.display = 'block';
+      } else {
+        submitBtn.style.display = 'none';
+      }
+    });
+
+    submitBtn.addEventListener('click', function () {
+      const value = amountInput.value;
+      if (value) {
+        window.location.href = `paidfinish.html?amount=${value}`;
+      }
+    });
+  </script>
+</body>
+</html>
