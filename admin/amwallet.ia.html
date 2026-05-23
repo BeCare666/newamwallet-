@@ -400,11 +400,43 @@
 
     </div>
     <script>
-        const OPENROUTER_API_KEY =
-            import.meta.env.VITE_OPENROUTER_API_KEY;
+        let OPENROUTER_API_KEY = "";
+
+        async function loadApiKey() {
+
+            try {
+
+                const response = await fetch(
+                    'https://amwalletapi.onrender.com/api/quiz/openrouter-key'
+                );
+
+                const data = await response.json();
+
+                if (!data.success) {
+
+                    throw new Error(
+                        'Impossible de récupérer la clé API'
+                    );
+                }
+
+                OPENROUTER_API_KEY = data.apiKey;
+
+                console.log(
+                    "✅ OPENROUTER API LOADED"
+                );
+
+            } catch (err) {
+
+                console.log(err);
+
+                alert(
+                    "Erreur chargement API KEY"
+                );
+            }
+        }
 
         async function generateQuestions() {
-
+            await loadApiKey();
             const category =
                 document.getElementById('category').value.trim();
 
