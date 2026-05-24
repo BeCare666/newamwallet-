@@ -1308,7 +1308,7 @@ menubtnId.addEventListener("click", function () {
             <div style="text-align: left !important;"><hr>
             <strong>Support :</strong><hr>
             <a href="https://wa.me/+2290164669774" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-whatsapp"></i> +44 7418315534
+            <i class="fab fa-whatsapp"></i> +229 01 64 66 97 74
             </a><hr>
             <a href="mailto:amobilewallet.inter@gmail.com" target="_blank" rel="noopener noreferrer">
               <i class="far fa-envelope"></i>amobilewallet.inter@gmail.com
@@ -1710,7 +1710,7 @@ document.getElementById("transfer_systemsx").addEventListener("click", function 
   }).then((res) => {
     if (res.isConfirmed) {
       // Redirection vers WhatsApp avec message par défaut
-      const numeroWhatsApp = "447418315534";
+      const numeroWhatsApp = "0164669774";
       const message = encodeURIComponent("Bonjour, je souhaite connaître les offres disponibles.");
       window.open(`https://wa.me/${numeroWhatsApp}?text=${message}`, "_blank");
     } else {
