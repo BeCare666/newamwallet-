@@ -419,12 +419,13 @@ firebase.auth().onAuthStateChanged(function (user) {
                   // ================================
                   // 🔥 TRANSFERT AUTO TASK (NOUVEAU)
                   // ================================
+                  console.log("📦 Last task Pack:", lastTaskPack);
                   if (
                     lastTaskPack &&
                     !lastTaskPack.invest_istransfert && // ⚠️ nouveau champ.
                     lastTaskPack.user_pack_id
                   ) {
-                    console.log("🚀 Tentative transfert TASK...");
+                    console.log("🚀 Tentative transfert TASK...", lastTaskPack);
 
                     const url = `https://amwalletapi.onrender.com/api/quiz/pack-info?user_id=${userId}&pack_id=${lastTaskPack.pack_firebase_id}`;
                     fetch(url)
@@ -435,35 +436,57 @@ firebase.auth().onAuthStateChanged(function (user) {
                         return JSON.parse(text);
                       })
                       .then((data) => {
-                        if (!data) return;
+                        if (!data) {
+                          console.log("data vide");
+                          return false;
+                        }
 
-                        // ⚠️ condition backend simulée
                         const totalQuestions = data.questions_per_day * data.duration_days;
                         const answered = data.answered || 0;
 
                         const responseRate =
                           totalQuestions > 0 ? (answered / totalQuestions) * 100 : 0;
 
+                        console.log({
+                          totalQuestions,
+                          answered,
+                          responseRate,
+                          bonus: data.bonus_percent,
+                          balance: data.balance
+                        });
+
                         if (responseRate < data.bonus_percent) {
                           console.log("❌ Conditions TASK non remplies");
-                          return;
+                          return false;
                         }
 
                         const packBalance = Number(data.balance ?? 0);
-                        if (isNaN(packBalance) || packBalance <= 0) return;
 
-                        const currentPrincipal = Number(snapshot.val().ACCOUNTPRINCIPAL ?? 0);
+                        if (isNaN(packBalance) || packBalance <= 0) {
+                          console.log("❌ packBalance invalide :", packBalance);
+                          return false;
+                        }
+
+                        const currentPrincipal = Number(snapshot.val()?.ACCOUNTPRINCIPAL ?? 0);
+
+                        console.log("🚀 Update Firebase");
 
                         const updates = {};
-                        updates[
-                          `/utilisateurs/${userId}/ACCOUNTPRINCIPAL`
-                        ] = currentPrincipal + packBalance;
+                        updates[`/utilisateurs/${userId}/ACCOUNTPRINCIPAL`] =
+                          currentPrincipal + packBalance;
 
-                        updates[
-                          `/utilisateurs/${userId}/THEPACKS/${lastTaskPackId}/invest_istransfert`
-                        ] = true;
+                        updates[`/utilisateurs/${userId}/THEPACKS/${lastTaskPackId}/invest_istransfert`] =
+                          true;
 
-                        return database.ref().update(updates);
+                        return database.ref().update(updates).then(() => true);
+                      })
+                      .then((result) => {
+                        if (result) {
+                          console.log("✅ Pack TASK transféré");
+                          alert("✅ Solde de votre pack transféré avec succès");
+                        } else {
+                          console.log("⚠️ Aucun transfert effectué");
+                        }
                       })
                       .then(() => console.log("✅ Pack TASK transféré"))
                       .catch((err) =>

@@ -298,11 +298,12 @@
 
         <label for="interest">Intérêt (%)</label>
         <input type="number" id="interest" min="0" step="0.01" placeholder="Ex: 30" />
+        <!--- 
         <label for="bonus_amount">Bonus Montant $</label>
         <input type="number" id="bonus_amount" min="0" placeholder="Ex: 500" />
         <label for="bonus_percent">Bonus Pourcentage (%)</label>
         <input type="number" id="bonus_percent" min="0" step="0.01" placeholder="Ex: 5" />
-
+-->
         <label for="duration">Durée (jours)</label>
         <input type="number" id="duration" min="1" placeholder="Ex: 30" />
 
@@ -404,11 +405,11 @@
                     const file = form.imageFile.files[0];
                     const interest_percent = Number(form.interest?.value || 0);
                     const duration_days = Number(form.duration?.value || 0);
-                    const bonus_amount = Number(form.bonus_amount?.value || 0);
-                    const bonus_percent = Number(form.bonus_percent?.value || 0);
+                    const bonus_amount = Number(0);
+                    const bonus_percent = Number(0);
                     const questions_per_day = Number(form.questionsPerDay?.value || 5);
 
-                    if (!title || !description || !prix || !interest_percent || !duration_days || !bonus_amount || !bonus_percent) {
+                    if (!title || !description || !prix || !interest_percent || !duration_days) {
                         Swal.fire('Erreur', 'Veuillez remplir tous les champs requis', 'error');
                         return;
                     }
@@ -453,8 +454,6 @@
                         prix,
                         interest_percent,
                         duration_days,
-                        bonus_amount,
-                        bonus_percent
                     };
 
                     if (imageURL) {
