@@ -764,39 +764,101 @@ firebase.auth().onAuthStateChanged(function (user) {
       // end function to send notification
       const CLOUD_NAME = "djxmuazeb";
       const UPLOAD_PRESET = "hobefsjn";
-
+      let uploadInProgress = false;
+      let uploadProgress = 0;
       let imageUrls = [];
       let imageNotPdfUrls = [];
 
       // Upload Cloudinary
       async function uploadFileToCloudinary(file) {
-        try {
+        return new Promise((resolve) => {
+
+          uploadInProgress = true;
+
+          Swal.fire({
+            title: "Téléversement...",
+            html: `
+    <div style="margin-top:15px">
+      <div style="width:100%;height:12px;background:#eee;border-radius:20px;overflow:hidden">
+        <div id="uploadBar"
+             style="width:0%;height:100%;background:#3085d6;transition:.2s">
+        </div>
+      </div>
+      <p id="uploadPercent" style="margin-top:10px">
+        0%
+      </p>
+    </div>
+  `,
+            allowOutsideClick: false,
+            showConfirmButton: false
+          });
+
           const formData = new FormData();
           formData.append("file", file);
           formData.append("upload_preset", UPLOAD_PRESET);
-          formData.append("resource_type", "auto");
 
-          const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
-            {
-              method: "POST",
-              body: formData,
+          const xhr = new XMLHttpRequest();
+
+          xhr.upload.addEventListener("progress", (e) => {
+
+            if (e.lengthComputable) {
+
+              uploadProgress =
+                Math.round((e.loaded * 100) / e.total);
+
+              const bar =
+                document.getElementById("uploadBar");
+
+              const percent =
+                document.getElementById("uploadPercent");
+
+              if (bar) {
+                bar.style.width = uploadProgress + "%";
+              }
+
+              if (percent) {
+                percent.innerText = uploadProgress + "%";
+              }
             }
+          });
+
+          xhr.onload = function () {
+
+            uploadInProgress = false;
+
+            if (xhr.status === 200) {
+
+              const data = JSON.parse(xhr.responseText);
+
+              Swal.close();
+
+              resolve(data.secure_url);
+
+            } else {
+
+              Swal.close();
+
+              resolve(null);
+            }
+          };
+
+          xhr.onerror = function () {
+
+            uploadInProgress = false;
+
+            Swal.close();
+
+            resolve(null);
+          };
+
+          xhr.open(
+            "POST",
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`
           );
 
-          const data = await res.json();
+          xhr.send(formData);
 
-          if (!res.ok || !data.secure_url) {
-            console.error("Erreur Cloudinary :", data);
-            return null;
-          }
-
-          return data.secure_url;
-
-        } catch (error) {
-          console.error("Erreur upload Cloudinary :", error);
-          return null;
-        }
+        });
       }
 
       // Gestion du premier fichier
@@ -834,6 +896,14 @@ firebase.auth().onAuthStateChanged(function (user) {
       var postJobsIdSend = document.getElementById("postJobsIdSend");
 
       postJobsIdSend.addEventListener("click", function () {
+        if (uploadInProgress) {
+          Swal.fire({
+            icon: "warning",
+            title: "Téléversement en cours",
+            text: "Veuillez attendre que le fichier atteigne 100%."
+          });
+          return;
+        }
         function generateUUID() {
           return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
             /[xy]/g,

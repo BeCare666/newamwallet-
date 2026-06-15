@@ -41,7 +41,7 @@
       if (postId) {
         const inputValue = parseFloat(postId);
         const balance = parseFloat(balanceIDAWWW);
-
+        localStorage.setItem('inputValueSolde', inputValue);
         if (inputValue <= balance) {
 
           // Vérifie si déjà téléchargé
@@ -121,7 +121,13 @@
                             title: "Congratulation",
                             text: "Votre téléchargement a démarré.",
                             icon: "success",
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            confirmButtonText: "Obtenir mon reçu"
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              window.location.href =
+                                "formaevoice.html";
+                            }
                           });
                         })
                         .catch(err => {
