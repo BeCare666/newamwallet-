@@ -762,65 +762,79 @@ firebase.auth().onAuthStateChanged(function (user) {
       });
 
       // end function to send notification
+      const CLOUD_NAME = "djxmuazeb";
+      const UPLOAD_PRESET = "hobefsjn";
 
-      const supabaseUrl = "https://rakxwngpnfiwnjiiidge.supabase.co";
-      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3d3bmdwbmZpd25qaWlpZGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNTA5NDcsImV4cCI6MjA3ODgyNjk0N30.LXoSpUiCYuptQ02tqITcHEULJIuu2QfU6WsUS7GlOrE";
+      let imageUrls = [];
+      let imageNotPdfUrls = [];
 
-      async function uploadFileToSupabase(file) {
-        const fileName = `${Date.now()}_${file.name}`;
-        const url = `${supabaseUrl}/storage/v1/object/upload/uploads/${fileName}`;
+      // Upload Cloudinary
+      async function uploadFileToCloudinary(file) {
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", UPLOAD_PRESET);
+          formData.append("resource_type", "auto");
 
-        const formData = new FormData();
-        formData.append('file', file);
+          const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-          },
-          body: file
-        });
+          const data = await res.json();
 
-        if (!res.ok) {
-          const text = await res.text();
-          console.error("Erreur upload Supabase:", text);
+          if (!res.ok || !data.secure_url) {
+            console.error("Erreur Cloudinary :", data);
+            return null;
+          }
+
+          return data.secure_url;
+
+        } catch (error) {
+          console.error("Erreur upload Cloudinary :", error);
           return null;
         }
-
-        // L'URL publique Supabase pour le fichier uploadé
-        return `${supabaseUrl}/storage/v1/object/public/uploads/${fileName}`;
       }
 
-      // Gestion des inputs
-      document.getElementById('imageFile').addEventListener('change', async function () {
-        const file = this.files[0];
-        if (!file) return;
+      // Gestion du premier fichier
+      document
+        .getElementById("imageFile")
+        .addEventListener("change", async function () {
+          const file = this.files[0];
+          if (!file) return;
 
-        const url = await uploadFileToSupabase(file);
-        if (url) {
-          console.log("ImageFile URL ajoutée:", url);
-        }
-      });
+          const url = await uploadFileToCloudinary(file);
 
-      document.getElementById('imageFileNotPdf').addEventListener('change', async function () {
-        const file = this.files[0];
-        if (!file) return;
+          if (url) {
+            imageUrls.push(url);
+            console.log("ImageFile URL ajoutée :", url);
+          }
 
-        const url = await uploadFileToSupabase(file);
-        if (url) {
-          console.log("ImageFileNotPdf URL ajoutée:", url);
-        }
-      });
+        });
 
+      // Gestion du second fichier
+      document
+        .getElementById("imageFileNotPdf")
+        .addEventListener("change", async function () {
+          const file = this.files[0];
+          if (!file) return;
 
+          const url = await uploadFileToCloudinary(file);
 
+          if (url) {
+            imageNotPdfUrls.push(url);
+            console.log("ImageFileNotPdf URL ajoutée :", url);
+          }
 
+        });
 
       var postJobsIdSend = document.getElementById("postJobsIdSend");
+
       postJobsIdSend.addEventListener("click", function () {
         function generateUUID() {
-          // Fonction pour générer un UUID v4
           return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
             /[xy]/g,
             function (c) {
@@ -831,39 +845,47 @@ firebase.auth().onAuthStateChanged(function (user) {
           );
         }
 
-        // Exemple d'utilisation
         var uniqueId = generateUUID();
 
-        // Récupérer la valeur du champ de saisie 
-        var Title_de_job = document.getElementById("Title_de_job").value;
+        var Title_de_job =
+          document.getElementById("Title_de_job").value;
+
         var Xitle_de_Categorie =
           document.getElementById("Title_de_Categorie").value;
-        var Salaire_de_job = document.getElementById("Salaire_de_job").value;
+
+        var Salaire_de_job =
+          document.getElementById("Salaire_de_job").value;
+
         var xDescription_de_job =
           document.getElementById("Description_de_job").value;
-        const lastImage = imageUrls[imageUrls.length - 1];
-        const lastImageNotPdf = imageNotPdfUrls[imageNotPdfUrls.length - 1];
-        // Vérifier si la valeur est vide
 
+        const lastImage =
+          imageUrls.length > 0
+            ? imageUrls[imageUrls.length - 1]
+            : "";
 
+        const lastImageNotPdf =
+          imageNotPdfUrls.length > 0
+            ? imageNotPdfUrls[imageNotPdfUrls.length - 1]
+            : "";
 
         if (
           Title_de_job === "" ||
           Salaire_de_job === "" ||
           xDescription_de_job === ""
         ) {
-          // Afficher un message d'erreur ou empêcher l'exécution de la suite du code
-          alert(`L'un des champs est vide`);
+          alert("L'un des champs est vide");
         } else {
           const dateActuelle = new Date();
-          // Obtenez les composantes de la date et de l'heure
+
           const jour = dateActuelle.getDate();
-          const mois = dateActuelle.getMonth() + 1; // Les mois commencent à 0, donc ajoutez 1
+          const mois = dateActuelle.getMonth() + 1;
           const annee = dateActuelle.getFullYear();
           const heures = dateActuelle.getHours();
           const minutes = dateActuelle.getMinutes();
-          // Formatez la date et l'heure
-          const dateFormatee = `${jour}/${mois}/${annee} ${heures}h:${minutes}min`;
+
+          const dateFormatee =
+            `${jour}/${mois}/${annee} ${heures}h:${minutes}min`;
 
           firebase
             .database()
@@ -876,10 +898,9 @@ firebase.auth().onAuthStateChanged(function (user) {
               time: dateFormatee,
               jobId: uniqueId,
               formationimg: lastImage,
-              formationimgNotPdf: lastImageNotPdf
+              formationimgNotPdf: lastImageNotPdf,
             })
             .then(() => {
-              // Affichez la notification de succès une fois que toutes les notifications ont été envoyées
               Swal.fire({
                 icon: "success",
                 title: "Félicitations !",
@@ -892,8 +913,10 @@ firebase.auth().onAuthStateChanged(function (user) {
               });
             })
             .catch((error) => {
+              console.error(error);
               alert("il y a une erreur");
             });
+
         }
       });
 
