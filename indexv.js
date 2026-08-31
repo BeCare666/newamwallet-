@@ -57,7 +57,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         if (found) {
 
           console.log("✅ userId trouvé dans userdelete.");
-          document.getElementById("sameToBody").style.display = "none";
+          //document.getElementById("sameToBody").style.display = "none";
           Swal.fire({
             icon: 'error',
             title: "error",
@@ -77,7 +77,7 @@ firebase.auth().onAuthStateChanged(function (user) {
           const userRef = database.ref(`/utilisateurs/${userId}`);
           userRef.once("value").then((snapshot) => {
             if (!snapshot.exists()) {
-              document.getElementById("sameToBody").style.display = "none";
+              //document.getElementById("sameToBody").style.display = "none";
 
               Swal.fire({
                 title: "Your username",
@@ -163,7 +163,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
               });
             } else {
-              document.getElementById("sameToBody").style.display = "none";
+              //document.getElementById("sameToBody").style.display = "none";
               var container = document.getElementById("listeMessagesId");
               container.innerHTML = ""; // reset
 
@@ -318,7 +318,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
                 // end function to validate code of transfert
 
-                document.getElementById("sameToBody").style.display = "none";
+                //document.getElementById("sameToBody").style.display = "none";
                 var useremail = snapshot.val().email;
                 var username = snapshot.val().username;
                 var balanceIDAW = snapshot.val().ACCOUNTPRINCIPAL;
