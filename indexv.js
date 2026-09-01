@@ -12,7 +12,7 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 var tableOfPrice = [];
 var tableEmail = [];
-// document.getElementById('sameToBody').style.display = "none"
+document.getElementById('sameToBody').style.display = "none"
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     var userId = user.uid;
@@ -57,7 +57,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         if (found) {
 
           console.log("✅ userId trouvé dans userdelete.");
-          //document.getElementById("sameToBody").style.display = "none";
+          document.getElementById("sameToBody").style.display = "none";
           Swal.fire({
             icon: 'error',
             title: "error",
@@ -163,7 +163,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
               });
             } else {
-              //document.getElementById("sameToBody").style.display = "none";
+              document.getElementById("sameToBody").style.display = "none";
               var container = document.getElementById("listeMessagesId");
               container.innerHTML = ""; // reset
 
@@ -318,7 +318,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 }
                 // end function to validate code of transfert
 
-                //document.getElementById("sameToBody").style.display = "none";
+                document.getElementById("sameToBody").style.display = "none";
                 var useremail = snapshot.val().email;
                 var username = snapshot.val().username;
                 var balanceIDAW = snapshot.val().ACCOUNTPRINCIPAL;
